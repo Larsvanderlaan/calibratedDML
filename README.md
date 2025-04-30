@@ -1,4 +1,4 @@
-# Doubly robust inference for average treatment effects using calibration
+# Doubly robust inference for ATEs using calibration
 
 ## Overview of Calibrated Debiased Machine learning
 
