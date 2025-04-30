@@ -4,7 +4,7 @@ import numpy as np
 from scipy.stats import norm
 
 
-def estimate_cdml_ate(A, Y, mu_mat, pi_mat, weights=None, control_level=0, treatment_levels=None, alpha = 0.05):
+def calibratedDML(A, Y, mu_mat, pi_mat, weights=None, control_level=0, treatment_levels=None, alpha = 0.05):
     """
     Computes the ICDML (Isotonic Calibrated Debiased Machine Learning) estimator
     for causal inference, estimating the average treatment effect (ATE) as a linear functional
@@ -81,7 +81,7 @@ def estimate_cdml_ate(A, Y, mu_mat, pi_mat, weights=None, control_level=0, treat
     return results
 
 
-def bootstrap_cdml_ate(A, Y, mu_mat, pi_mat, weights=None, control_level=0, treatment_levels=None, nboot=1000, alpha=0.05):
+def calibratedDML_bootstrap(A, Y, mu_mat, pi_mat, weights=None, control_level=0, treatment_levels=None, nboot=1000, alpha=0.05):
     """
     Computes a bootstrap-assisted version of the ICDML estimator to obtain a confidence interval
     for the causal effect, leveraging calibrated debiased machine learning.
@@ -107,7 +107,7 @@ def bootstrap_cdml_ate(A, Y, mu_mat, pi_mat, weights=None, control_level=0, trea
               - CI: Bootstrap confidence interval for each treatment level.
     """
     # Calculate the ICDML point estimate
-    results = estimate_cdml_ate(A, Y, mu_mat, pi_mat, weights=weights, control_level=control_level, treatment_levels=treatment_levels)
+    results = calibratedDML(A, Y, mu_mat, pi_mat, weights=weights, control_level=control_level, treatment_levels=treatment_levels)
     estimands = results['estimand'].values
     estimates = results['estimate'].values
     # Perform bootstrap resampling
@@ -124,7 +124,7 @@ def bootstrap_cdml_ate(A, Y, mu_mat, pi_mat, weights=None, control_level=0, trea
         weights_boot = weights[bootstrap_indices] if weights is not None else None
 
         # Compute ICDML for bootstrap sample
-        estimates_boot = estimate_cdml_ate(A_boot, Y_boot, mu_mat_boot, pi_mat_boot, weights=weights_boot, control_level=control_level, treatment_levels=treatment_levels)
+        estimates_boot = calibratedDML(A_boot, Y_boot, mu_mat_boot, pi_mat_boot, weights=weights_boot, control_level=control_level, treatment_levels=treatment_levels)
         bootstrap_estimates.append(estimates_boot['estimate'].values)
 
     # Convert bootstrap estimates to array
