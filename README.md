@@ -1,6 +1,6 @@
-# Calibrated Debiased Machine Learning (calibrated DML)
+# Doubly robust inference for average treatment effects using calibration
 
-## Overview
+## Overview of Calibrated Debiased Machine learning
 
 The package provides `R` and `Python` implementations of `Calibrated Debiased Machine learning` (calibrated DML) for average treatment effects using isotonic calibration from our paper on [Automatic Doubly Robust Inference for Linear Functionals via Calibrated Debiased Machine Learning](https://arxiv.org/pdf/2411.02771v1).
 
