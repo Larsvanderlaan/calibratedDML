@@ -1,0 +1,479 @@
+---
+title: "simsDR"
+output: html_document
+date: '2023-07-05'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+# Generate TABLES for Experiment 2 
+
+
+```{r}
+library(data.table)   # fread(), rbindlist()
+
+## 1. datasets you simulated
+data_names <- c(
+  "acic2018_1000", "acic2018_2500", "acic2018_5000", "acic2018_10000",
+  "ihdp", "lalonde_cps", "lalonde_psid", "twins",
+  sprintf("acic2017_%02d", 17:24)
+)
+
+## 2. we care only about “xgboost”
+method  <- "xgboost"
+
+## 3. directory holding the CSVs
+root <- "~/repos/calibratedDML/paper_experiment_results"
+
+## 4. read whichever files exist  -------------------------------------------
+files <- file.path(root, sprintf("sim_results_%s_%s.csv", data_names, method))
+names(files) <- data_names                      # keeps dataset names handy
+
+sim_results <- lapply(files[file.exists(files)], fread, showProgress = FALSE)
+
+## 5. (optional) single long table with dataset & method columns ------------
+all_results <- rbindlist(
+  lapply(names(sim_results), function(ds) {
+    sim_results[[ds]][, `:=`(dataset = ds, method = method)]
+  }),
+  use.names = TRUE, fill = TRUE
+)
+
+# 'sim_results' : list(dataset -> data.table)
+# 'all_results' : tidy data.table for downstream analysis
+
+all_results <- all_results[all_results$misp == 1]
+ 
+library(data.table)
+
+# ──────────────────────────────────────────────────────────────
+# 0.  Harmonise estimator labels (auDRI → C-DML)  --------------
+# ──────────────────────────────────────────────────────────────
+all_results[estimator %in% c("auDRI", "au_dri", "auDRI_xgb"), estimator := "C-DML"]
+
+# ──────────────────────────────────────────────────────────────
+# 1.  Metrics per dataset × estimator                           |
+# ──────────────────────────────────────────────────────────────
+all_results[, `:=`(
+  abs_bias = (estimate - ATE),
+  sq_error = (estimate - ATE)^2,
+  covered  = CI_left <= ATE & CI_right >= ATE
+)]
+
+summ <- all_results[
+  , .(Bias = abs(mean(abs_bias))/mean(abs(ATE)),
+      RMSE = sqrt(mean(sq_error))/mean(abs(ATE)),
+      Coverage = mean(covered)),
+  by = .(dataset, estimator)
+]
+
+# ──────────────────────────────────────────────────────────────
+# 2.  Long → apply bolding → wide                               |
+# ──────────────────────────────────────────────────────────────
+long <- melt(summ,
+             id.vars = c("dataset", "estimator"),
+             variable.name = "metric")
+
+## rank: smaller is better except Coverage (larger better)
+long[, rank := {
+  score <- if (metric == "Coverage") -value else value
+  rank(score, ties.method = "min")
+}, by = .(dataset, metric)]
+
+## format + bold
+long[, value_fmt := sprintf(ifelse(metric == "Coverage", "%.2f", "%.3f"), value)]
+long[rank == 1,  value_fmt := paste0("\\textbf{", value_fmt, "}")]
+
+wide_fmt <- dcast(long,
+                  dataset ~ metric + estimator,
+                  value.var = "value_fmt")
+
+# ──────────────────────────────────────────────────────────────
+# 3.  Pretty dataset names                                      |
+# ──────────────────────────────────────────────────────────────
+pretty_ds <- function(ds) {
+  if      (grepl("^acic2017_", ds)) sprintf("ACIC-2017 (%s)", sub("acic2017_", "", ds))
+  else if (grepl("^acic2018_", ds)) sprintf("ACIC-2018 (%s)", sub("acic2018_", "", ds))
+  else if (ds == "ihdp")            "IHDP"
+  else if (ds == "twins")           "Twins"
+  else if (ds == "lalonde_cps")     "Lalonde CPS"
+  else if (ds == "lalonde_psid")    "Lalonde PSID"
+  else                              ds
+}
+wide_fmt[, Dataset := vapply(dataset, pretty_ds, character(1))]
+setcolorder(wide_fmt, c("Dataset", setdiff(names(wide_fmt), c("Dataset", "dataset"))))
+setorder(wide_fmt, Dataset)
+
+# ──────────────────────────────────────────────────────────────
+# 4.  Build LaTeX table                                         |
+# ──────────────────────────────────────────────────────────────
+make_latex <- function(dt) {
+  # Escape underscores for LaTeX
+  esc <- function(x) if (is.character(x)) gsub("_", "\\\\_", x, fixed = TRUE) else x
+
+  # Remove \textbf{} and convert safely to numeric
+  to_numeric <- function(x) as.numeric(gsub("^\\\\textbf\\{(.*)\\}$", "\\1", x))
+
+  # Format each row with bolding and rounding
+  format_row <- function(r) {
+    r <- r[1:7]
+    dataset <- esc(r[1])
+    values <- r[2:7]
+
+    # Convert to numeric after stripping bold
+    numeric_vals <- sapply(values, to_numeric)
+
+    # Round to 2 significant figures
+    rounded_vals <- signif(numeric_vals, 2)
+
+    # Apply bolding to better estimator in each pair (Bias, RMSE, Coverage)
+    for (i in c(1, 3, 5)) {
+      if (is.na(rounded_vals[i]) || is.na(rounded_vals[i + 1])) next
+      if (rounded_vals[i] < rounded_vals[i + 1]) {
+        rounded_vals[i] <- paste0("\\textbf{", rounded_vals[i], "}")
+      } else if (rounded_vals[i + 1] < rounded_vals[i]) {
+        rounded_vals[i + 1] <- paste0("\\textbf{", rounded_vals[i + 1], "}")
+      }
+    }
+
+    paste("            ", paste(c(dataset, rounded_vals), collapse = " & "), "\\\\")
+  }
+
+  latex_rows <- apply(dt, 1, format_row)
+
+  cat(paste(
+"\\begin{figure}
+\\begin{table}[H]
+    \\centering
+    \\caption{Evaluation of absolute bias, scaled root mean square error (RMSE), and 95\\% confidence-interval coverage. Both outcome regression and propensity scores are estimated with gradient-boosted trees.}
+    \\begin{subtable}{\\textwidth}
+        \\centering
+        \\footnotesize
+        \\begin{tabular}{|c||P{1.5cm}|P{1.5cm}||P{1.5cm}|P{1.5cm}||P{1.5cm}|P{1.5cm}|}
+            \\hline
+            \\multirow{2}{*}{\\textbf{Dataset}} &
+              \\multicolumn{2}{c||}{\\textbf{Bias}} &
+              \\multicolumn{2}{c||}{\\textbf{RMSE}} &
+              \\multicolumn{2}{c|}{\\textbf{Coverage}} \\\\
+            \\cline{2-7}
+            & AIPW & C-DML & AIPW & C-DML & AIPW & C-DML \\\\
+            \\hline\\hline",
+    paste(latex_rows, collapse = "\n            \\hline\n"),
+"            \\hline
+        \\end{tabular}
+    \\end{subtable}
+    \\label{fig::exp2}
+\\end{table}
+\\end{figure}"
+  , sep = "\n"))
+}
+
+
+
+# ──────────────────────────────────────────────────────────────
+# 5.  Print LaTeX to console                                    |
+# ──────────────────────────────────────────────────────────────
+make_latex(wide_fmt)
+```
+
+ 
+ 
+ 
+# Generate PLOTS for Experiment 1
+
+
+```{r}
+setwd("~/repos/calibratedDML")
+
+library(data.table)
+
+# Set working directory to the folder with the files
+root <- "~/repos/calibratedDML/paper_experiment_results"
+
+# List only the desired files (not containing 'pos=2')
+files <- list.files(root, pattern = "^sim_results_DR_iter=5000_n=\\d+\\.csv$")
+
+# Load and combine them with sample size extracted
+sim_data <- rbindlist(lapply(files, function(f) {
+  n_val <- as.integer(sub(".*n=(\\d+)\\.csv", "\\1", f))
+  dt <- fread(file.path(root, f))
+  dt[, n := n_val]
+  return(dt)
+}))
+
+sim_data <- sim_data[sim_data$n >= 250]
+ 
+library(data.table)
+library(ggplot2)
+library(cowplot)
+
+##### 1. Summarise the simulation results #####
+sim_data[, covered := CI_left <= ATE & CI_right >= ATE]
+
+summary_stats <- sim_data[, .(
+  Bias     = abs(mean(estimate - ATE)),
+  SE       = sd(estimate),
+  Coverage = mean(covered)
+), by = .(n, estimator, misp)]
+
+##### 2. Define which x-axis ticks to label #####
+n_tick_labels <- c(250, 2500, 5000, 7500)  # Only label these, but use all data
+
+##### 3. Aesthetic mappings #####
+summary_stats[, Estimator := factor(
+  estimator,
+  levels  = c("AIPW", "drtmle", "auDRI"),
+  labels  = c("AIPW", "DR–TMLE", "IC–DML")
+)]
+
+est_colors <- c(
+  "AIPW"     = "#E57373",  # muted red
+  "DR–TMLE"  = "#81C784",  # muted green
+  "IC–DML"   = "#64B5F6"   # muted blue
+)
+
+est_shapes <- c("AIPW" = 16,          "DR–TMLE" = 17,            "IC–DML" = 15)
+
+##### 4. Plot helper #####
+make_plot <- function(d, yvar, ylab, hline = FALSE, legend = FALSE, ylim = NULL) {
+  p <- ggplot(d, aes(x = n, y = get(yvar),
+                     group = Estimator, color = Estimator, shape = Estimator)) +
+    geom_line(aes(group = Estimator),
+              color = "grey60", linetype = "dashed", linewidth = 0.5) +
+    geom_point(size = 2.8, stroke = 0.3) +
+    scale_x_continuous(breaks = n_tick_labels, labels = n_tick_labels) +
+    scale_color_manual(name = "Estimator", values = est_colors, drop = FALSE) +
+    scale_shape_manual(name = "Estimator", values = est_shapes, drop = FALSE) +
+    guides(
+      color = guide_legend(nrow = 1, byrow = TRUE),
+      shape = guide_legend(nrow = 1, byrow = TRUE)
+    ) +
+    labs(x = "Sample Size (n)", y = ylab) +
+    theme_bw(base_size = 12) +
+    theme(
+      panel.grid.minor = element_blank(),
+      legend.position  = if (legend) "bottom" else "none",
+      legend.box       = "horizontal",
+      legend.margin    = margin(t = 0, b = 4),
+      legend.text      = element_text(margin = margin(r = 10, unit = "pt")),
+      legend.title     = element_blank(),
+      axis.title.y     = element_text(margin = margin(r = 5)),
+      axis.title.x     = element_text(margin = margin(t = 5)),
+      plot.margin      = margin(0, 0, 0, 0)  # removes outer whitespace
+    )
+
+  if (!is.null(ylim)) {
+    p <- p + coord_cartesian(ylim = c(0, ylim))
+  }
+  if (hline) {
+    p <- p + geom_hline(yintercept = 0.95, linetype = "dashed", color = "gray40")
+  }
+
+  return(p)
+}
+
+
+
+
+
+ # Compute per-misp y-axis limits for Bias and SE
+ylim_lookup <- summary_stats[
+  , .(ylim_bias_se = max(c(Bias, SE))), 
+  by = misp
+]
+
+
+##### 5. Generate plots for each misp #####
+base_height   <- 3.8
+legend_height <- 0.12  # proportion for legend (or empty spacer)
+
+for (m in sort(unique(summary_stats$misp))) {
+  d <- summary_stats[misp == m]
+  d[, Estimator := factor(Estimator, levels = levels(summary_stats$Estimator))]
+
+  shared_ylim <- ylim_lookup[misp == m, ylim_bias_se]
+
+  show_legend <- FALSE
+
+  p_bias <- make_plot(d, "Bias", "Bias", legend = FALSE, ylim = shared_ylim)
+  p_se   <- make_plot(d, "SE",   "Standard Error", legend = FALSE, ylim = shared_ylim)
+  p_cov  <- make_plot(d, "Coverage", "Coverage", hline = TRUE, legend = FALSE)
+
+  row_plot <- cowplot::plot_grid(
+  p_bias, p_se, p_cov,
+  nrow = 1, align = "hv", axis = "tblr"
+)
+
+
+   if (show_legend) {
+    legend_plot <- make_plot(d, "Coverage", "Coverage", hline = TRUE, legend = TRUE)
+    legend <- cowplot::get_legend(legend_plot)
+    second_row <- legend
+    rel_heights <- c(1 - legend_height, legend_height)
+  } else {
+    second_row <- NULL
+    rel_heights <- c(1, 0)  # No space for spacer
+  }
+
+  final <- cowplot::plot_grid(
+    row_plot,
+    second_row,
+    ncol = 1,
+    rel_heights = rel_heights
+  )
+
+ 
+ggsave(sprintf("paper_experiment_results/simulation_misp%d.pdf", m),
+       final, width = 10.5, height = base_height, device = cairo_pdf)
+
+}
+
+
+
+
+```
+
+```{r}
+setwd("~/repos/calibratedDML")
+##### 6. Stand-alone legend (ggplot-only) #####
+library(data.table)
+library(ggplot2)
+
+est_colors <- c(
+  "AIPW"     = "#E57373",  # muted red
+  "DR–TMLE"  = "#81C784",  # muted green
+    "Calibrated DML (ours)"   = "#64B5F6"   # muted blue
+)
+
+ 
+
+est_shapes <- c(
+  "AIPW"           = 16,
+  "DR–TMLE"    = 17,
+     "Calibrated DML (ours)"        = 15
+)
+
+# -- 6b. Dummy data: one row per Estimator level --------------------
+legend_dt <- data.table(
+  Estimator = factor(
+    names(est_colors),
+    levels = names(est_colors)
+  ),
+  n     = 1,
+  value = 1
+)
+
+# -- 6c. Build plot: empty panel + legend ---------------------------
+legend_plot <- ggplot(legend_dt,
+                      aes(x = n, y = value,
+                          colour = Estimator, shape = Estimator)) +
+  geom_point(size = 3) +
+  scale_color_manual(values = est_colors, drop = FALSE) +
+  scale_shape_manual(values = est_shapes, drop = FALSE) +
+  guides(
+    colour = guide_legend(nrow = 1, byrow = TRUE),
+    shape  = guide_legend(nrow = 1, byrow = TRUE)
+  ) +
+  theme_void(base_size = 11) +
+  theme(
+    legend.position = "bottom",
+    legend.box      = "horizontal",
+    legend.title    = element_blank(),
+    plot.margin     = margin(0, 0, 0, 0)
+  )
+
+# -- 6d. Save legend-only plot --------------------------------------
+ggsave("paper_experiment_results/legend_only.pdf", legend_plot, width = 6, height = 0.9)
+
+
+
+```
+
+
+
+
+
+
+
+```{r}
+library(data.table)
+
+n_list <- c(  500, 1000, 2000, 3000  )
+pos_list <- c(1,2,3 )
+
+results <-
+  rbindlist(unlist(lapply(n_list, function(n){
+    unlist(lapply(pos_list, function(pos) {
+  lapply(c(0), function(misp) {
+    try({
+      
+    key <- paste0("DR_iter=", "500", "_n=", n, "_pos=", pos )
+   data <- fread(paste0("../simResultsDR/sim_results_", key, ".csv"))
+   
+   return(data)
+    })
+    return(data.table())
+  })
+}), recursive = F)
+}), recursive = F))
+
+ 
+results[, coverage := CI_left <= ATE & CI_right >= ATE]
+results[, sd := abs(CI_left -CI_right)/1.96/2]
+ 
+ results <- unique(results[, .(sd = mean(sd), se = sd(estimate-ATE), bias = abs(mean(estimate - ATE)), coverage = mean(coverage)), by = c("pos_const", "n", "misp",   "estimator", "lrnr")])
+results[, rmse := sqrt(bias^2 + se^2)]
+ 
+library(ggplot2)
+w <- 5
+h <- 4
+for(pos_const in unique(results$pos_const)) {
+  
+  tmp <- as.data.frame(results)[results$pos_const == pos_const,]
+   
+  
+  maxval <- 3*min(tmp$rmse[tmp$n ==500])
+  tmp$bias <- pmin(tmp$bias, maxval)
+  tmp$se <- pmin(tmp$se, maxval)
+  tmp$mse <- pmin(tmp$rmse, maxval)
+ 
+    limits <- c(0, maxval + .01)
+ p <-  ggplot(tmp, aes(x= n, y = bias, color = estimator, linetype = estimator)) + geom_line(size = 0.8) + facet_wrap(~lrnr, ncol =1)  + theme_bw() +     theme(  text = element_text(size=18), axis.text.x = element_text(size = 14 , hjust = 1, vjust = 0.5), legend.position = "none",   legend.box = "horizontal" 
+  )  + labs(x = "Sample Size (n)", y = "Bias", color = "Estimator", group = "Estimator", linetype = "Estimator") +  scale_y_continuous( limits = limits) 
+  
+  ggsave(   filename = paste0("simResultsDR/DR=", pos_const, "Bias.pdf") , width = w, height = h)
+ 
+      
+ 
+      
+                                      
+                                     
+  ggplot(tmp, aes(x= n, y = se, color = estimator, linetype = estimator)) + geom_line(size = 0.8) + facet_wrap(~pos_const, ncol =1) + theme_bw()  +     theme(  text = element_text(size=18), axis.text.x = element_text(size = 14 , hjust = 1, vjust = 0.5), legend.position = "none",   legend.box = "horizontal" 
+  )  + labs(x = "Sample Size (n)", y = "Standard Error", color = "Estimator", group = "Estimator", linetype = "Estimator") +  scale_y_continuous( limits = limits)
+  
+  ggsave(filename = paste0("simResultsDR/DR=", pos_const, "SE.pdf"), width = w, height = h)
+  ggplot(tmp, aes(x= n, y = mse, color = estimator, linetype = estimator)) + geom_line(size = 0.8) + facet_wrap(~pos_const, ncol =1) + theme_bw()  +     theme(  text = element_text(size=18), axis.text.x = element_text(size = 14 , hjust = 1, vjust = 0.5), legend.position = "none",   legend.box = "horizontal" 
+  )  + labs(x = "Sample Size (n)", y = "Root Mean Square Error", color = "Estimator", group = "Estimator", linetype = "Estimator")  +  scale_y_continuous( limits = limits)
+  
+  ggsave(filename = paste0("simResults/AdaptSimsHard=", complexity, "_",pos_const, "_local_", local,"MSE.pdf"), width = w, height = h)
+  
+  p <- ggplot(tmp, aes(x= n, y = coverage, color = estimator, linetype = estimator)) + geom_line(size = 0.8) + facet_wrap(~pos_const, ncol =1)+ scale_y_log10() + geom_hline(yintercept = 0.95, color = "grey") + theme_bw() +     theme(  text = element_text(size=18), axis.text.x = element_text(size = 14 , hjust = 1, vjust = 0.5), legend.position = "none",   legend.box = "none" 
+  )  + labs(x = "Sample Size (n)", y = "CI Coverage", color = "Estimator", group = "Estimator", linetype = "Estimator")  
+  
+  if(!local){
+   p <-p +  scale_y_continuous(limits = c(0.85,1))
+  }
+ p  
+  ggsave(filename = paste0("simResultsDR/DR=", pos_const,  "CI.pdf"), width = w, height = h)
+}
+
+
+  p <- ggplot(tmp, aes(x= n, y = coverage, color = estimator, linetype = estimator)) + geom_line(size = 0.8) + facet_wrap(~pos_const, ncol =1)+ scale_y_log10() + geom_hline(yintercept = 0.95, color = "grey") + theme_bw() +     theme(  text = element_text(size=18), axis.text.x = element_text(size = 14 , hjust = 1, vjust = 0.5), legend.position = "bottom",   legend.box = "horizontal" , legend.title = element_blank()
+  )  + labs(x = "Sample Size (n)", y = "CI Coverage", color = "estimator", group = "estimator", linetype = "estimator")  
+
+```
+
+ 
