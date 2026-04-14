@@ -13,6 +13,13 @@ from sklearn.model_selection import KFold, StratifiedKFold
 from ._utils import as_feature_frame, design_matrix, empirical_probability_matrix, normalize_probability_matrix, resolve_weights
 
 
+def _logistic_regression_cv(*, use_legacy_attributes=False, **kwargs):
+    try:
+        return LogisticRegressionCV(use_legacy_attributes=use_legacy_attributes, **kwargs)
+    except TypeError:
+        return LogisticRegressionCV(**kwargs)
+
+
 class MeanRegressor:
     def fit(self, X, y, sample_weight=None):
         weights = resolve_weights(sample_weight, len(y))
@@ -155,7 +162,7 @@ def make_classification_spec(name: str, random_state=None) -> ModelSpec:
         raise ValueError(f"Unsupported treatment model '{name}'.")
     factories = {
         "mean": lambda: EmpiricalClassifier(),
-        "linear": lambda: LogisticRegressionCV(
+        "linear": lambda: _logistic_regression_cv(
             cv=5,
             solver="lbfgs",
             max_iter=2000,
@@ -163,7 +170,7 @@ def make_classification_spec(name: str, random_state=None) -> ModelSpec:
             random_state=random_state,
             use_legacy_attributes=False,
         ),
-        "lasso": lambda: LogisticRegressionCV(
+        "lasso": lambda: _logistic_regression_cv(
             cv=5,
             solver="saga",
             max_iter=3000,

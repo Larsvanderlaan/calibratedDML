@@ -66,17 +66,22 @@
             </div>
 
             <div class="panel-card">
-              <p class="panel-label">Python Entry Point</p>
-              <pre class="code-block"><code>from calibrateddml import AdaptiveCalibratedDML
+              <p class="panel-label">Quick Start</p>
+              <div class="example-entry-grid">
+                <div class="example-entry">
+                  <p class="example-label">Python</p>
+                  <pre class="inline-code"><code>from calibrateddml import AdaptiveCalibratedDML
 
-fit = AdaptiveCalibratedDML(
-    mode="plugin",
-    inference="jackknife",
-    random_state=123,
-)
-
-fit.fit(X, A, y)
-fit.summary()</code></pre>
+fit = AdaptiveCalibratedDML(...)
+fit.fit(X, A, y)</code></pre>
+                </div>
+                <div class="example-entry">
+                  <p class="example-label">R</p>
+                  <pre class="inline-code"><code>fit <- adaptive_calibrated_dml(
+  data = df, ...
+)</code></pre>
+                </div>
+              </div>
             </div>
           </aside>
         </div>

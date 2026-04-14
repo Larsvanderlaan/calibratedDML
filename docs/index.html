@@ -75,19 +75,24 @@
             </div>
 
             <div class="panel-card">
-              <p class="panel-label">Python Main Class</p>
-              <pre class="code-block"><code>from calibrateddml import CalibratedDML
+              <p class="panel-label">Quick Start</p>
+              <div class="example-entry-grid">
+                <div class="example-entry">
+                  <p class="example-label">Python</p>
+                  <pre class="inline-code"><code>from calibrateddml import CalibratedDML
 
-fit = CalibratedDML(
-    control_level=0,
-    calibration_method="auto",
-    inference="wald",
-    random_state=123,
-)
-
+fit = CalibratedDML(...)
 fit.fit(X, A, y)
-fit.summary()
-fit.confint()</code></pre>
+fit.summary()</code></pre>
+                </div>
+                <div class="example-entry">
+                  <p class="example-label">R</p>
+                  <pre class="inline-code"><code>fit <- calibrated_dml(
+  data = df, ...
+)
+summary(fit)</code></pre>
+                </div>
+              </div>
             </div>
           </aside>
         </div>
