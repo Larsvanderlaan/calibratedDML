@@ -2,121 +2,17 @@
 % Please edit documentation in R/Lrnr_xgboost_early_stopping.R
 \name{Lrnr_xgboost_early_stopping}
 \alias{Lrnr_xgboost_early_stopping}
-\title{Lrnr_xgboost_early_stopping}
+\title{Optional `sl3` XGBoost Learner Placeholder}
+\usage{
+Lrnr_xgboost_early_stopping(...)
+}
+\arguments{
+\item{...}{Passed through to the optional implementation.}
+}
+\value{
+An `sl3` learner when the optional dependencies are installed.
+}
 \description{
-This learner class implements an XGBoost learner with early stopping using cross-validation.
-}
-\section{Super class}{
-\code{\link[sl3:Lrnr_base]{sl3::Lrnr_base}} -> \code{Lrnr_xgboost_early_stopping}
-}
-\section{Methods}{
-\subsection{Public methods}{
-\itemize{
-\item \href{#method-Lrnr_xgboost_early_stopping-new}{\code{Lrnr_xgboost_early_stopping$new()}}
-\item \href{#method-Lrnr_xgboost_early_stopping-importance}{\code{Lrnr_xgboost_early_stopping$importance()}}
-\item \href{#method-Lrnr_xgboost_early_stopping-clone}{\code{Lrnr_xgboost_early_stopping$clone()}}
-}
-}
-\if{html}{\out{
-<details><summary>Inherited methods</summary>
-<ul>
-<li><span class="pkg-link" data-pkg="sl3" data-topic="Lrnr_base" data-id="assert_trained"><a href='../../sl3/html/Lrnr_base.html#method-Lrnr_base-assert_trained'><code>sl3::Lrnr_base$assert_trained()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="sl3" data-topic="Lrnr_base" data-id="base_chain"><a href='../../sl3/html/Lrnr_base.html#method-Lrnr_base-base_chain'><code>sl3::Lrnr_base$base_chain()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="sl3" data-topic="Lrnr_base" data-id="base_predict"><a href='../../sl3/html/Lrnr_base.html#method-Lrnr_base-base_predict'><code>sl3::Lrnr_base$base_predict()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="sl3" data-topic="Lrnr_base" data-id="base_train"><a href='../../sl3/html/Lrnr_base.html#method-Lrnr_base-base_train'><code>sl3::Lrnr_base$base_train()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="sl3" data-topic="Lrnr_base" data-id="chain"><a href='../../sl3/html/Lrnr_base.html#method-Lrnr_base-chain'><code>sl3::Lrnr_base$chain()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="sl3" data-topic="Lrnr_base" data-id="custom_chain"><a href='../../sl3/html/Lrnr_base.html#method-Lrnr_base-custom_chain'><code>sl3::Lrnr_base$custom_chain()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="sl3" data-topic="Lrnr_base" data-id="get_outcome_range"><a href='../../sl3/html/Lrnr_base.html#method-Lrnr_base-get_outcome_range'><code>sl3::Lrnr_base$get_outcome_range()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="sl3" data-topic="Lrnr_base" data-id="get_outcome_type"><a href='../../sl3/html/Lrnr_base.html#method-Lrnr_base-get_outcome_type'><code>sl3::Lrnr_base$get_outcome_type()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="sl3" data-topic="Lrnr_base" data-id="predict"><a href='../../sl3/html/Lrnr_base.html#method-Lrnr_base-predict'><code>sl3::Lrnr_base$predict()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="sl3" data-topic="Lrnr_base" data-id="predict_fold"><a href='../../sl3/html/Lrnr_base.html#method-Lrnr_base-predict_fold'><code>sl3::Lrnr_base$predict_fold()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="sl3" data-topic="Lrnr_base" data-id="print"><a href='../../sl3/html/Lrnr_base.html#method-Lrnr_base-print'><code>sl3::Lrnr_base$print()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="sl3" data-topic="Lrnr_base" data-id="process_formula"><a href='../../sl3/html/Lrnr_base.html#method-Lrnr_base-process_formula'><code>sl3::Lrnr_base$process_formula()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="sl3" data-topic="Lrnr_base" data-id="reparameterize"><a href='../../sl3/html/Lrnr_base.html#method-Lrnr_base-reparameterize'><code>sl3::Lrnr_base$reparameterize()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="sl3" data-topic="Lrnr_base" data-id="retrain"><a href='../../sl3/html/Lrnr_base.html#method-Lrnr_base-retrain'><code>sl3::Lrnr_base$retrain()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="sl3" data-topic="Lrnr_base" data-id="sample"><a href='../../sl3/html/Lrnr_base.html#method-Lrnr_base-sample'><code>sl3::Lrnr_base$sample()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="sl3" data-topic="Lrnr_base" data-id="set_train"><a href='../../sl3/html/Lrnr_base.html#method-Lrnr_base-set_train'><code>sl3::Lrnr_base$set_train()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="sl3" data-topic="Lrnr_base" data-id="subset_covariates"><a href='../../sl3/html/Lrnr_base.html#method-Lrnr_base-subset_covariates'><code>sl3::Lrnr_base$subset_covariates()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="sl3" data-topic="Lrnr_base" data-id="train"><a href='../../sl3/html/Lrnr_base.html#method-Lrnr_base-train'><code>sl3::Lrnr_base$train()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="sl3" data-topic="Lrnr_base" data-id="train_sublearners"><a href='../../sl3/html/Lrnr_base.html#method-Lrnr_base-train_sublearners'><code>sl3::Lrnr_base$train_sublearners()</code></a></span></li>
-</ul>
-</details>
-}}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-Lrnr_xgboost_early_stopping-new"></a>}}
-\if{latex}{\out{\hypertarget{method-Lrnr_xgboost_early_stopping-new}{}}}
-\subsection{Method \code{new()}}{
-Initialize the learner.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Lrnr_xgboost_early_stopping$new(
-  nrounds = 1000,
-  max_depth = 5,
-  learning_rate = 0.1,
-  min_child_weight = 10,
-  early_stopping_rounds = 10,
-  p_cv = 0.2,
-  nthread = 1,
-  ...
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{nrounds}}{Maximum number of boosting iterations (default = 1000).}
-
-\item{\code{max_depth}}{Maximum depth of a tree (default = 5).}
-
-\item{\code{learning_rate}}{Learning rate (default = 0.1).}
-
-\item{\code{min_child_weight}}{Minimum sum of instance weights (default = 10).}
-
-\item{\code{early_stopping_rounds}}{Number of rounds for early stopping (default = 10).}
-
-\item{\code{p_cv}}{Proportion of data for cross-validation (default = 0.2).}
-
-\item{\code{nthread}}{Number of threads to use (default = 1).}
-
-\item{\code{...}}{Additional parameters for the learner.}
-}
-\if{html}{\out{</div>}}
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-Lrnr_xgboost_early_stopping-importance"></a>}}
-\if{latex}{\out{\hypertarget{method-Lrnr_xgboost_early_stopping-importance}{}}}
-\subsection{Method \code{importance()}}{
-Extracts feature importance from the trained model.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Lrnr_xgboost_early_stopping$importance(...)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{...}}{Additional arguments for the feature importance function.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-A data frame containing the feature importance scores.
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-Lrnr_xgboost_early_stopping-clone"></a>}}
-\if{latex}{\out{\hypertarget{method-Lrnr_xgboost_early_stopping-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Lrnr_xgboost_early_stopping$clone(deep = FALSE)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
+This helper is retained for backwards compatibility. The new package no
+longer depends on `xgboost` or `sl3` for the default workflow.
 }

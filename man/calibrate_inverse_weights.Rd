@@ -2,28 +2,22 @@
 % Please edit documentation in R/calibrate_nuisances.R
 \name{calibrate_inverse_weights}
 \alias{calibrate_inverse_weights}
-\title{Calibrate Inverse Weights}
+\title{Calibrate Inverse Probability Weights for Binary Treatment}
 \usage{
-calibrate_inverse_weights(A, pi1, pi0, weights)
+calibrate_inverse_weights(A, pi1, pi0, weights = NULL)
 }
 \arguments{
-\item{A}{A binary indicator variable.}
+\item{A}{Binary treatment indicator.}
 
-\item{pi1}{Cross-fitted propensity score estimates for the treatment group (\code{A = 1}).}
+\item{pi1}{Propensity scores for the treated arm.}
 
-\item{pi0}{Cross-fitted propensity score estimates for the control group (\code{A = 0}).}
+\item{pi0}{Propensity scores for the control arm.}
+
+\item{weights}{Optional sample weights.}
 }
 \value{
-A list containing calibrated inverse weights for each group:
-\describe{
-  \item{alpha1_star}{Calibrated inverse weights for \code{A = 1}.}
-  \item{alpha0_star}{Calibrated inverse weights for \code{A = 0}.}
-}
+A list with calibrated weights and probabilities.
 }
 \description{
-Calibrates inverse weights using isotonic regression with XGBoost for two propensity scores.
-}
-\details{
-This function applies monotonic XGBoost calibration to the estimated propensity scores
-for both the treatment and control groups, ensuring isotonic regression calibration.
+Compatibility wrapper around the multi-arm calibration engine.
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/cdml.R
 \name{estimate_cdml}
 \alias{estimate_cdml}
-\title{Estimate Calibrated Debiased Machine Learning (CDML)}
+\title{Legacy Calibrated Binary DML Estimate}
 \usage{
 estimate_cdml(
   A,
@@ -17,36 +17,27 @@ estimate_cdml(
 )
 }
 \arguments{
-\item{A}{A binary indicator variable (1 for treatment, 0 for control).}
+\item{A}{Binary treatment vector.}
 
-\item{Y}{Observed outcomes.}
+\item{Y}{Outcome vector.}
 
-\item{mu1}{Cross-fitted outcome regression estimates for the treated group.}
+\item{mu1}{Estimated treated outcome regression.}
 
-\item{mu0}{Cross-fitted outcome regression estimates for the control group.}
+\item{mu0}{Estimated control outcome regression.}
 
-\item{pi1}{Cross-fitted propensity score estimates for the treatment group (\code{A = 1}).}
+\item{pi1}{Estimated treated propensity score.}
 
-\item{pi0}{Cross-fitted propensity score estimates for the control group (\code{A = 0}).}
+\item{pi0}{Estimated control propensity score.}
 
-\item{weights}{Optional weights to use in the estimation. Defaults to equal weights if \code{NULL}.}
+\item{weights}{Optional sample weights.}
 
-\item{functional}{Function to compute the desired functional of interest, given relevant inputs.}
+\item{functional}{Optional legacy plug-in functional.}
 
-\item{representer}{Function to compute the debiasing term for the estimator.}
+\item{representer}{Optional legacy Riesz representer.}
 }
 \value{
-The estimated causal effect using the CDML estimator.
+Numeric vector of legacy effect estimates.
 }
 \description{
-Extends the DML estimate by calibrating outcome regression estimates and propensity scores.
-Implements the calibrated version of the CDML estimator for causal inference.
-}
-\details{
-This function calibrates the outcome regression and inverse propensity weights before
-using the CDML framework for estimation. Calibration improves estimation accuracy and
-robustness, leveraging cross-fitting and doubly robust methods.
-}
-\seealso{
-\code{\link{estimate_dml}}, \code{\link{calibrate_outcome_regression}}, \code{\link{calibrate_inverse_weights}}
+Legacy Calibrated Binary DML Estimate
 }

@@ -2,66 +2,45 @@
 % Please edit documentation in R/cdml.R
 \name{cdml}
 \alias{cdml}
-\title{Calibrated Debiased Machine Learning (CDML) for Average Treatment Effect Estimation}
+\title{Legacy Binary Wrapper for `calibrated_dml()`}
 \usage{
 cdml(
   W,
   A,
   Y,
   weights = NULL,
-  learners_treatment = NULL,
-  learners_outcome = NULL,
+  learners_treatment = "lasso",
+  learners_outcome = "lm",
   pi_mat = NULL,
   mu_mat = NULL,
-  nboot = 1000,
+  nboot = 200,
   alpha = 0.05
 )
 }
 \arguments{
-\item{W}{A matrix or data frame of covariates.}
+\item{W}{Covariate matrix or data frame.}
 
-\item{A}{A vector representing the treatment variable (binary indicator).}
+\item{A}{Binary treatment vector.}
 
-\item{Y}{A vector representing the outcome variable.}
+\item{Y}{Outcome vector.}
 
-\item{weights}{Optional weights for each observation. Defaults to equal weights if not provided.}
+\item{weights}{Optional sample weights.}
 
-\item{learners_treatment}{Optional list of `sl3_Learner` objects for propensity score estimation.
-If not provided, defaults to `default_learners`. These `sl3_Learner` objects are from the `tlverse/sl3` package.}
+\item{learners_treatment}{Legacy alias for `treatment_model`.}
 
-\item{learners_outcome}{Optional list of `sl3_Learner` objects for outcome estimation.
-If not provided, defaults to `default_learners`. These `sl3_Learner` objects are from the `tlverse/sl3` package.}
+\item{learners_outcome}{Legacy alias for `outcome_model`.}
 
-\item{pi_mat}{Optional matrix of propensity scores, where the first column represents \eqn{P(A=1|W)}
-and the second column represents \eqn{P(A=0|W)}. If not provided, it will be estimated using
-the specified learners for the propensity score.}
+\item{pi_mat}{Optional supplied propensity nuisance matrix.}
 
-\item{mu_mat}{Optional matrix of outcome predictions, where the first column represents the
-predicted outcome for \eqn{A=1} and the second column represents the predicted outcome for \eqn{A=0}.
-If not provided, it will be estimated using the specified learners for the outcome.}
+\item{mu_mat}{Optional supplied outcome nuisance matrix.}
 
-\item{nboot}{Number of bootstrap samples used to estimate confidence intervals. Defaults to 1000.}
+\item{nboot}{Legacy alias for `n_boot`.}
 
-\item{alpha}{Significance level for confidence intervals. Defaults to 0.05 (corresponding to 95\% confidence intervals).}
+\item{alpha}{Legacy significance level.}
 }
 \value{
-A list containing the estimated average treatment effect (ATE) and corresponding confidence intervals.
+A `"calibrated_dml_fit"` object.
 }
 \description{
-This function estimates the average treatment effect (ATE) using Calibrated Debiased Machine Learning (CDML).
-The CDML approach leverages flexible machine learning algorithms for estimating the propensity score
-and outcome models, resulting in a doubly robust and asymptotically linear estimator.
-The method integrates calibration, cross-fitting, and debiased estimation techniques to
-provide consistent estimation and inference, such as confidence intervals and hypothesis testing,
-even in the presence of potential misspecification or slow convergence of nuisance function estimators.
-}
-\examples{
-\dontrun{
-# Example usage with sample data
-W <- matrix(rnorm(1000), ncol = 5)
-A <- rbinom(200, 1, 0.5)
-Y <- rnorm(200)
-results <- cdml(W, A, Y)
-print(results)
-}
+Legacy Binary Wrapper for `calibrated_dml()`
 }

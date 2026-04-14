@@ -2,7 +2,7 @@
 % Please edit documentation in R/cdml.R
 \name{bootstrap_cdml_ate}
 \alias{bootstrap_cdml_ate}
-\title{Bootstrap Calibrated Debiased Machine Learning Estimate (ICDML)}
+\title{Legacy Bootstrap Binary ATE Table}
 \usage{
 bootstrap_cdml_ate(
   A,
@@ -11,46 +11,36 @@ bootstrap_cdml_ate(
   mu0,
   pi1,
   pi0,
-  weights,
-  nboot = 1000,
+  weights = NULL,
+  nboot = 200,
   folds = NULL,
   alpha = 0.05
 )
 }
 \arguments{
-\item{A}{A binary indicator variable (1 for treatment, 0 for control).}
+\item{A}{Binary treatment vector.}
 
-\item{Y}{Observed outcomes.}
+\item{Y}{Outcome vector.}
 
-\item{mu1}{Predicted outcome for the treated group.}
+\item{mu1}{Estimated treated outcome regression.}
 
-\item{mu0}{Predicted outcome for the control group.}
+\item{mu0}{Estimated control outcome regression.}
 
-\item{pi1}{Estimated propensity score for the treatment group (\code{A = 1}).}
+\item{pi1}{Estimated treated propensity score.}
 
-\item{pi0}{Estimated propensity score for the control group (\code{A = 0}).}
+\item{pi0}{Estimated control propensity score.}
 
-\item{nboot}{Integer. Number of bootstrap samples (default is 1000).}
+\item{weights}{Optional sample weights.}
 
-\item{folds}{List or \code{NULL}. A list of cross-validation folds, where each fold contains a validation set of indices. If \code{NULL}, a simple random sampling is used for each bootstrap iteration.}
+\item{nboot}{Number of bootstrap resamples.}
 
-\item{alpha}{Significance level for the confidence interval (default is 0.05).}
+\item{folds}{Optional resampling group identifiers.}
+
+\item{alpha}{Significance level.}
 }
 \value{
-A list with the following elements:
-\describe{
-  \item{tau_n}{Estimated causal effect using ICDML.}
-  \item{CI}{Bootstrap confidence interval for \code{tau_n}.}
-}
+Data frame of legacy bootstrap interval results.
 }
 \description{
-Computes a bootstrap-assisted version of the ICDML estimator to obtain a confidence interval
-for the causal effect, leveraging calibrated debiased machine learning.
-}
-\details{
-This function estimates the causal effect using the ICDML estimator and computes a bootstrap confidence
-interval by resampling within cross-validation folds. If \code{folds} is \code{NULL}, a simple random sample is drawn for each bootstrap iteration. Cross-fitting with bootstrapping allows for doubly robust inference, even when some nuisance function estimates are inconsistent.
-}
-\seealso{
-\code{\link{estimate_cdml_ate}}, \code{\link{calibrate_outcome_regression}}, \code{\link{calibrate_inverse_weights}}
+Legacy Bootstrap Binary ATE Table
 }

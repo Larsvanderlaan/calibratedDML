@@ -2,37 +2,28 @@
 % Please edit documentation in R/cdml.R
 \name{estimate_cdml_ate}
 \alias{estimate_cdml_ate}
-\title{Compute Calibrated Debiased Machine Learning Estimate (ICDML) for Average Treatment Effect}
+\title{Legacy Calibrated Binary ATE/Y1/Y0 Estimates}
 \usage{
 estimate_cdml_ate(A, Y, mu1, mu0, pi1, pi0, weights = NULL)
 }
 \arguments{
-\item{A}{A binary indicator variable (1 for treatment, 0 for control).}
+\item{A}{Binary treatment vector.}
 
-\item{Y}{Observed outcomes.}
+\item{Y}{Outcome vector.}
 
-\item{mu1}{Cross-fitted outcome regression estimates for the treated group.}
+\item{mu1}{Estimated treated outcome regression.}
 
-\item{mu0}{Cross-fitted outcome regression estimates for the control group.}
+\item{mu0}{Estimated control outcome regression.}
 
-\item{pi1}{Cross-fitted propensity score estimates for the treatment group (\code{A = 1}).}
+\item{pi1}{Estimated treated propensity score.}
 
-\item{pi0}{Cross-fitted propensity score estimates for the control group (\code{A = 0}).}
+\item{pi0}{Estimated control propensity score.}
 
-\item{weights}{Optional weights to use in the estimation. Defaults to equal weights if \code{NULL}.}
+\item{weights}{Optional sample weights.}
 }
 \value{
-A numeric value representing the estimated causal effect using the ICDML estimator.
+Numeric vector with `ATE`, `Y1`, and `Y0`.
 }
 \description{
-Calculates the Calibrated Debiased Machine Learning (C-DML) estimator for
-causal inference, specifically estimating the Average Treatment Effect (ATE).
-}
-\details{
-This function calibrates the outcome regression estimates and the inverse propensity weights
-before computing the CDML estimator. It uses cross-fitting and calibration techniques to achieve
-doubly robust estimation of causal effects.
-}
-\seealso{
-\code{\link{estimate_dml}}, \code{\link{calibrate_outcome_regression}}, \code{\link{calibrate_inverse_weights}}
+Legacy Calibrated Binary ATE/Y1/Y0 Estimates
 }

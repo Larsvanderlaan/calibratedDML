@@ -2,7 +2,7 @@
 % Please edit documentation in R/cdml.R
 \name{bootstrap_cdml}
 \alias{bootstrap_cdml}
-\title{Bootstrap Calibrated Debiased Machine Learning Estimate (CDML)}
+\title{Legacy Bootstrap Binary DML Table}
 \usage{
 bootstrap_cdml(
   A,
@@ -11,49 +11,42 @@ bootstrap_cdml(
   mu0,
   pi1,
   pi0,
-  weights,
-  nboot = 1000,
+  weights = NULL,
+  nboot = 200,
   folds = NULL,
   alpha = 0.05,
-  functional = functional,
-  representer = representer
+  functional = NULL,
+  representer = NULL
 )
 }
 \arguments{
-\item{A}{A binary indicator variable (1 for treatment, 0 for control).}
+\item{A}{Binary treatment vector.}
 
-\item{Y}{Observed outcomes.}
+\item{Y}{Outcome vector.}
 
-\item{mu1}{Cross-fitted outcome regression estimates for the treated group.}
+\item{mu1}{Estimated treated outcome regression.}
 
-\item{mu0}{Cross-fitted outcome regression estimates for the control group.}
+\item{mu0}{Estimated control outcome regression.}
 
-\item{pi1}{Cross-fitted propensity score estimates for the treatment group (\code{A = 1}).}
+\item{pi1}{Estimated treated propensity score.}
 
-\item{pi0}{Cross-fitted propensity score estimates for the control group (\code{A = 0}).}
+\item{pi0}{Estimated control propensity score.}
 
-\item{weights}{Optional weights to use in the estimation.}
+\item{weights}{Optional sample weights.}
 
-\item{nboot}{Integer. Number of bootstrap samples (default is 1000).}
+\item{nboot}{Number of bootstrap resamples.}
 
-\item{folds}{List or \code{NULL}. A list of cross-validation folds for resampling.}
+\item{folds}{Optional resampling group identifiers.}
 
-\item{alpha}{Significance level for the confidence interval (default is 0.05).}
+\item{alpha}{Significance level.}
 
-\item{functional}{A function defining the target functional for estimation.}
+\item{functional}{Optional legacy plug-in functional.}
 
-\item{representer}{A function defining the representer for debiasing.}
+\item{representer}{Optional legacy Riesz representer.}
 }
 \value{
-A data frame with point estimates, standard errors, and confidence intervals for each functional.
+Data frame of legacy bootstrap interval results.
 }
 \description{
-Computes a general bootstrap-assisted version of the CDML estimator, supporting custom functional forms and representers.
-}
-\details{
-This function generalizes the CDML bootstrap by supporting custom functionals and representers,
-making it applicable to a broader range of causal estimands.
-}
-\seealso{
-\code{\link{estimate_cdml}}, \code{\link{calibrate_outcome_regression}}, \code{\link{calibrate_inverse_weights}}
+Legacy Bootstrap Binary DML Table
 }

@@ -1,22 +1,30 @@
-Package: CDML
+Package: calibratedDML
 Type: Package
-Title: Calibrated Debiased Machine Learning for Robust Causal Inference
+Title: Calibrated and Adaptive Debiased Machine Learning for Causal Inference
 Version: 0.1.0
 Author: Lars van der Laan
 Maintainer: Lars van der Laan <lvdlaan@uw.edu>
-Description: Implements calibrated debiased machine learning (CDML) estimators for causal inference.
-    Provides robust estimation of causal effects with doubly robust inference properties,
-    utilizing isotonic regression calibration and bootstrap confidence intervals.
-    Suitable for estimating Average Treatment Effects and other causal quantities.
+Description: Implements calibrated debiased machine learning estimators for
+    categorical treatments, including mean potential outcomes, treatment-vs-control
+    contrasts, and adaptive binary-treatment extensions based on plug-in and
+    R-learner calibration. The package supports direct nuisance-matrix input,
+    lightweight built-in models, and optional integration with sl3 and
+    SuperLearner.
 License: GPL-3
 Encoding: UTF-8
-LazyData: true
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3
 Imports: 
-  stats,
-  data.table,
-  R6
-Depends:
-  stats,
-  data.table,
-  R6
+  balnet,
+  glmnet,
+  nnet,
+  stats
+Suggests:
+  lightgbm,
+  mgcv,
+  ranger,
+  SuperLearner,
+  knitr,
+  rmarkdown,
+  sl3,
+  testthat (>= 3.0.0)
+Config/testthat/edition: 3

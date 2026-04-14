@@ -1,83 +1,196 @@
-#' Calibrate Inverse Weights
-#'
-#' Calibrates inverse weights using isotonic regression with XGBoost for two propensity scores.
-#'
-#' @param A A binary indicator variable.
-#' @param pi1 Cross-fitted propensity score estimates for the treatment group (\code{A = 1}).
-#' @param pi0 Cross-fitted propensity score estimates for the control group (\code{A = 0}).
-#'
-#' @return A list containing calibrated inverse weights for each group:
-#' \describe{
-#'   \item{alpha1_star}{Calibrated inverse weights for \code{A = 1}.}
-#'   \item{alpha0_star}{Calibrated inverse weights for \code{A = 0}.}
-#' }
-#'
-#' @details
-#' This function applies monotonic XGBoost calibration to the estimated propensity scores
-#' for both the treatment and control groups, ensuring isotonic regression calibration.
-#'
-#' @export
-calibrate_inverse_weights <- function(A, pi1, pi0, weights) {
+fit_calibration_bundle <- function(
+  Y,
+  mu_mat,
+  A_index,
+  pi_mat,
+  weights,
+  calibration_method = c("auto", "isotonic", "smooth_isotonic", "none"),
+  calibration_options = list(),
+  calibration_stratify = NULL
+) {
+  calibration_method <- match.arg(calibration_method)
 
-  if(missing(weights)){
-    weights <- rep(1,length(A))
-  }
-  # Calibrate pi1 using monotonic XGBoost
-  calibrator_pi1 <- isoreg_with_xgboost(pi1, A, weights = weights)
-  pi1_star <- calibrator_pi1(pi1)
+  calibrated_mu <- calibrate_outcome_matrix(
+    Y = Y,
+    mu_mat = mu_mat,
+    A_index = A_index,
+    weights = weights,
+    method = calibration_method,
+    calibration_options = calibration_options,
+    calibration_stratify = calibration_stratify
+  )
+  calibrated_pi <- calibrate_propensity_matrix(
+    A_index = A_index,
+    pi_mat = pi_mat,
+    weights = weights,
+    method = calibration_method,
+    calibration_options = calibration_options
+  )
 
-  # Set minimum truncation level for treated group
-  c1 <- min(pi1_star[A == 1])
-  pi1_star <- pmax(pi1_star, c1)
-  alpha1_star <- 1 / pi1_star
-
-  # Calibrate pi0 using monotonic XGBoost
-  calibrator_pi0 <- isoreg_with_xgboost(pi0, 1 - A, weights = weights)
-  pi0_star <- calibrator_pi0(pi0)
-
-  # Set minimum truncation level for control group
-  c0 <- min(pi0_star[A == 0])
-  pi0_star <- pmax(pi0_star, c0)
-  alpha0_star <- 1 / pi0_star
-
-  # Return calibrated inverse weights for both groups
-  return(list(alpha1_star = alpha1_star, alpha0_star = alpha0_star, pi1_star = pi1_star, pi0_star = pi0_star))
+  list(
+    method = calibration_method,
+    calibration_stratify = normalize_calibration_stratify(calibration_stratify),
+    outcome = calibrated_mu,
+    treatment = calibrated_pi,
+    calibrated_mu_mat = calibrated_mu$calibrated,
+    calibrated_pi_mat = calibrated_pi$calibrated
+  )
 }
 
-
-
-#' Calibrate Outcome Regression Predictions
-#'
-#' Calibrates outcome regression predictions using isotonic regression with XGBoost.
-#'
-#' @param Y Observed outcomes.
-#' @param mu1 Cross-fitted predicted outcome for the treated group.
-#' @param mu0 Cross-fitted predicted outcome for the control group.
-#' @param A A binary indicator variable.
-#'
-#' @return A list containing calibrated predictions for each group:
-#' \describe{
-#'   \item{mu1_star}{Calibrated predictions for \code{A = 1}.}
-#'   \item{mu0_star}{Calibrated predictions for \code{A = 0}.}
-#' }
-#'
-#' @details
-#' This function calibrates outcome regression predictions for both treated and control groups
-#' using monotonic XGBoost, which applies isotonic regression constraints.
-#'
-#' @export
-calibrate_outcome_regression <- function(Y, mu1, mu0, A, weights) {
-  if(missing(weights)){
-    weights <- rep(1,length(A))
+calibrate_outcome_matrix <- function(
+  Y,
+  mu_mat,
+  A_index,
+  weights = NULL,
+  method = c("auto", "isotonic", "smooth_isotonic", "none"),
+  calibration_options = list(),
+  calibration_stratify = NULL
+) {
+  method <- match.arg(method)
+  mu_mat <- as.matrix(mu_mat)
+  weights <- resolve_sample_weight(weights, nrow(mu_mat))
+  colnames_out <- colnames(mu_mat)
+  if (identical(method, "none")) {
+    return(list(calibrated = mu_mat, calibrators = vector("list", ncol(mu_mat))))
   }
-  # Calibrate mu1 using monotonic XGBoost for treated group
-  calibrator_mu1 <- isoreg_with_xgboost(mu1[A==1], Y[A==1], weights = weights[A==1])
-  mu1_star <- calibrator_mu1(mu1)
 
-  # Calibrate mu0 using monotonic XGBoost for control group
-  calibrator_mu0 <- isoreg_with_xgboost(mu0[A==0], Y[A==0], weights = weights[A==0])
-  mu0_star <- calibrator_mu0(mu0)
+  calibration_stratify <- normalize_calibration_stratify(calibration_stratify)
+  calibrated <- matrix(NA_real_, nrow = nrow(mu_mat), ncol = ncol(mu_mat))
+  colnames(calibrated) <- colnames_out
+  calibrators <- vector("list", ncol(mu_mat))
 
-  # Return calibrated values for both groups
-  return(list(mu1_star = mu1_star, mu0_star = mu0_star))
+  for (level_index in seq_len(ncol(mu_mat))) {
+    subset_index <- if (identical(calibration_stratify, "outcome")) {
+      which(A_index == level_index)
+    } else {
+      seq_len(nrow(mu_mat))
+    }
+    if (!length(subset_index)) {
+      stop("Each treatment level must appear in the calibration sample.", call. = FALSE)
+    }
+    calibrator <- fit_monotone_calibrator(
+      x = mu_mat[subset_index, level_index],
+      y = Y[subset_index],
+      weights = weights[subset_index],
+      method = method,
+      calibration_options = calibration_options
+    )
+    calibrators[[level_index]] <- calibrator
+    calibrated[, level_index] <- predict_monotone_calibrator(calibrator, mu_mat[, level_index])
+  }
+
+  list(calibrated = calibrated, calibrators = calibrators)
+}
+
+calibrate_propensity_matrix <- function(
+  A_index,
+  pi_mat,
+  weights = NULL,
+  method = c("auto", "isotonic", "smooth_isotonic", "none"),
+  calibration_options = list()
+) {
+  method <- match.arg(method)
+  weights <- resolve_sample_weight(weights, nrow(as.matrix(pi_mat)))
+  pi_mat <- normalize_probability_matrix(pi_mat)
+  if (identical(method, "none")) {
+    return(list(calibrated = pi_mat, calibrators = vector("list", ncol(pi_mat))))
+  }
+
+  calibrated <- matrix(NA_real_, nrow = nrow(pi_mat), ncol = ncol(pi_mat))
+  colnames(calibrated) <- colnames(pi_mat)
+  calibrators <- vector("list", ncol(pi_mat))
+
+  for (level_index in seq_len(ncol(pi_mat))) {
+    indicator <- as.numeric(A_index == level_index)
+    calibrator <- fit_monotone_calibrator(
+      x = pi_mat[, level_index],
+      y = indicator,
+      weights = weights,
+      method = method,
+      calibration_options = calibration_options
+    )
+    calibrators[[level_index]] <- calibrator
+    pi_star <- predict_monotone_calibrator(calibrator, pi_mat[, level_index])
+    lower_bound <- max(1e-8, min(pi_star[indicator == 1], na.rm = TRUE))
+    if (!is.finite(lower_bound)) {
+      lower_bound <- 1e-8
+    }
+    calibrated[, level_index] <- pmin(pmax(pi_star, lower_bound), 1)
+  }
+
+  list(
+    calibrated = normalize_probability_matrix(calibrated),
+    calibrators = calibrators
+  )
+}
+
+normalize_calibration_stratify <- function(calibration_stratify) {
+  if (is.null(calibration_stratify) || identical(calibration_stratify, FALSE)) {
+    return(NULL)
+  }
+  if (identical(calibration_stratify, TRUE)) {
+    return("outcome")
+  }
+  values <- unique(as.character(calibration_stratify))
+  if (!all(values %in% "outcome")) {
+    stop("`calibration_stratify` must be NULL or \"outcome\".", call. = FALSE)
+  }
+  "outcome"
+}
+
+#' Calibrate Inverse Probability Weights for Binary Treatment
+#'
+#' Compatibility wrapper around the multi-arm calibration engine.
+#'
+#' @param A Binary treatment indicator.
+#' @param pi1 Propensity scores for the treated arm.
+#' @param pi0 Propensity scores for the control arm.
+#' @param weights Optional sample weights.
+#'
+#' @return A list with calibrated weights and probabilities.
+#' @export
+calibrate_inverse_weights <- function(A, pi1, pi0, weights = NULL) {
+  weights <- resolve_sample_weight(weights, length(A))
+  standardized <- standardize_treatment(A, control_level = 0, treatment_levels = c(0, 1))
+  calibrated <- calibrate_propensity_matrix(
+    A_index = standardized$index,
+    pi_mat = cbind("0" = pi0, "1" = pi1),
+    weights = weights
+  )$calibrated
+
+  list(
+    alpha1_star = 1 / calibrated[, "1"],
+    alpha0_star = 1 / calibrated[, "0"],
+    pi1_star = calibrated[, "1"],
+    pi0_star = calibrated[, "0"]
+  )
+}
+
+#' Calibrate Outcome Regression Predictions for Binary Treatment
+#'
+#' Compatibility wrapper around the multi-arm calibration engine.
+#'
+#' @param Y Outcome vector.
+#' @param mu1 Predicted outcomes for the treated arm.
+#' @param mu0 Predicted outcomes for the control arm.
+#' @param A Binary treatment indicator.
+#' @param weights Optional sample weights.
+#'
+#' @return A list with calibrated outcome predictions.
+#' @export
+calibrate_outcome_regression <- function(Y, mu1, mu0, A, weights = NULL) {
+  weights <- resolve_sample_weight(weights, length(A))
+  standardized <- standardize_treatment(A, control_level = 0, treatment_levels = c(0, 1))
+  calibrated <- calibrate_outcome_matrix(
+    Y = as.numeric(Y),
+    mu_mat = cbind("0" = mu0, "1" = mu1),
+    A_index = standardized$index,
+    weights = weights,
+    calibration_stratify = "outcome"
+  )$calibrated
+
+  list(
+    mu1_star = calibrated[, "1"],
+    mu0_star = calibrated[, "0"]
+  )
 }

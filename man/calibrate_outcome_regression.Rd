@@ -2,30 +2,24 @@
 % Please edit documentation in R/calibrate_nuisances.R
 \name{calibrate_outcome_regression}
 \alias{calibrate_outcome_regression}
-\title{Calibrate Outcome Regression Predictions}
+\title{Calibrate Outcome Regression Predictions for Binary Treatment}
 \usage{
-calibrate_outcome_regression(Y, mu1, mu0, A, weights)
+calibrate_outcome_regression(Y, mu1, mu0, A, weights = NULL)
 }
 \arguments{
-\item{Y}{Observed outcomes.}
+\item{Y}{Outcome vector.}
 
-\item{mu1}{Cross-fitted predicted outcome for the treated group.}
+\item{mu1}{Predicted outcomes for the treated arm.}
 
-\item{mu0}{Cross-fitted predicted outcome for the control group.}
+\item{mu0}{Predicted outcomes for the control arm.}
 
-\item{A}{A binary indicator variable.}
+\item{A}{Binary treatment indicator.}
+
+\item{weights}{Optional sample weights.}
 }
 \value{
-A list containing calibrated predictions for each group:
-\describe{
-  \item{mu1_star}{Calibrated predictions for \code{A = 1}.}
-  \item{mu0_star}{Calibrated predictions for \code{A = 0}.}
-}
+A list with calibrated outcome predictions.
 }
 \description{
-Calibrates outcome regression predictions using isotonic regression with XGBoost.
-}
-\details{
-This function calibrates outcome regression predictions for both treated and control groups
-using monotonic XGBoost, which applies isotonic regression constraints.
+Compatibility wrapper around the multi-arm calibration engine.
 }

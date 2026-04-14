@@ -2,15 +2,14 @@
 % Please edit documentation in R/helpers.R
 \name{default_learners}
 \alias{default_learners}
-\title{Default Learners List}
+\title{Default `sl3` Learners}
 \usage{
 default_learners()
 }
 \value{
-A list of instantiated learners from various algorithms.
+A list of `sl3` learner objects.
 }
 \description{
-This list defines a set of default learners for use in machine learning tasks.
-The learners include generalized linear models, multivariate adaptive regression splines,
-generalized additive models, random forests, and boosted trees with early stopping.
+Returns a conservative set of `sl3` learners for users who opt into the
+advanced `sl3` backend.
 }

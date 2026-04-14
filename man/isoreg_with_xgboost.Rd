@@ -2,7 +2,7 @@
 % Please edit documentation in R/isotonic_regression.R
 \name{isoreg_with_xgboost}
 \alias{isoreg_with_xgboost}
-\title{Isotonic Regression with XGBoost}
+\title{Monotone Calibration Helper}
 \usage{
 isoreg_with_xgboost(
   x,
@@ -13,39 +13,20 @@ isoreg_with_xgboost(
 )
 }
 \arguments{
-\item{x}{A vector or matrix of predictor variables.}
+\item{x}{Numeric predictor vector.}
 
-\item{y}{A vector of response variables.}
+\item{y}{Numeric response vector.}
 
-\item{max_depth}{Integer. Maximum depth of the trees in XGBoost (default is 15).}
+\item{max_depth}{Deprecated. Ignored.}
 
-\item{min_child_weight}{Numeric. Minimum sum of instance weights (Hessian) needed in a child node (default is 20).}
+\item{min_child_weight}{Deprecated. Ignored.}
 
-\item{weights}{A vector of weights to apply to each instance during training (default is NULL, meaning equal weights).}
+\item{weights}{Optional non-negative observation weights.}
 }
 \value{
-A function that takes a new predictor variable \code{x} and returns the model's predicted values.
+A function mapping new `x` values to monotone calibrated predictions.
 }
 \description{
-Fits an isotonic regression model using XGBoost with monotonic constraints.
-}
-\details{
-This function uses XGBoost to fit a monotonic increasing model to the data, enforcing isotonic regression
-through the use of monotonic constraints. The model is trained with one boosting round to achieve a fit
-that is interpretable as an isotonic regression.
-}
-\examples{
-\dontrun{
-# Example data
-x <- matrix(rnorm(100), ncol = 1)
-y <- sort(rnorm(100))
-
-# Fit the model
-iso_model <- isoreg_with_xgboost(x, y)
-
-# Predict on new data
-x_new <- matrix(rnorm(10), ncol = 1)
-predictions <- iso_model(x_new)
-}
-
+`isoreg_with_xgboost()` is retained as a backwards-compatible alias for the
+package's internal monotone calibration routine.
 }
