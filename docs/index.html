@@ -32,13 +32,15 @@
         <div class="hero-grid">
           <section class="hero-copy">
             <p class="eyebrow">Causal Inference And Econometrics</p>
-            <h1>Calibrated debiased machine learning for causal effect inference.</h1>
+            <h1 class="hero-title-main">Calibrated debiased machine learning for causal effect inference.</h1>
             <p class="lede">
-              <code>calibratedDML</code> is built for users who want valid causal
-              inference with flexible nuisance estimation. The package targets
-              mean potential outcomes and treatment-vs-control contrasts,
-              calibrates nuisance functions between fitting and debiasing, and
-              supports both R and Python workflows.
+              Standard doubly robust estimators such as AIPW are doubly robust
+              for point estimation, but valid confidence intervals usually still
+              need both nuisance functions estimated sufficiently well.
+              <code>calibratedDML</code> is built to change that: calibration
+              extends double robustness to inference, so confidence intervals
+              can remain valid when one nuisance is estimated sufficiently well,
+              even if the other is slow or wrong.
             </p>
             <div class="hero-actions">
               <a class="button button-primary" href="#start-here">Start Here</a>
@@ -46,27 +48,27 @@
               <a class="button button-secondary" href="./r.html">Explore The R Package</a>
             </div>
             <ul class="hero-pills">
-              <li>Standard calibrated DML is the default recommendation</li>
-              <li>Adaptive methods are advanced and binary-treatment only</li>
-              <li>Python and R interfaces are both available</li>
+              <li>Doubly robust confidence intervals</li>
+              <li>Extreme weights can be stabilized</li>
+              <li>Compatible with flexible ML nuisance models</li>
             </ul>
           </section>
 
           <aside class="hero-panel">
             <div class="panel-card gradient-card">
-              <p class="panel-label">Default Recommendation</p>
+              <p class="panel-label">Use This First</p>
               <div class="hero-stat-grid">
                 <div class="hero-stat">
-                  <strong>Routine work</strong>
-                  <span>Use <code>CalibratedDML</code> or <code>calibrated_dml()</code>.</span>
+                  <strong>Standard workflow</strong>
+                  <span><code>CalibratedDML</code> in Python and <code>calibrated_dml()</code> in R are the default route for routine work.</span>
                 </div>
                 <div class="hero-stat">
-                  <strong>Estimands</strong>
+                  <strong>Main target</strong>
                   <span>Mean potential outcomes and treatment-vs-control contrasts.</span>
                 </div>
                 <div class="hero-stat">
-                  <strong>Status</strong>
-                  <span>Adaptive estimators are narrower, binary-treatment, and not the default.</span>
+                  <strong>When to branch off</strong>
+                  <span>Reach for adaptive methods only if you intentionally want the advanced binary-treatment workflow.</span>
                 </div>
               </div>
             </div>
@@ -91,21 +93,84 @@ fit.confint()</code></pre>
       </header>
 
       <main>
-        <section class="section" id="install">
+        <section class="section">
+          <div class="section-heading">
+            <p class="eyebrow">Why This Package</p>
+            <h2>Why not just use AIPW?</h2>
+            <p>
+              For many causal estimands, AIPW and related doubly robust
+              estimators stay consistent if either the outcome regression or
+              the propensity-style nuisance is estimated well. But confidence
+              intervals are harder: standard inference typically needs both
+              nuisances estimated sufficiently well for asymptotic normality.
+            </p>
+            <p>
+              Calibrated DML is built for that gap. It calibrates the nuisances
+              before debiasing so inference can also become doubly robust. In
+              the paper’s core result, if one nuisance is estimated
+              sufficiently well, the other can be arbitrarily slow or even
+              inconsistent and confidence intervals can still remain valid.
+            </p>
+          </div>
+        </section>
+
+        <section class="section" id="start-here">
           <div class="section-heading split">
             <div>
-              <p class="eyebrow">Install</p>
-              <h2>Install the interface that matches your workflow</h2>
+              <p class="eyebrow">Start Here</p>
+              <h2>Start with the standard estimator</h2>
               <p>
-                Python is available as a package install. The repository also
-                contains the R package, including the categorical-treatment
-                standard estimator and binary-treatment adaptive extensions.
+                Most users should use standard calibrated DML. It is the main
+                path for doubly robust inference with flexible nuisance models.
+                Adaptive methods are an advanced binary-treatment option, not
+                the default starting point.
               </p>
             </div>
-            <p class="section-side-note">
-              Keep the install story simple: package install for routine use,
-              GitHub install when you want the latest repo state.
-            </p>
+          </div>
+
+          <div class="comparison-grid">
+            <article class="comparison-card">
+              <p class="panel-label">Recommended Default</p>
+              <h3>Standard calibrated DML</h3>
+              <p>
+                Use this when you want calibrated, doubly robust inference for
+                arm means and treatment-vs-control contrasts.
+              </p>
+              <pre class="inline-code"><code>CalibratedDML(...).fit(X, A, y)
+calibrated_dml(data, outcome, treatment, covariates, ...)</code></pre>
+              <ul>
+                <li>Supports categorical treatment in the standard estimator</li>
+                <li>Works whether nuisances are fit internally or supplied directly</li>
+              </ul>
+            </article>
+
+            <article class="comparison-card">
+              <p class="panel-label">Advanced</p>
+              <h3>Adaptive calibrated DML</h3>
+              <p>
+                Use this only when you specifically want the advanced
+                binary-treatment adaptive workflow and are comfortable with
+                harder uncertainty quantification.
+              </p>
+              <ul>
+                <li>Binary-treatment only</li>
+                <li>Not the default recommendation for general users</li>
+                <li>Best treated as an advanced follow-on, not the entry point</li>
+              </ul>
+            </article>
+          </div>
+        </section>
+
+        <section class="section" id="install">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Install</p>
+              <h2>Install the interface you need</h2>
+              <p>
+                Once you know you want the standard calibrated DML workflow,
+                install the Python package or the R package from the repository.
+              </p>
+            </div>
           </div>
 
           <div class="argument-grid">
@@ -127,104 +192,50 @@ fit.confint()</code></pre>
           </div>
         </section>
 
-        <section class="section" id="start-here">
-          <div class="section-heading split">
-            <div>
-              <p class="eyebrow">Start Here</p>
-              <h2>Choose the estimator family before choosing details</h2>
-              <p>
-                Most users should start with the standard calibrated DML
-                estimator. Adaptive methods are for users who explicitly want a
-                super-efficient tradeoff and are comfortable with more delicate
-                inference behavior.
-              </p>
-            </div>
-            <p class="section-side-note">
-              Standard first, adaptive only when the extra tradeoff is
-              intentional.
-            </p>
-          </div>
-
-          <div class="comparison-grid">
-            <article class="comparison-card">
-              <p class="panel-label">Recommended Default</p>
-              <h3>Standard calibrated DML</h3>
-              <p>
-                Use this for routine estimation of arm means and
-                treatment-vs-control contrasts with flexible nuisance models,
-                calibration, and standard inference choices.
-              </p>
-              <ul>
-                <li>Python: <code>CalibratedDML</code></li>
-                <li>R: <code>calibrated_dml()</code></li>
-                <li>Supports categorical treatment in the standard estimator</li>
-                <li>Works whether nuisances are fit internally or supplied directly</li>
-              </ul>
-            </article>
-
-            <article class="comparison-card">
-              <p class="panel-label">Advanced</p>
-              <h3>Adaptive calibrated DML</h3>
-              <p>
-                Use this only when you specifically want adaptive or
-                super-efficient methods and are prepared for harder interval
-                estimation and less routine uncertainty quantification.
-              </p>
-              <ul>
-                <li>Binary-treatment only</li>
-                <li>Python: narrower experimental layer</li>
-                <li>R: broader adaptive and model-backend surface</li>
-                <li>Not the default recommendation for general users</li>
-              </ul>
-            </article>
-          </div>
-        </section>
-
         <section class="section" id="workflows">
-          <div class="section-heading split">
+          <div class="section-heading">
             <div>
               <p class="eyebrow">Workflows</p>
               <h2>Four common ways people use the package</h2>
               <p>
-                Start from the inferential setup, not from a menu of methods.
-                These are the main entry points for calibratedDML users.
+                If you want the full decision tree and the exact calls, use the
+                workflow page. This is the short version.
               </p>
             </div>
-            <p class="section-side-note">
-              The right workflow depends on your estimand, nuisance pipeline,
-              and whether treatment is binary or multi-arm.
-            </p>
           </div>
 
           <div class="argument-grid">
             <article class="argument-card">
               <h3>Fit nuisances internally</h3>
               <p>
-                Use this when you want the package to handle cross-fitting,
-                nuisance estimation, calibration, and debiasing end to end.
+                Use this when you want the easiest route to calibrated,
+                doubly robust inference from raw data.
               </p>
+              <p><strong>Call:</strong> <code>CalibratedDML(...).fit(...)</code> or <code>calibrated_dml(...)</code></p>
             </article>
             <article class="argument-card">
               <h3>Supply nuisance matrices directly</h3>
               <p>
-                Use this when nuisance functions are estimated elsewhere and you
-                want calibrated DML to focus on the inferential layer.
+                Use this when you already have cross-fitted nuisances and want
+                the package for calibrated inference rather than nuisance fitting.
               </p>
+              <p><strong>Call:</strong> <code>fit_from_nuisances(...)</code> or <code>calibrated_dml_from_nuisances(...)</code></p>
             </article>
             <article class="argument-card">
               <h3>Multi-arm treatment</h3>
               <p>
                 Use the standard estimator when treatment has more than two
-                levels and your target is arm means plus control-vs-treatment
-                contrasts.
+                levels and you want arm means plus control contrasts.
               </p>
+              <p><strong>Call:</strong> standard calibrated DML with <code>control_level</code></p>
             </article>
             <article class="argument-card">
               <h3>Adaptive binary treatment</h3>
               <p>
-                Use the adaptive layer only in binary-treatment settings where
-                you explicitly want plugin or calibrated R-learner variants.
+                Use the adaptive layer only for the advanced binary-treatment
+                route, not for routine calibrated inference.
               </p>
+              <p><strong>Call:</strong> <code>AdaptiveCalibratedDML(...)</code> or <code>adaptive_calibrated_dml(...)</code></p>
             </article>
           </div>
 
@@ -233,85 +244,79 @@ fit.confint()</code></pre>
           </div>
         </section>
 
-        <section class="section" id="language-paths">
-          <div class="section-heading split">
-            <div>
-              <p class="eyebrow">Language Paths</p>
-              <h2>Python and R share the same inferential idea, but not the same surface</h2>
-              <p>
-                Both interfaces implement calibrated debiased machine learning.
-                The main differences are in naming, estimator breadth, and how
-                advanced nuisance-model backends are exposed.
-              </p>
-            </div>
-            <p class="section-side-note">
-              The Python package is cleaner as a package-style API; the R package
-              is broader for advanced modeling workflows.
-            </p>
-          </div>
-
-          <div class="comparison-grid">
-            <article class="comparison-card">
-              <p class="panel-label">Python</p>
-              <h3>Primary package path: <code>calibrateddml</code></h3>
-              <ul>
-                <li>Main class: <code>CalibratedDML</code></li>
-                <li>Main methods: <code>fit</code>, <code>fit_from_nuisances</code>, <code>summary</code>, <code>confint</code></li>
-                <li>Adaptive layer: <code>AdaptiveCalibratedDML</code></li>
-                <li>Adaptive Python API is intentionally narrower and experimental</li>
-              </ul>
-            </article>
-
-            <article class="comparison-card">
-              <p class="panel-label">R</p>
-              <h3>Formula-free, data-first workflow</h3>
-              <ul>
-                <li>Main entry points: <code>calibrated_dml()</code> and <code>calibrated_dml_from_nuisances()</code></li>
-                <li>Use <code>summary()</code> on fitted objects for printed results</li>
-                <li>Optional advanced backends through <code>sl3</code> and <code>SuperLearner</code></li>
-                <li>Adaptive R API is broader, but still binary-treatment only</li>
-              </ul>
-            </article>
-          </div>
-        </section>
-
         <section class="section" id="calibration">
-          <div class="section-heading split">
+          <div class="section-heading">
             <div>
               <p class="eyebrow">Calibration</p>
-              <h2>Calibration is part of the inferential pipeline, not just a prediction fix</h2>
+              <h2>Calibration is why the package gives doubly robust inference</h2>
               <p>
-                In calibrated DML, nuisance functions are calibrated after
-                fitting and before the debiasing step. The point is not to tell
-                a ranking story; it is to improve the nuisance layer used by the
-                doubly robust estimator so inference remains reliable when one
-                nuisance is estimated much better than the other.
+                The package calibrates the nuisance functions after fitting and
+                before debiasing. That extra step is what turns a standard
+                doubly robust estimator into a calibrated one with weaker
+                nuisance-rate requirements for inference.
+              </p>
+              <p>
+                In practice, calibration can also automatically stabilize
+                extreme inverse weights and reduce variance, especially when
+                overlap is limited; see
+                <a href="https://arxiv.org/abs/2411.06342">Stabilized Inverse Probability Weighting via Isotonic Calibration</a>.
+                But this does not remove the need for population-level
+                positivity or overlap assumptions in the theory.
               </p>
             </div>
-            <p class="section-side-note">
-              Think of calibration here as a post-hoc nuisance adjustment inside
-              the causal estimator, not as a separate prediction product.
-            </p>
           </div>
 
-          <div class="two-col-grid">
-            <article class="callout">
-              <p class="panel-label">Conceptually</p>
+          <div class="calibration-grid">
+            <article class="calibration-card">
+              <p class="panel-label">Outcome Regression Calibration</p>
+              <h3>Predictions align with observed outcomes</h3>
+              <div class="schematic-card">
+                <svg class="schematic-svg" viewBox="0 0 260 180" role="img" aria-label="Outcome calibration schematic showing a raw curved fit and a calibrated line closer to the diagonal relationship between predicted and observed outcomes.">
+                  <line x1="36" y1="22" x2="36" y2="146" class="axis-line" />
+                  <line x1="36" y1="146" x2="232" y2="146" class="axis-line" />
+                  <line x1="52" y1="130" x2="216" y2="34" class="guide-line" />
+                  <path d="M52 120 C88 112, 116 88, 146 82 C172 77, 190 60, 216 42" class="raw-line" />
+                  <path d="M52 128 C88 112, 118 95, 146 78 C172 63, 194 49, 216 36" class="cal-line" />
+                  <text x="134" y="167" class="axis-label" text-anchor="middle">Predicted outcome</text>
+                  <text x="16" y="88" class="axis-label" text-anchor="middle" transform="rotate(-90 16 88)">Observed outcome</text>
+                  <text x="182" y="104" class="legend-label">Raw</text>
+                  <text x="186" y="60" class="legend-label">Calibrated</text>
+                </svg>
+              </div>
               <p>
-                The package fits or accepts cross-fitted nuisance estimates,
-                calibrates them, and then debiases using the calibrated
-                nuisances. That ordering is the central design idea.
+                Calibration maps raw outcome predictions so units with similar
+                predicted outcomes have observed outcomes on the right scale.
               </p>
             </article>
-            <article class="callout">
-              <p class="panel-label">Practically</p>
+
+            <article class="calibration-card">
+              <p class="panel-label">Propensity Calibration</p>
+              <h3>Weights stabilize and balance improves</h3>
+              <div class="schematic-card">
+                <svg class="schematic-svg" viewBox="0 0 260 180" role="img" aria-label="Propensity calibration schematic showing unstable raw inverse weights and a smoother calibrated curve over estimated propensity score.">
+                  <line x1="36" y1="22" x2="36" y2="146" class="axis-line" />
+                  <line x1="36" y1="146" x2="232" y2="146" class="axis-line" />
+                  <path d="M48 132 C58 56, 74 44, 88 122 C102 152, 120 62, 136 96 C156 138, 176 78, 196 104 C206 116, 214 122, 220 126" class="raw-line" />
+                  <path d="M48 122 C74 110, 98 100, 122 92 C148 84, 174 88, 198 98 C208 102, 214 108, 220 112" class="cal-line" />
+                  <text x="134" y="167" class="axis-label" text-anchor="middle">Estimated propensity score</text>
+                  <text x="16" y="88" class="axis-label" text-anchor="middle" transform="rotate(-90 16 88)">Weight instability / imbalance</text>
+                  <text x="152" y="50" class="legend-label">Raw</text>
+                  <text x="176" y="88" class="legend-label">Calibrated</text>
+                </svg>
+              </div>
               <p>
-                This is why the package is aimed at users who care about
-                treatment-effect inference, overlap and propensity modeling, and
-                defensible confidence intervals, not just prediction accuracy.
+                Calibration adjusts the propensity score scale so units within
+                levels of estimated propensity behave more like balanced groups,
+                which automatically dampens extreme inverse weights.
               </p>
             </article>
           </div>
+
+          <p class="calibration-summary">
+            These calibration steps help with finite-sample bias and variance,
+            and in the calibrated-DML theory they are the reason one sufficiently
+            good nuisance can be enough for valid inference.
+          </p>
         </section>
 
         <section class="section" id="references">
@@ -327,6 +332,7 @@ fit.confint()</code></pre>
           <div class="footer-links">
             <a class="footer-link" href="https://github.com/Larsvanderlaan/DRinference">GitHub Repository</a>
             <a class="footer-link" href="https://arxiv.org/abs/2411.02771">Doubly robust inference via calibration</a>
+            <a class="footer-link" href="https://arxiv.org/abs/2411.06342">Stabilized inverse weighting paper</a>
             <a class="footer-link" href="./examples.html">Workflow chooser</a>
             <a class="footer-link" href="./r.html">R package page</a>
           </div>

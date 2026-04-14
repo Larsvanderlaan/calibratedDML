@@ -32,14 +32,12 @@
         <div class="hero-grid">
           <section class="hero-copy">
             <p class="eyebrow">R Package</p>
-            <h1>The R interface is a first-class path for calibrated DML workflows.</h1>
+            <h1>Use the R package when you want doubly robust inference, not just doubly robust point estimates.</h1>
             <p class="lede">
-              The R package supports standard calibrated DML for categorical
-              treatments, direct nuisance-matrix workflows, and binary-treatment
-              adaptive estimators. It is especially well suited for users who
-              want to plug into <code>sl3</code>, <code>SuperLearner</code>, or
-              custom nuisance backends while keeping the inferential layer in a
-              single package.
+              Use the R package when you want the standard calibrated DML
+              workflow for categorical treatment effects, either with
+              package-fitted nuisances or with your own cross-fitted nuisance
+              inputs.
             </p>
             <div class="hero-actions">
               <a class="button button-primary" href="#install">Install</a>
@@ -49,19 +47,19 @@
 
           <aside class="hero-panel">
             <div class="panel-card gradient-card">
-              <p class="panel-label">R Quick Summary</p>
+              <p class="panel-label">Why Use The R Package</p>
               <div class="hero-stat-grid">
                 <div class="hero-stat">
-                  <strong>Standard estimator</strong>
-                  <span><code>calibrated_dml()</code> handles categorical treatment.</span>
+                  <strong>Main function</strong>
+                  <span><code>calibrated_dml()</code> is the default route for routine work.</span>
                 </div>
                 <div class="hero-stat">
-                  <strong>Direct nuisance path</strong>
+                  <strong>Bring your own nuisances</strong>
                   <span><code>calibrated_dml_from_nuisances()</code> is built in.</span>
                 </div>
                 <div class="hero-stat">
-                  <strong>Adaptive scope</strong>
-                  <span><code>adaptive_calibrated_dml()</code> is binary-treatment only.</span>
+                  <strong>Adaptive methods</strong>
+                  <span><code>adaptive_calibrated_dml()</code> is advanced and binary-treatment only.</span>
                 </div>
               </div>
             </div>
@@ -97,10 +95,6 @@ summary(fit)</code></pre>
                 repository.
               </p>
             </div>
-            <p class="section-side-note">
-              This is the right path if you want the R interface, optional
-              modeling backends, and the current package implementation.
-            </p>
           </div>
 
           <div class="argument-grid">
@@ -111,7 +105,7 @@ summary(fit)</code></pre>
             </article>
             <article class="argument-card">
               <p class="mini-label">Optional</p>
-              <h3>Advanced nuisance backends</h3>
+              <h3>Nuisance learners</h3>
               <p>
                 The package can integrate with <code>sl3</code> and
                 <code>SuperLearner</code> when those ecosystems are available.
@@ -134,15 +128,11 @@ summary(fit)</code></pre>
               <p class="eyebrow">Entry Points</p>
               <h2>Main R entry points</h2>
               <p>
-                The R API is organized around whether nuisances are fit inside
-                the package or supplied directly, plus a separate adaptive path
-                for binary treatment.
+                Start with the standard estimator. Use the direct nuisance path
+                when you already have cross-fitted nuisance estimates, and use
+                the adaptive path only for the advanced binary-treatment case.
               </p>
             </div>
-            <p class="section-side-note">
-              Start with the standard estimator unless you have a specific
-              adaptive or external-nuisance need.
-            </p>
           </div>
 
           <div class="comparison-grid">
@@ -170,20 +160,15 @@ summary(fit)</code></pre>
         </section>
 
         <section class="section">
-          <div class="section-heading split">
+          <div class="section-heading">
             <div>
               <p class="eyebrow">Backends</p>
-              <h2>Built-in and advanced nuisance backends</h2>
+              <h2>Nuisance backends</h2>
               <p>
-                The standard R estimator supports built-in model names and also
-                leaves room for richer nuisance-learning stacks when you want to
-                bring in external learners.
+                The R package includes built-in model options and can also work
+                with <code>sl3</code> or <code>SuperLearner</code> stacks.
               </p>
             </div>
-            <p class="section-side-note">
-              This is where the R package is broader than the lean Python
-              package interface.
-            </p>
           </div>
 
           <div class="argument-grid">
@@ -215,72 +200,25 @@ summary(fit)</code></pre>
         </section>
 
         <section class="section">
-          <div class="section-heading split">
-            <div>
-              <p class="eyebrow">Estimator Families</p>
-              <h2>Standard versus adaptive estimators</h2>
-              <p>
-                The R package exposes both the standard calibrated DML
-                estimator family and a broader adaptive binary-treatment layer.
-              </p>
-            </div>
-            <p class="section-side-note">
-              Adaptive methods are available, but they are still not the default
-              recommendation for routine work.
-            </p>
-          </div>
-
-          <div class="comparison-grid">
-            <article class="comparison-card">
-              <p class="panel-label">Routine Use</p>
-              <h3>Standard calibrated DML</h3>
-              <p>
-                Use the standard estimator for most empirical work. It handles
-                categorical treatment directly and keeps the inferential target
-                clear: arm means and treatment-vs-control contrasts.
-              </p>
-            </article>
-            <article class="comparison-card">
-              <p class="panel-label">Advanced</p>
-              <h3><code>adaptive_calibrated_dml()</code></h3>
-              <p>
-                The adaptive R API is binary-treatment only and intended for
-                users who explicitly want plugin or calibrated R-learner style
-                adaptive methods.
-              </p>
-              <ul>
-                <li>Binary-treatment only</li>
-                <li>Supports broader adaptive modes than Python</li>
-                <li>Inference can be less stable than standard calibrated DML</li>
-              </ul>
-            </article>
-          </div>
-        </section>
-
-        <section class="section">
-          <div class="section-heading split">
+          <div class="section-heading">
             <div>
               <p class="eyebrow">Defaults</p>
               <h2>Practical defaults and inference choices</h2>
               <p>
-                For most users, the goal is to keep the nuisance-learning side
-                flexible while keeping the inferential choices explicit and
-                boring.
+                Most R users should start with <code>calibrated_dml()</code>,
+                choose the inference mode explicitly, and treat the adaptive
+                route as advanced.
               </p>
             </div>
-            <p class="section-side-note">
-              Good defaults lower friction, but the user should still know which
-              inference mode they are asking for.
-            </p>
           </div>
 
           <div class="argument-grid">
             <article class="argument-card">
-              <h3>Default recommendation</h3>
+              <h3>Start here</h3>
               <p>
-                Start with the standard estimator, use the package-managed
-                nuisance path unless you already have cross-fitted nuisances,
-                and treat adaptive methods as deliberate advanced choices.
+                Use <code>calibrated_dml()</code> first and use the
+                package-managed nuisance path unless you already have
+                cross-fitted nuisances.
               </p>
             </article>
             <article class="argument-card">
@@ -293,24 +231,13 @@ summary(fit)</code></pre>
               </p>
             </article>
             <article class="argument-card">
-              <h3>Longer walkthrough</h3>
+              <h3>Adaptive workflow</h3>
               <p>
-                The repository contains a longer vignette source, but this page
-                focuses on the package surface and default user paths.
+                Use <code>adaptive_calibrated_dml()</code> only when you
+                intentionally want the advanced binary-treatment route.
               </p>
+              <p>It is binary-treatment only, and inference can be less stable than standard calibrated DML.</p>
             </article>
-          </div>
-        </section>
-
-        <section class="section">
-          <div class="section-heading">
-            <p class="eyebrow">Next</p>
-            <h2>Continue through the rest of the microsite</h2>
-          </div>
-          <div class="footer-links">
-            <a class="footer-link" href="./index.html">Overview</a>
-            <a class="footer-link" href="./examples.html">Workflow chooser</a>
-            <a class="footer-link" href="https://github.com/Larsvanderlaan/DRinference">GitHub repository</a>
           </div>
         </section>
       </main>

@@ -34,43 +34,15 @@
             <p class="eyebrow">Workflow Chooser</p>
             <h1>Pick the workflow closest to your causal estimation problem.</h1>
             <p class="lede">
-              This page is organized around inferential setups: what your
-              estimand is, whether nuisance functions are already available, and
-              whether treatment is multi-arm or binary. Use the card that most
-              closely matches your pipeline.
+              Choose based on two things: whether you want the package to fit
+              nuisances for you, and whether you are doing routine calibrated
+              inference or the advanced adaptive binary-treatment workflow.
             </p>
             <div class="hero-actions">
               <a class="button button-primary" href="#workflows">Browse Workflows</a>
               <a class="button button-secondary" href="./index.html">Back To Overview</a>
             </div>
           </section>
-
-          <aside class="hero-panel">
-            <div class="panel-card gradient-card">
-              <p class="panel-label">How To Use This Page</p>
-              <p class="panel-note">
-                Start from the estimand and nuisance pipeline. Then pick the
-                interface you are actually using, Python or R.
-              </p>
-            </div>
-            <div class="panel-card">
-              <p class="panel-label">What Changes Across Workflows</p>
-              <div class="hero-stat-grid">
-                <div class="hero-stat">
-                  <strong>Estimand</strong>
-                  <span>Arm means or treatment-vs-control contrasts.</span>
-                </div>
-                <div class="hero-stat">
-                  <strong>Nuisance source</strong>
-                  <span>Internally fit or externally supplied.</span>
-                </div>
-                <div class="hero-stat">
-                  <strong>Treatment structure</strong>
-                  <span>Multi-arm standard estimator or binary adaptive layer.</span>
-                </div>
-              </div>
-            </div>
-          </aside>
         </div>
       </header>
 
@@ -81,13 +53,10 @@
               <p class="eyebrow">Workflows</p>
               <h2>Four common ways people use calibratedDML</h2>
               <p>
-                Each card gives the use case, the main Python call, the main R
-                call, and the inferential reason this is the right entry point.
+                Each card gives when to use it, what to call, and why it is the
+                right route for inference.
               </p>
             </div>
-            <p class="section-side-note">
-              Use-case first, API second.
-            </p>
           </div>
 
           <div class="examples-grid">
@@ -99,7 +68,7 @@
                 treatment-vs-control contrast and you want the package to fit
                 nuisances, cross-fit, calibrate, and run inference for you.
               </p>
-              <p><strong>Why this workflow:</strong> It is the cleanest default for routine causal analyses when overlap modeling and outcome regression both live inside the package workflow.</p>
+              <p><strong>Why this workflow:</strong> It is the easiest route to calibrated, doubly robust inference from raw data.</p>
               <div class="example-entry-grid">
                 <div class="example-entry">
                   <p class="example-label">Python</p>
@@ -120,7 +89,7 @@
                 perhaps from a custom econometrics pipeline, and want the
                 package to handle only calibration, debiasing, and inference.
               </p>
-              <p><strong>Why this workflow:</strong> It cleanly separates nuisance estimation from the inferential step while preserving the calibrated DML machinery.</p>
+              <p><strong>Why this workflow:</strong> It lets you keep your nuisance pipeline and use the package for calibrated inference.</p>
               <div class="example-entry-grid">
                 <div class="example-entry">
                   <p class="example-label">Python</p>
@@ -143,7 +112,7 @@
                 treatment levels and reports results relative to the chosen
                 control arm.
               </p>
-              <p><strong>Why this workflow:</strong> It preserves a single nuisance-and-inference pipeline while handling categorical treatment directly.</p>
+              <p><strong>Why this workflow:</strong> It gives the same calibrated inference idea for multi-arm means and control contrasts.</p>
               <div class="example-entry-grid">
                 <div class="example-entry">
                   <p class="example-label">Python</p>
@@ -165,7 +134,7 @@
                 for more delicate inference choices such as jackknife or
                 bootstrap intervals.
               </p>
-              <p><strong>Why this workflow:</strong> It targets the adaptive or super-efficient regime rather than the routine calibrated DML default.</p>
+              <p><strong>Why this workflow:</strong> It is for a different, advanced goal than routine calibrated doubly robust inference.</p>
               <div class="example-entry-grid">
                 <div class="example-entry">
                   <p class="example-label">Python</p>
@@ -181,59 +150,34 @@
         </section>
 
         <section class="section">
-          <div class="section-heading split">
+          <div class="section-heading">
             <div>
               <p class="eyebrow">Practical Notes</p>
-              <h2>What usually matters in practice</h2>
+              <h2>Two practical things to check</h2>
               <p>
-                Most workflow decisions reduce to nuisance provenance,
-                treatment structure, and how conservative you want the inference
-                layer to be.
+                If you already have nuisance estimates, they should usually be
+                cross-fitted. And if you are using the adaptive workflow,
+                inference choice matters more.
               </p>
             </div>
-            <p class="section-side-note">
-              The package is meant for inference with flexible nuisance models,
-              not for ranking-only prediction pipelines.
-            </p>
           </div>
 
-          <div class="argument-grid">
-            <article class="argument-card">
-              <h3>Cross-fitting matters</h3>
+          <div class="two-col-grid">
+            <article class="callout">
+              <p class="panel-label">Supplied nuisances</p>
               <p>
-                If you supply nuisances, the expected path is that they are
-                already cross-fitted. The inferential layer assumes it is
-                working from out-of-fold nuisance estimates.
+                When you use the direct nuisance path, the expected input is a
+                set of cross-fitted nuisance estimates rather than in-sample fits.
               </p>
             </article>
-            <article class="argument-card">
-              <h3>Propensity modeling is part of the story</h3>
+            <article class="callout">
+              <p class="panel-label">Inference choice</p>
               <p>
-                The treatment nuisance is not a side detail. The workflow
-                choice should reflect how you are handling overlap and
-                probability modeling.
+                Standard calibrated DML is the routine default. For adaptive
+                binary-treatment analyses, be more deliberate about whether you
+                want Wald, bootstrap, or jackknife intervals.
               </p>
             </article>
-            <article class="argument-card">
-              <h3>Inference is an explicit setting</h3>
-              <p>
-                Choose between Wald, bootstrap, and jackknife based on the
-                workflow and how conservative you want the uncertainty layer to
-                be, especially in adaptive binary-treatment analyses.
-              </p>
-            </article>
-          </div>
-        </section>
-
-        <section class="section">
-          <div class="section-heading">
-            <p class="eyebrow">Next</p>
-            <h2>Use the page that matches your interface</h2>
-          </div>
-          <div class="footer-links">
-            <a class="footer-link" href="./index.html">Overview</a>
-            <a class="footer-link" href="./r.html">R package details</a>
-            <a class="footer-link" href="https://github.com/Larsvanderlaan/DRinference">GitHub repository</a>
           </div>
         </section>
       </main>

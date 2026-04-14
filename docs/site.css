@@ -142,7 +142,11 @@ a {
   font-size: clamp(2.65rem, 4.8vw, 4.4rem);
   line-height: 0.96;
   margin: 0 0 16px;
-  max-width: 14ch;
+  max-width: 22ch;
+}
+
+.hero-title-main {
+  max-width: 30ch;
 }
 
 .lede {
@@ -371,6 +375,76 @@ a {
   padding: 22px;
 }
 
+.calibration-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.calibration-card {
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 18px;
+}
+
+.schematic-card {
+  margin: 14px 0;
+  padding: 12px;
+  border-radius: 20px;
+  border: 1px solid var(--line);
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.84), rgba(217, 239, 232, 0.34)),
+    rgba(255, 255, 255, 0.8);
+}
+
+.schematic-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.axis-line {
+  stroke: rgba(24, 52, 58, 0.46);
+  stroke-width: 1.6;
+}
+
+.guide-line {
+  stroke: rgba(24, 52, 58, 0.2);
+  stroke-width: 1.5;
+  stroke-dasharray: 6 5;
+}
+
+.raw-line {
+  fill: none;
+  stroke: var(--warm);
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.cal-line {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.axis-label,
+.legend-label {
+  fill: var(--muted);
+  font-family: "Space Grotesk", "Avenir Next", "Trebuchet MS", sans-serif;
+  font-size: 12px;
+}
+
+.calibration-summary {
+  margin: 0 0 18px;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
 .comparison-card ul,
 .argument-card ul,
 .footer-card ul,
@@ -444,6 +518,7 @@ a {
   .split,
   .argument-grid,
   .comparison-grid,
+  .calibration-grid,
   .two-col-grid,
   .examples-grid {
     grid-template-columns: 1fr;
