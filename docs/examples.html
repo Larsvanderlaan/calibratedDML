@@ -25,6 +25,7 @@
             <a href="./index.html">Overview</a>
             <a href="./examples.html">Examples</a>
             <a href="./r.html">R Package</a>
+            <a href="./adaptive.html">Adaptive</a>
             <a href="https://github.com/Larsvanderlaan/DRinference">GitHub</a>
           </div>
         </nav>
@@ -34,9 +35,10 @@
             <p class="eyebrow">Workflow Chooser</p>
             <h1>Pick the workflow closest to your causal estimation problem.</h1>
             <p class="lede">
-              Choose based on two things: whether you want the package to fit
-              nuisances for you, and whether you are doing routine calibrated
-              inference or the advanced adaptive binary-treatment workflow.
+              Choose based on whether you want the package to fit nuisances for
+              you and whether you already have cross-fitted nuisance inputs.
+              The advanced adaptive binary-treatment route now lives on its own
+              page.
             </p>
             <div class="hero-actions">
               <a class="button button-primary" href="#workflows">Browse Workflows</a>
@@ -51,7 +53,7 @@
           <div class="section-heading split">
             <div>
               <p class="eyebrow">Workflows</p>
-              <h2>Four common ways people use calibratedDML</h2>
+              <h2>Common workflows</h2>
               <p>
                 Each card gives when to use it, what to call, and why it is the
                 right route for inference.
@@ -85,9 +87,9 @@
               <p class="panel-label">Workflow 2</p>
               <h3>Estimator from supplied nuisance matrices</h3>
               <p>
-                Use this when you already have cross-fitted nuisance functions,
-                perhaps from a custom econometrics pipeline, and want the
-                package to handle only calibration, debiasing, and inference.
+                Use this when you already have cross-fitted nuisance functions
+                and want the package to handle only calibration, debiasing, and
+                inference.
               </p>
               <p><strong>Why this workflow:</strong> It lets you keep your nuisance pipeline and use the package for calibrated inference.</p>
               <div class="example-entry-grid">
@@ -127,23 +129,15 @@
 
             <article class="argument-card">
               <p class="panel-label">Workflow 4</p>
-              <h3>Adaptive binary-treatment workflow</h3>
+              <h3>Adaptive binary-treatment methods</h3>
               <p>
-                Use this only for binary treatment when you want plugin or
-                calibrated R-learner style adaptive estimation and are prepared
-                for more delicate inference choices such as jackknife or
-                bootstrap intervals.
+                Separate advanced page for binary-treatment users who
+                intentionally want the adaptive route rather than the standard
+                calibrated DML workflow.
               </p>
-              <p><strong>Why this workflow:</strong> It is for a different, advanced goal than routine calibrated doubly robust inference.</p>
-              <div class="example-entry-grid">
-                <div class="example-entry">
-                  <p class="example-label">Python</p>
-                  <p class="example-call"><code>AdaptiveCalibratedDML(mode="plugin", ...).fit(X, A, y)</code></p>
-                </div>
-                <div class="example-entry">
-                  <p class="example-label">R</p>
-                  <p class="example-call"><code>adaptive_calibrated_dml(data, outcome, treatment, covariates, ...)</code></p>
-                </div>
+              <p><strong>Why this workflow:</strong> It is a different, advanced goal than routine calibrated doubly robust inference.</p>
+              <div class="chip-row">
+                <a class="chip-link" href="./adaptive.html">Open adaptive page</a>
               </div>
             </article>
           </div>
@@ -156,7 +150,7 @@
               <h2>Two practical things to check</h2>
               <p>
                 If you already have nuisance estimates, they should usually be
-                cross-fitted. And if you are using the adaptive workflow,
+                cross-fitted. If you later branch to adaptive methods,
                 inference choice matters more.
               </p>
             </div>
@@ -173,9 +167,9 @@
             <article class="callout">
               <p class="panel-label">Inference choice</p>
               <p>
-                Standard calibrated DML is the routine default. For adaptive
-                binary-treatment analyses, be more deliberate about whether you
-                want Wald, bootstrap, or jackknife intervals.
+                Standard calibrated DML is the routine default. If you branch
+                to adaptive binary-treatment methods, be deliberate about
+                whether you want Wald, bootstrap, or jackknife intervals.
               </p>
             </article>
           </div>

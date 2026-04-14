@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>calibratedDML adaptive methods</title>
+    <meta
+      name="description"
+      content="Advanced adaptive binary-treatment methods related to calibratedDML in Python and R."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./site.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="hero">
+        <nav class="topbar">
+          <div class="brand"><a href="./index.html">calibratedDML</a></div>
+          <div class="toplinks">
+            <a href="./index.html">Overview</a>
+            <a href="./examples.html">Examples</a>
+            <a href="./r.html">R Package</a>
+            <a href="./adaptive.html">Adaptive</a>
+            <a href="https://github.com/Larsvanderlaan/DRinference">GitHub</a>
+          </div>
+        </nav>
+
+        <div class="hero-grid">
+          <section class="hero-copy">
+            <p class="eyebrow">Adaptive Methods</p>
+            <h1>Adaptive methods for the advanced binary-treatment workflow.</h1>
+            <p class="lede">
+              These methods target a different efficiency tradeoff than
+              standard calibrated DML. They are for advanced binary-treatment
+              analyses, not the default route for routine causal inference.
+            </p>
+            <div class="hero-actions">
+              <a class="button button-primary" href="#when-to-use">When To Use This</a>
+              <a class="button button-secondary" href="./index.html">Back To Overview</a>
+              <a class="button button-secondary" href="./examples.html">Standard Workflows</a>
+            </div>
+          </section>
+
+          <aside class="hero-panel">
+            <div class="panel-card gradient-card">
+              <p class="panel-label">At A Glance</p>
+              <div class="hero-stat-grid">
+                <div class="hero-stat">
+                  <strong>Treatment setup</strong>
+                  <span>Binary treatment only.</span>
+                </div>
+                <div class="hero-stat">
+                  <strong>Default comparator</strong>
+                  <span>Start with standard calibrated DML unless you intentionally want this route.</span>
+                </div>
+                <div class="hero-stat">
+                  <strong>Entry points</strong>
+                  <span><code>AdaptiveCalibratedDML</code> in Python and <code>adaptive_calibrated_dml()</code> in R.</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="panel-card">
+              <p class="panel-label">Python Entry Point</p>
+              <pre class="code-block"><code>from calibrateddml import AdaptiveCalibratedDML
+
+fit = AdaptiveCalibratedDML(
+    mode="plugin",
+    inference="jackknife",
+    random_state=123,
+)
+
+fit.fit(X, A, y)
+fit.summary()</code></pre>
+            </div>
+          </aside>
+        </div>
+      </header>
+
+      <main>
+        <section class="section" id="when-to-use">
+          <div class="section-heading">
+            <p class="eyebrow">When To Use This</p>
+            <h2>Use this only when you intentionally want the adaptive route</h2>
+            <p>
+              This page is for advanced users with binary treatment who want
+              the adaptive or super-efficient route rather than the main
+              calibrated DML workflow.
+            </p>
+          </div>
+
+          <div class="argument-grid">
+            <article class="argument-card">
+              <h3>Binary treatment</h3>
+              <p>
+                The adaptive interface is for binary-treatment analyses rather
+                than the multi-arm standard workflow.
+              </p>
+            </article>
+            <article class="argument-card">
+              <h3>Intentional choice</h3>
+              <p>
+                Use this only when you are deliberately choosing its different
+                efficiency tradeoff, not as a general default.
+              </p>
+            </article>
+            <article class="argument-card">
+              <h3>Routine work</h3>
+              <p>
+                For routine calibrated doubly robust inference, go back to
+                <a href="./index.html">standard calibrated DML</a>.
+              </p>
+            </article>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="section-heading">
+            <p class="eyebrow">Tradeoffs</p>
+            <h2>What changes relative to standard calibrated DML</h2>
+            <p>
+              Adaptive methods can improve point-estimation efficiency in
+              favorable settings, but the uncertainty layer is harder and
+              confidence intervals can be less stable.
+            </p>
+          </div>
+
+          <div class="comparison-grid">
+            <article class="comparison-card">
+              <p class="panel-label">Potential upside</p>
+              <h3>More aggressive efficiency target</h3>
+              <p>
+                In settings that favor the adaptive estimator, point estimates
+                can be more efficient than the standard calibrated DML route.
+              </p>
+            </article>
+            <article class="comparison-card">
+              <p class="panel-label">Main cost</p>
+              <h3>Inference is more delicate</h3>
+              <p>
+                Interval construction needs more care, and uncertainty can be
+                less stable than with standard calibrated DML.
+              </p>
+            </article>
+          </div>
+        </section>
+
+        <section class="section" id="entry-points">
+          <div class="section-heading">
+            <p class="eyebrow">Entry Points</p>
+            <h2>Python and R entry points</h2>
+            <p>
+              The adaptive APIs are separate from the standard estimator so you
+              can choose them intentionally.
+            </p>
+          </div>
+
+          <div class="comparison-grid">
+            <article class="comparison-card">
+              <p class="panel-label">Python</p>
+              <h3><code>AdaptiveCalibratedDML</code></h3>
+              <p>Use this class for the adaptive binary-treatment workflow in Python.</p>
+            </article>
+            <article class="comparison-card">
+              <p class="panel-label">R</p>
+              <h3><code>adaptive_calibrated_dml()</code></h3>
+              <p>Use this function for the adaptive binary-treatment workflow in R.</p>
+            </article>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="section-heading">
+            <p class="eyebrow">Caveats</p>
+            <h2>Practical caveats</h2>
+            <p>
+              Treat adaptive methods as a specialized follow-on rather than the
+              package entry point.
+            </p>
+          </div>
+
+          <div class="argument-grid">
+            <article class="argument-card">
+              <h3>Binary-treatment only</h3>
+              <p>This page does not replace the standard multi-arm workflow.</p>
+            </article>
+            <article class="argument-card">
+              <h3>Advanced use only</h3>
+              <p>Inference choices such as Wald, bootstrap, and jackknife deserve extra care here.</p>
+            </article>
+            <article class="argument-card">
+              <h3>Keep a baseline</h3>
+              <p>Compare back to standard calibrated DML before treating the adaptive route as your default analysis.</p>
+            </article>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="section-heading">
+            <p class="eyebrow">Next</p>
+            <h2>Continue with the main site</h2>
+            <p>
+              The standard calibrated DML pages remain the main documentation
+              path for most practitioners.
+            </p>
+          </div>
+
+          <div class="footer-links">
+            <a class="footer-link" href="./index.html">Overview</a>
+            <a class="footer-link" href="./examples.html">Workflow chooser</a>
+            <a class="footer-link" href="./r.html">R package page</a>
+            <a class="footer-link" href="https://github.com/Larsvanderlaan/DRinference">GitHub Repository</a>
+          </div>
+        </section>
+      </main>
+    </div>
+  </body>
+</html>

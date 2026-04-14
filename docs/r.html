@@ -25,6 +25,7 @@
             <a href="./index.html">Overview</a>
             <a href="./examples.html">Examples</a>
             <a href="./r.html">R Package</a>
+            <a href="./adaptive.html">Adaptive</a>
             <a href="https://github.com/Larsvanderlaan/DRinference">GitHub</a>
           </div>
         </nav>
@@ -59,7 +60,7 @@
                 </div>
                 <div class="hero-stat">
                   <strong>Adaptive methods</strong>
-                  <span><code>adaptive_calibrated_dml()</code> is advanced and binary-treatment only.</span>
+                  <span><a href="./adaptive.html">Adaptive methods</a> are advanced and binary-treatment only.</span>
                 </div>
               </div>
             </div>
@@ -92,7 +93,8 @@ summary(fit)</code></pre>
               <p>
                 The repository contains the R package alongside the Python
                 package. GitHub install is the current public path from this
-                repository.
+                repository, with built-in nuisance model choices plus optional
+                <code>sl3</code> and <code>SuperLearner</code> integration.
               </p>
             </div>
           </div>
@@ -128,9 +130,10 @@ summary(fit)</code></pre>
               <p class="eyebrow">Entry Points</p>
               <h2>Main R entry points</h2>
               <p>
-                Start with the standard estimator. Use the direct nuisance path
-                when you already have cross-fitted nuisance estimates, and use
-                the adaptive path only for the advanced binary-treatment case.
+                Use <code>calibrated_dml()</code> when the package should fit
+                nuisances for you, and use
+                <code>calibrated_dml_from_nuisances()</code> when you already
+                have cross-fitted nuisance estimates.
               </p>
             </div>
           </div>
@@ -155,46 +158,6 @@ summary(fit)</code></pre>
                 <li>Still runs the calibration, debiasing, and inference layers</li>
                 <li>Works with explicit treatment-level alignment</li>
               </ul>
-            </article>
-          </div>
-        </section>
-
-        <section class="section">
-          <div class="section-heading">
-            <div>
-              <p class="eyebrow">Backends</p>
-              <h2>Nuisance backends</h2>
-              <p>
-                The R package includes built-in model options and can also work
-                with <code>sl3</code> or <code>SuperLearner</code> stacks.
-              </p>
-            </div>
-          </div>
-
-          <div class="argument-grid">
-            <article class="argument-card">
-              <h3>Built-in choices</h3>
-              <p>
-                Standard built-in model names include options such as
-                <code>"mean"</code>, <code>"lm"</code>, <code>"lasso"</code>,
-                <code>"gam"</code>, <code>"random_forest"</code>,
-                <code>"boosted_trees"</code>, and <code>"auto"</code>.
-              </p>
-            </article>
-            <article class="argument-card">
-              <h3><code>sl3</code> integration</h3>
-              <p>
-                Advanced users can fit nuisances through the
-                <code>tlverse</code> ecosystem when they want learner stacks or
-                richer cross-validated pipelines.
-              </p>
-            </article>
-            <article class="argument-card">
-              <h3><code>SuperLearner</code> integration</h3>
-              <p>
-                The package also leaves room for <code>SuperLearner</code>
-                libraries when that is the preferred nuisance-estimation path.
-              </p>
             </article>
           </div>
         </section>
@@ -233,8 +196,8 @@ summary(fit)</code></pre>
             <article class="argument-card">
               <h3>Adaptive workflow</h3>
               <p>
-                Use <code>adaptive_calibrated_dml()</code> only when you
-                intentionally want the advanced binary-treatment route.
+                Use the separate <a href="./adaptive.html">adaptive methods page</a>
+                only when you intentionally want the advanced binary-treatment route.
               </p>
               <p>It is binary-treatment only, and inference can be less stable than standard calibrated DML.</p>
             </article>

@@ -25,6 +25,7 @@
             <a href="./index.html">Overview</a>
             <a href="./examples.html">Examples</a>
             <a href="./r.html">R Package</a>
+            <a href="./adaptive.html">Adaptive</a>
             <a href="https://github.com/Larsvanderlaan/DRinference">GitHub</a>
           </div>
         </nav>
@@ -60,15 +61,15 @@
               <div class="hero-stat-grid">
                 <div class="hero-stat">
                   <strong>Standard workflow</strong>
-                  <span><code>CalibratedDML</code> in Python and <code>calibrated_dml()</code> in R are the default route for routine work.</span>
+                  <span><code>CalibratedDML</code> in Python and <code>calibrated_dml()</code> in R are the default route.</span>
                 </div>
                 <div class="hero-stat">
                   <strong>Main target</strong>
                   <span>Mean potential outcomes and treatment-vs-control contrasts.</span>
                 </div>
                 <div class="hero-stat">
-                  <strong>When to branch off</strong>
-                  <span>Reach for adaptive methods only if you intentionally want the advanced binary-treatment workflow.</span>
+                  <strong>Adaptive methods</strong>
+                  <span>Binary-treatment only and described separately on the <a href="./adaptive.html">adaptive page</a>.</span>
                 </div>
               </div>
             </div>
@@ -93,37 +94,16 @@ fit.confint()</code></pre>
       </header>
 
       <main>
-        <section class="section">
-          <div class="section-heading">
-            <p class="eyebrow">Why This Package</p>
-            <h2>Why not just use AIPW?</h2>
-            <p>
-              For many causal estimands, AIPW and related doubly robust
-              estimators stay consistent if either the outcome regression or
-              the propensity-style nuisance is estimated well. But confidence
-              intervals are harder: standard inference typically needs both
-              nuisances estimated sufficiently well for asymptotic normality.
-            </p>
-            <p>
-              Calibrated DML is built for that gap. It calibrates the nuisances
-              before debiasing so inference can also become doubly robust. In
-              the paper’s core result, if one nuisance is estimated
-              sufficiently well, the other can be arbitrarily slow or even
-              inconsistent and confidence intervals can still remain valid.
-            </p>
-          </div>
-        </section>
-
         <section class="section" id="start-here">
           <div class="section-heading split">
             <div>
               <p class="eyebrow">Start Here</p>
-              <h2>Start with the standard estimator</h2>
+              <h2>Start with standard calibrated DML</h2>
               <p>
-                Most users should use standard calibrated DML. It is the main
-                path for doubly robust inference with flexible nuisance models.
-                Adaptive methods are an advanced binary-treatment option, not
-                the default starting point.
+                For most users, the default path is the standard estimator for
+                calibrated doubly robust inference. If you are specifically
+                looking for the advanced binary-treatment route, go to the
+                separate <a href="./adaptive.html">adaptive methods page</a>.
               </p>
             </div>
           </div>
@@ -138,25 +118,18 @@ fit.confint()</code></pre>
               </p>
               <pre class="inline-code"><code>CalibratedDML(...).fit(X, A, y)
 calibrated_dml(data, outcome, treatment, covariates, ...)</code></pre>
-              <ul>
-                <li>Supports categorical treatment in the standard estimator</li>
-                <li>Works whether nuisances are fit internally or supplied directly</li>
-              </ul>
             </article>
 
             <article class="comparison-card">
               <p class="panel-label">Advanced</p>
-              <h3>Adaptive calibrated DML</h3>
+              <h3>Adaptive methods</h3>
               <p>
-                Use this only when you specifically want the advanced
-                binary-treatment adaptive workflow and are comfortable with
-                harder uncertainty quantification.
+                Binary-treatment only, with a different efficiency tradeoff and
+                more delicate uncertainty quantification.
               </p>
-              <ul>
-                <li>Binary-treatment only</li>
-                <li>Not the default recommendation for general users</li>
-                <li>Best treated as an advanced follow-on, not the entry point</li>
-              </ul>
+              <div class="chip-row">
+                <a class="chip-link" href="./adaptive.html">See adaptive methods</a>
+              </div>
             </article>
           </div>
         </section>
@@ -196,10 +169,10 @@ calibrated_dml(data, outcome, treatment, covariates, ...)</code></pre>
           <div class="section-heading">
             <div>
               <p class="eyebrow">Workflows</p>
-              <h2>Four common ways people use the package</h2>
+              <h2>Common ways people use the package</h2>
               <p>
-                If you want the full decision tree and the exact calls, use the
-                workflow page. This is the short version.
+                Use the workflow page if you want the full chooser. This is the
+                short version.
               </p>
             </div>
           </div>
@@ -217,7 +190,7 @@ calibrated_dml(data, outcome, treatment, covariates, ...)</code></pre>
               <h3>Supply nuisance matrices directly</h3>
               <p>
                 Use this when you already have cross-fitted nuisances and want
-                the package for calibrated inference rather than nuisance fitting.
+                calibrated inference without refitting the nuisance layer.
               </p>
               <p><strong>Call:</strong> <code>fit_from_nuisances(...)</code> or <code>calibrated_dml_from_nuisances(...)</code></p>
             </article>
@@ -230,12 +203,11 @@ calibrated_dml(data, outcome, treatment, covariates, ...)</code></pre>
               <p><strong>Call:</strong> standard calibrated DML with <code>control_level</code></p>
             </article>
             <article class="argument-card">
-              <h3>Adaptive binary treatment</h3>
+              <h3>Advanced adaptive methods</h3>
               <p>
-                Use the adaptive layer only for the advanced binary-treatment
-                route, not for routine calibrated inference.
+                Separate page for the advanced binary-treatment workflow.
               </p>
-              <p><strong>Call:</strong> <code>AdaptiveCalibratedDML(...)</code> or <code>adaptive_calibrated_dml(...)</code></p>
+              <p><strong>Next step:</strong> <a href="./adaptive.html">Open adaptive methods</a></p>
             </article>
           </div>
 
@@ -335,6 +307,7 @@ calibrated_dml(data, outcome, treatment, covariates, ...)</code></pre>
             <a class="footer-link" href="https://arxiv.org/abs/2411.06342">Stabilized inverse weighting paper</a>
             <a class="footer-link" href="./examples.html">Workflow chooser</a>
             <a class="footer-link" href="./r.html">R package page</a>
+            <a class="footer-link" href="./adaptive.html">Adaptive methods</a>
           </div>
         </section>
       </main>
