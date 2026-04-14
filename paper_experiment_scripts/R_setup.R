@@ -1,4 +1,5 @@
-.libPaths( c( "~/Rlibs2", .libPaths()) )
+source(file.path("paper_experiment_scripts", "legacy_config.R"))
+legacy_init_paper_env()
 print(.libPaths())
-setwd("~/sieveSims")
 print(getwd())
+print(legacy_paper_results_dir())

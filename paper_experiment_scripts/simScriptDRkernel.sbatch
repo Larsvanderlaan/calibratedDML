@@ -9,4 +9,11 @@
 echo "LOADING R"
 module load R
 echo "R LOADED"
-Rscript -e 'source("~/DRinference/scripts/R_setup.R"); source("~/DRinference/scripts/DRkernel.R"); n = as.numeric(Sys.getenv("n")); pos_const = as.numeric(Sys.getenv("const")); do_sims(n, 5000)'
+SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+REPO_ROOT=$(cd "$SCRIPT_DIR/.." && pwd)
+export CALIBRATEDDML_REPO_ROOT="$REPO_ROOT"
+export CDML_PAPER_R_LIBS="${CDML_PAPER_R_LIBS:-$SCRIPT_DIR/.r_libs}"
+export CDML_PAPER_RESULTS_DIR="${CDML_PAPER_RESULTS_DIR:-$REPO_ROOT/paper_experiment_results/reproduced}"
+export NSIMS="${NSIMS:-5000}"
+cd "$REPO_ROOT"
+Rscript -e 'source("paper_experiment_scripts/R_setup.R"); source("paper_experiment_scripts/DRkernel.R"); n = as.numeric(Sys.getenv("n")); do_sims(n, as.numeric(Sys.getenv("NSIMS")))'

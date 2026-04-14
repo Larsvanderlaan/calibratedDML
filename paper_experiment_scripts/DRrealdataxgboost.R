@@ -1,3 +1,7 @@
+source(file.path("paper_experiment_scripts", "legacy_config.R"))
+legacy_init_paper_env()
+legacy_require_packages(c("data.table", "sl3", "xgboost", "glmnet"))
+
 library(data.table)
 library(sl3)
 library(xgboost)
@@ -8,6 +12,8 @@ set.seed(98103)
 # = c("lalonde_cps", "lalonde_psid", "twins")
 do_real_data <- function(data_name) {
   print(data_name)
+  nboot <- as.integer(Sys.getenv("CDML_PAPER_NBOOT_REAL", unset = "1000"))
+  max_iters <- as.integer(Sys.getenv("CDML_PAPER_MAX_ITERS", unset = "0"))
 
 
 
@@ -73,9 +79,12 @@ do_real_data <- function(data_name) {
   # acic2018_1000 acic2018_2500 acic2018_5000 acic2018_10000
   if(length(grep("acic2018", data_name)) > 0 ) {
     nsize <- as.numeric(gsub("acic2018_", "", data_name))
-    params <- fread("~/DRinference/data/scaling_small/params.csv")
+    params <- fread(file.path(legacy_paper_data_dir(), "scaling_small", "params.csv"))
     ids <- params$ufid[params$size == nsize]
     iters <- seq_along(ids)
+  }
+  if (max_iters > 0) {
+    iters <- head(iters, max_iters)
   }
 
   print(iters)
@@ -84,9 +93,8 @@ do_real_data <- function(data_name) {
     try({
       print(paste0("iter: ", i))
       if(data_name == "ihdp") {
-        data <- fread(paste0("~/DRinference/data/ihdp/ihdp_npci_", i, ".csv"))
+        data <- fread(file.path(legacy_paper_data_dir(), "ihdp", sprintf("ihdp_npci_%s.csv", i)))
 
-        #data <- fread(paste0("~/DRinference/data/ihdp/ihdp_npci_", i, ".csv"))
         covariates <- setdiff(names(data), c( "t", "y", "ate"))
         W <- as.matrix(data[, covariates, with = FALSE])
         A <- data[, "t", with = FALSE][[1]]
@@ -94,8 +102,8 @@ do_real_data <- function(data_name) {
         ATE <- mean(data$ate)
       } else if(length(grep("acic2018", data_name)) > 0 ) {
         id <- ids[i]
-        f <- fread(paste0("~/DRinference/data/scaling_small/factuals/", id, ".csv"))
-        x <- fread(paste0("~/DRinference/data/scaling_small/x.csv"))
+        f <- fread(file.path(legacy_paper_data_dir(), "scaling_small", "factuals", sprintf("%s.csv", id)))
+        x <- fread(file.path(legacy_paper_data_dir(), "scaling_small", "x.csv"))
         x <- x[match(f$sample_id, x$sample_id)]
         x$sample_id <- NULL
         ATE <- params$effect_size[params$ufid == id]
@@ -105,9 +113,7 @@ do_real_data <- function(data_name) {
       } else if(length(grep("acic2017", data_name)) > 0 ) {
         sim_id <- as.numeric(gsub("acic2017_", "", data_name))
         print(sim_id)
-        if(!require(aciccomp2017)) {
-          devtools::install_github("vdorie/aciccomp/2017")
-        }
+        legacy_require_packages("aciccomp2017")
         library(aciccomp2017)
         W <- aciccomp2017::input_2017
         data <- dgp_2017(sim_id, i)
@@ -116,8 +122,7 @@ do_real_data <- function(data_name) {
         ATE <- mean(data$alpha)
       }
       else {
-        link <- "https://raw.githubusercontent.com/bradyneal/realcause/master/realcause_datasets/"
-        data <- fread(paste0(link, data_name, "_sample", i, ".csv"))
+        data <- fread(legacy_realcause_dataset_file(data_name, i))
 
         covariates <- setdiff(names(data), c( "t", "y", "y0", "y1", "ite"))
         W <- as.matrix(data[, covariates, with = FALSE])
@@ -161,7 +166,7 @@ do_real_data <- function(data_name) {
 
           out_AIPW <- compute_AIPW(A,Y, mu1=mu1, mu0 =mu0, pi1 = pi1, pi0 = pi0)
 
-          out_AuDRIE <- compute_AuDRIE_boot(A,Y,  mu1=mu1, mu0 =mu0, pi1 = pi1, pi0 = pi0, nboot = 1000, folds = folds, alpha = 0.05)
+          out_AuDRIE <- compute_AuDRIE_boot(A,Y,  mu1=mu1, mu0 =mu0, pi1 = pi1, pi0 = pi0, nboot = nboot, folds = folds, alpha = 0.05)
 
           out <- as.data.table(rbind(unlist(out_AuDRIE), unlist(out_AIPW)))
           colnames(out) <- c("estimate", "CI_left", "CI_right")
@@ -182,7 +187,9 @@ do_real_data <- function(data_name) {
   })
   sim_results <- data.table::rbindlist(sim_results)
   key <- data_name
-  try({fwrite(sim_results, paste0("~/DRinference/simResultsDR/sim_results_", key, "_xgboost.csv"))})
+  try({
+    fwrite(sim_results, file.path(legacy_paper_results_dir(), paste0("sim_results_", key, "_xgboost.csv")))
+  })
   return(sim_results)
 }
 
@@ -348,7 +355,5 @@ truncate_pscore_adaptive <- function(A, pi, min_trunc_level = 1e-8) {
   pi <- pmax(pi, cutoff)
   pi
 }
-
-
 
 

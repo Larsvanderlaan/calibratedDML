@@ -1,12 +1,10 @@
+source(file.path("paper_experiment_scripts", "legacy_config.R"))
+legacy_init_paper_env()
+legacy_require_packages(c("data.table", "SuperLearner", "sl3", "xgboost", "FKSUM", "drtmle", "origami"))
+
 library(data.table)
 library(SuperLearner)
 library(sl3)
-if(!require(FKSUM)) {
-  devtools::install_cran("FKSUM")
-}
-if(!require(drtmle)) {
-  devtools::install_github("benkeser/drtmle")
-}
 library(xgboost)
 library(FKSUM)
 d <- 2
@@ -41,7 +39,7 @@ predict.SL.kernelcustom <- function (object, newdata, ...)
 
 
 do_sims <- function(n, nsims) {
-
+  nboot <- as.integer(Sys.getenv("CDML_PAPER_NBOOT_KERNEL", unset = "2500"))
 
 
   lrnr_kernel <-   Lrnr_pkg_SuperLearner$new("SL.kernelcustom")
@@ -87,7 +85,7 @@ do_sims <- function(n, nsims) {
 
           print(mean(mu1 - mu0))
           out_AIPW <- compute_AIPW(A,Y, mu1=mu1, mu0 =mu0, pi1 = pi1, pi0 = pi0)
-          out_AuDRIE <- compute_AuDRIE_boot(A,Y,  mu1=mu1, mu0 =mu0, pi1 = pi1, pi0 = pi0, nboot = 2500, folds = folds, alpha = 0.05)
+          out_AuDRIE <- compute_AuDRIE_boot(A,Y,  mu1=mu1, mu0 =mu0, pi1 = pi1, pi0 = pi0, nboot = nboot, folds = folds, alpha = 0.05)
           out_drtmle <- compute_drtmle(W, A,Y, mu1=mu1, mu0 =mu0, pi1 = pi1, pi0 = pi0, folds = nfolds)
 
 
@@ -112,7 +110,9 @@ do_sims <- function(n, nsims) {
   })
   sim_results <- data.table::rbindlist(sim_results)
   key <- paste0("DR_iter=", nsims, "_n=", n, "_kerneltype=4" )
-  try({fwrite(sim_results, paste0("~/DRinference/simResultsDR/sim_results_", key, ".csv"))})
+  try({
+    fwrite(sim_results, file.path(legacy_paper_results_dir(), paste0("sim_results_", key, ".csv")))
+  })
   return(sim_results)
 }
 
@@ -179,7 +179,7 @@ compute_AuDRIE <- function(A,Y, mu1, mu0, pi1, pi0) {
 }
 
 compute_drtmle <- function(W, A,Y, mu1, mu0, pi1, pi0, ...) {
-  out <- drtmle(W = W, A = A, Y = Y, , a_0 = c(0,1),
+  out <- drtmle::drtmle(W = W, A = A, Y = Y, a_0 = c(0,1),
                 Qn = list(A0 = mu0, A1 = mu1), gn = list(A0 = pi0, A1= pi1),
                 SL_gr = "SL.kernelcustom",
                 SL_Qr = "SL.kernelcustom", maxIter = 20)$drtmle
@@ -352,7 +352,4 @@ truncate_pscore_adaptive <- function(A, pi, min_trunc_level = 1e-8) {
   pi <- pmax(pi, cutoff)
   pi
 }
-
-
-
 

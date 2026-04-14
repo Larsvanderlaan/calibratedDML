@@ -6,6 +6,8 @@ date: '2023-07-05'
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+source(file.path("paper_experiment_scripts", "legacy_config.R"))
+legacy_init_paper_env()
 ```
 
 
@@ -26,7 +28,7 @@ data_names <- c(
 method  <- "xgboost"
 
 ## 3. directory holding the CSVs
-root <- "~/repos/calibratedDML/paper_experiment_results"
+root <- legacy_paper_results_dir()
 
 ## 4. read whichever files exist  -------------------------------------------
 files <- file.path(root, sprintf("sim_results_%s_%s.csv", data_names, method))
@@ -186,12 +188,12 @@ make_latex(wide_fmt)
 
 
 ```{r}
-setwd("~/repos/calibratedDML")
+setwd(legacy_paper_repo_root())
 
 library(data.table)
 
 # Set working directory to the folder with the files
-root <- "~/repos/calibratedDML/paper_experiment_results"
+root <- legacy_paper_results_dir()
 
 # List only the desired files (not containing 'pos=2')
 files <- list.files(root, pattern = "^sim_results_DR_iter=5000_n=\\d+\\.csv$")
@@ -261,8 +263,8 @@ make_plot <- function(d, yvar, ylab, hline = FALSE, legend = FALSE, ylim = NULL)
       legend.text      = element_text(margin = margin(r = 10, unit = "pt")),
       legend.title     = element_blank(),
       axis.title.y     = element_text(margin = margin(r = 5)),
-      axis.title.x     = element_text(margin = margin(t = 5)),
-      plot.margin      = margin(0, 0, 0, 0)  # removes outer whitespace
+      axis.title.x     = element_text(margin = margin(t = 5))
+      #plot.margin      = margin(0, 0, 0, 0)  # removes outer whitespace
     )
 
   if (!is.null(ylim)) {
@@ -287,7 +289,7 @@ ylim_lookup <- summary_stats[
 
 
 ##### 5. Generate plots for each misp #####
-base_height   <- 3.8
+base_height   <- 2.5
 legend_height <- 0.12  # proportion for legend (or empty spacer)
 
 for (m in sort(unique(summary_stats$misp))) {
@@ -326,8 +328,8 @@ for (m in sort(unique(summary_stats$misp))) {
   )
 
  
-ggsave(sprintf("paper_experiment_results/simulation_misp%d.pdf", m),
-       final, width = 10.5, height = base_height, device = cairo_pdf)
+ggsave(file.path(legacy_paper_results_dir(), sprintf("simulation_misp%d.pdf", m)),
+       final, width = 10.5, height = base_height )
 
 }
 
@@ -337,7 +339,7 @@ ggsave(sprintf("paper_experiment_results/simulation_misp%d.pdf", m),
 ```
 
 ```{r}
-setwd("~/repos/calibratedDML")
+setwd(legacy_paper_repo_root())
 ##### 6. Stand-alone legend (ggplot-only) #####
 library(data.table)
 library(ggplot2)
@@ -386,7 +388,7 @@ legend_plot <- ggplot(legend_dt,
   )
 
 # -- 6d. Save legend-only plot --------------------------------------
-ggsave("paper_experiment_results/legend_only.pdf", legend_plot, width = 6, height = 0.9)
+ggsave(file.path(legacy_paper_results_dir(), "legend_only.pdf"), legend_plot, width = 6, height = 0.9)
 
 
 

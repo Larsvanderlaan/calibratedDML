@@ -8,7 +8,9 @@
 #SBATCH -e ./%j.err      # File to which STDERR will be written
 #SBATCH --mail-type=NONE        # Type of email notification- NONE,BEGIN,END,FAIL,ALL
 #SBATCH --mail-user=lvdlaan@uw.edu # Email to which notifications will be sent
-export R_LIBS=~/Rlibs2
-export R_LIBS_USER=~/Rlibs2
+SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+REPO_ROOT=$(cd "$SCRIPT_DIR/.." && pwd)
+export CALIBRATEDDML_REPO_ROOT="$REPO_ROOT"
+export CDML_PAPER_R_LIBS="${CDML_PAPER_R_LIBS:-$SCRIPT_DIR/.r_libs}"
 module load R
-Rscript -e 'source("~/causalHAL/simScripts/install_packages.R")'
+Rscript "$SCRIPT_DIR/install_packages.R"
