@@ -38,7 +38,8 @@
               Use the R package when you want the standard calibrated DML
               workflow for categorical treatment effects, either with
               package-fitted nuisances or with your own cross-fitted nuisance
-              inputs.
+              inputs. Binary-treatment adaptive estimators are documented
+              separately on the <a href="./adaptive.html">Adaptive</a> tab.
             </p>
             <div class="hero-actions">
               <a class="button button-primary" href="#install">Install</a>
@@ -48,25 +49,27 @@
 
           <aside class="hero-panel">
             <div class="panel-card gradient-card">
-              <p class="panel-label">Why Use The R Package</p>
+              <p class="panel-label">R Interfaces</p>
               <div class="hero-stat-grid">
                 <div class="hero-stat">
                   <strong>Main function</strong>
-                  <span><code>calibrated_dml()</code> is the default route for routine work.</span>
+                  <span><code>calibrated_dml()</code> fits the standard calibrated DML estimator.</span>
                 </div>
                 <div class="hero-stat">
                   <strong>Bring your own nuisances</strong>
                   <span><code>calibrated_dml_from_nuisances()</code> is built in.</span>
                 </div>
                 <div class="hero-stat">
-                  <strong>Adaptive methods</strong>
-                  <span><a href="./adaptive.html">Adaptive methods</a> are advanced and binary-treatment only.</span>
+                  <strong>Adaptive DML</strong>
+                  <span><a href="./adaptive.html">Adaptive DML</a> is the separate binary-treatment estimator tab.</span>
                 </div>
               </div>
             </div>
             <div class="panel-card">
               <p class="panel-label">Compact R Example</p>
-              <pre class="code-block"><code>fit <- calibrated_dml(
+              <pre class="code-block"><code>library(calibratedDML)
+
+fit <- calibrated_dml(
   data = df,
   outcome = "Y",
   treatment = "A",
@@ -165,23 +168,22 @@ summary(fit)</code></pre>
         <section class="section">
           <div class="section-heading">
             <div>
-              <p class="eyebrow">Defaults</p>
-              <h2>Practical defaults and inference choices</h2>
+              <p class="eyebrow">Inference</p>
+              <h2>Inference choices and package scope</h2>
               <p>
-                Most R users should start with <code>calibrated_dml()</code>,
-                choose the inference mode explicitly, and treat the adaptive
-                route as advanced.
+                Choose the inference mode explicitly, and treat the standard and
+                adaptive tabs as separate estimator families with different
+                guarantees.
               </p>
             </div>
           </div>
 
           <div class="argument-grid">
             <article class="argument-card">
-              <h3>Start here</h3>
+              <h3>Standard estimator</h3>
               <p>
-                Use <code>calibrated_dml()</code> first and use the
-                package-managed nuisance path unless you already have
-                cross-fitted nuisances.
+                Use <code>calibrated_dml()</code> when you want the standard
+                calibrated DML estimator for categorical treatment settings.
               </p>
             </article>
             <article class="argument-card">
@@ -194,12 +196,12 @@ summary(fit)</code></pre>
               </p>
             </article>
             <article class="argument-card">
-              <h3>Adaptive workflow</h3>
+              <h3>Adaptive DML</h3>
               <p>
-                Use the separate <a href="./adaptive.html">adaptive methods page</a>
-                only when you intentionally want the advanced binary-treatment route.
+                The separate <a href="./adaptive.html">Adaptive</a> tab
+                documents the binary-treatment adaptive estimator family.
               </p>
-              <p>It is binary-treatment only, and inference can be less stable than standard calibrated DML.</p>
+              <p>It has different guarantees and its own uncertainty story.</p>
             </article>
           </div>
         </section>

@@ -6,7 +6,7 @@
     <title>calibratedDML adaptive methods</title>
     <meta
       name="description"
-      content="Advanced adaptive binary-treatment methods related to calibratedDML in Python and R."
+      content="Adaptive debiased machine learning for binary treatment, including dimension reduction, CATE working models, and super-efficiency."
     />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -32,18 +32,25 @@
 
         <div class="hero-grid">
           <section class="hero-copy">
-            <p class="eyebrow">Adaptive Methods</p>
-            <h1>Adaptive methods for the advanced binary-treatment workflow.</h1>
+            <p class="eyebrow">Adaptive DML</p>
+            <h1>Adaptive debiased machine learning is a different estimator with different guarantees.</h1>
             <p class="lede">
-              These methods target a different efficiency tradeoff than
-              standard calibrated DML. They are for advanced binary-treatment
-              analyses, not the default route for routine causal inference.
+              Adaptive DML learns simpler structure from the data, then debiases
+              relative to that learned structure. For binary treatment, that often
+              means replacing a hard high-dimensional adjustment problem with a
+              lower-dimensional summary, such as a calibrated outcome-regression
+              score or a calibrated CATE summary.
             </p>
             <div class="hero-actions">
-              <a class="button button-primary" href="#when-to-use">When To Use This</a>
-              <a class="button button-secondary" href="./index.html">Back To Overview</a>
-              <a class="button button-secondary" href="./examples.html">Standard Workflows</a>
+              <a class="button button-primary" href="#what-it-does">What It Does</a>
+              <a class="button button-secondary" href="#modes">Modes</a>
+              <a class="button button-secondary" href="./index.html">Overview</a>
             </div>
+            <ul class="hero-pills">
+              <li>Binary treatment only</li>
+              <li>Dimension reduction is the main idea</li>
+              <li>Super-efficient at favorable truths</li>
+            </ul>
           </section>
 
           <aside class="hero-panel">
@@ -51,16 +58,16 @@
               <p class="panel-label">At A Glance</p>
               <div class="hero-stat-grid">
                 <div class="hero-stat">
-                  <strong>Treatment setup</strong>
-                  <span>Binary treatment only.</span>
+                  <strong>Package scope</strong>
+                  <span>Adaptive methods are currently documented for binary treatment.</span>
                 </div>
                 <div class="hero-stat">
-                  <strong>Default comparator</strong>
-                  <span>Start with standard calibrated DML unless you intentionally want this route.</span>
+                  <strong>Python modes</strong>
+                  <span><code>plugin</code> and <code>calibrated_rlearner</code>.</span>
                 </div>
                 <div class="hero-stat">
-                  <strong>Entry points</strong>
-                  <span><code>AdaptiveCalibratedDML</code> in Python and <code>adaptive_calibrated_dml()</code> in R.</span>
+                  <strong>Calibration</strong>
+                  <span>Adaptive methods use isotonic calibration internally.</span>
                 </div>
               </div>
             </div>
@@ -72,13 +79,18 @@
                   <p class="example-label">Python</p>
                   <pre class="inline-code"><code>from calibrateddml import AdaptiveCalibratedDML
 
-fit = AdaptiveCalibratedDML(...)
+fit = AdaptiveCalibratedDML(
+  mode="plugin"
+)
 fit.fit(X, A, y)</code></pre>
                 </div>
                 <div class="example-entry">
                   <p class="example-label">R</p>
-                  <pre class="inline-code"><code>fit <- adaptive_calibrated_dml(
-  data = df, ...
+                  <pre class="inline-code"><code>library(calibratedDML)
+
+fit <- adaptive_calibrated_dml(
+  data = df,
+  mode = "calibrated_rlearner"
 )</code></pre>
                 </div>
               </div>
@@ -88,37 +100,75 @@ fit.fit(X, A, y)</code></pre>
       </header>
 
       <main>
-        <section class="section" id="when-to-use">
+        <section class="section" id="what-it-does">
           <div class="section-heading">
-            <p class="eyebrow">When To Use This</p>
-            <h2>Use this only when you intentionally want the adaptive route</h2>
+            <p class="eyebrow">What It Does</p>
+            <h2>Adaptive DML learns a simpler target structure before debiasing</h2>
             <p>
-              This page is for advanced users with binary treatment who want
-              the adaptive or super-efficient route rather than the main
-              calibrated DML workflow.
+              Standard calibrated DML treats the nuisance problem in a broadly
+              nonparametric way. Adaptive DML asks whether the part of the
+              problem most relevant for the target may be simpler than that, and
+              whether that simpler structure can be learned from the data.
+            </p>
+          </div>
+
+          <div class="comparison-grid">
+            <article class="comparison-card">
+              <p class="panel-label">Standard Calibrated DML</p>
+              <h3>Broader regularity and doubly robust inference story</h3>
+              <p>
+                The standard estimator is organized around calibrated nuisance
+                learning and doubly robust inference for the original target.
+              </p>
+            </article>
+            <article class="comparison-card">
+              <p class="panel-label">Adaptive DML</p>
+              <h3>Learn simpler structure, then debias relative to it</h3>
+              <p>
+                The adaptive estimator targets a learned working structure that
+                agrees with the original target at the truth but can have a
+                smaller efficiency bound when the truth is simpler.
+              </p>
+            </article>
+          </div>
+        </section>
+
+        <section class="section" id="dimension-reduction">
+          <div class="section-heading">
+            <p class="eyebrow">Dimension Reduction</p>
+            <h2>Why scalar summaries and reduced models show up</h2>
+            <p>
+              Adaptive DML is not arbitrarily throwing away covariates. It tries
+              to replace a hard high-dimensional adjustment problem with a
+              lower-dimensional summary that preserves the structure most
+              relevant for the estimand.
             </p>
           </div>
 
           <div class="argument-grid">
             <article class="argument-card">
-              <h3>Binary treatment</h3>
+              <h3>Scalar outcome-regression score</h3>
               <p>
-                The adaptive interface is for binary-treatment analyses rather
-                than the multi-arm standard workflow.
+                One route is to reduce the problem to a one-dimensional summary
+                built from the estimated outcome regression, then calibrate that
+                summary before plugging it into the target.
               </p>
             </article>
             <article class="argument-card">
-              <h3>Intentional choice</h3>
+              <h3>Scalar estimated CATE</h3>
               <p>
-                Use this only when you are deliberately choosing its different
-                efficiency tradeoff, not as a general default.
+                For the ATE, another route is to estimate a CATE summary and ask
+                whether the true treatment-effect function is well approximated
+                as a function of that summary.
               </p>
             </article>
             <article class="argument-card">
-              <h3>Routine work</h3>
+              <h3>Learned low-dimensional representation</h3>
               <p>
-                For routine calibrated doubly robust inference, go back to
-                <a href="./index.html">standard calibrated DML</a>.
+                More generally, adaptive DML can work with a learned
+                low-dimensional representation when that representation captures
+                the part of the covariate space that matters for bias correction
+                and efficiency.
               </p>
             </article>
           </div>
@@ -126,46 +176,162 @@ fit.fit(X, A, y)</code></pre>
 
         <section class="section">
           <div class="section-heading">
-            <p class="eyebrow">Tradeoffs</p>
-            <h2>What changes relative to standard calibrated DML</h2>
+            <p class="eyebrow">CATE Story</p>
+            <h2>For the ATE, the key simplifying structure is often the treatment-effect function</h2>
             <p>
-              Adaptive methods can improve point-estimation efficiency in
-              favorable settings, but the uncertainty layer is harder and
-              confidence intervals can be less stable.
+              Adaptive DML can posit a working model in which the true CATE is
+              approximately a function of an estimated CATE summary. This is the
+              intuition behind the calibrated R-learner path.
             </p>
           </div>
 
           <div class="comparison-grid">
             <article class="comparison-card">
-              <p class="panel-label">Potential upside</p>
-              <h3>More aggressive efficiency target</h3>
+              <p class="panel-label">Nearly Constant Effects</p>
+              <h3>When the CATE is close to homogeneous</h3>
               <p>
-                In settings that favor the adaptive estimator, point estimates
-                can be more efficient than the standard calibrated DML route.
+                If treatment effects are nearly constant, a simpler CATE working
+                model can stabilize estimation substantially and deliver much
+                lower variance than a fully unrestricted alternative.
               </p>
             </article>
             <article class="comparison-card">
-              <p class="panel-label">Main cost</p>
-              <h3>Inference is more delicate</h3>
+              <p class="panel-label">Heterogeneous Effects</p>
+              <h3>When treatment effects do vary</h3>
               <p>
-                Interval construction needs more care, and uncertainty can be
-                less stable than with standard calibrated DML.
+                Adaptive DML does not require exact homogeneity. The method can
+                still adapt by learning a richer CATE model when the data
+                support more heterogeneity.
               </p>
             </article>
           </div>
         </section>
 
-        <section class="section" id="entry-points">
+        <section class="section">
           <div class="section-heading">
-            <p class="eyebrow">Entry Points</p>
-            <h2>Python and R entry points</h2>
+            <p class="eyebrow">Super-Efficiency</p>
+            <h2>What super-efficient means here</h2>
             <p>
-              The adaptive APIs are separate from the standard estimator so you
-              can choose them intentionally.
+              Super-efficient means lower variance at favorable truths because
+              the estimator adapts to simpler underlying structure. It does not
+              mean uniformly better.
             </p>
           </div>
 
           <div class="comparison-grid">
+            <article class="comparison-card">
+              <p class="panel-label">Upside</p>
+              <h3>Efficiency can improve when the truth is simpler</h3>
+              <p>
+                If the learned working model approximates the relevant oracle
+                structure well, adaptive DML can have lower realized variance
+                and lower mean-squared error than regular semiparametric
+                estimators.
+              </p>
+            </article>
+            <article class="comparison-card">
+              <p class="panel-label">Tradeoff</p>
+              <h3>Inference is tied to that learned simpler structure</h3>
+              <p>
+                The guarantees are different from regular nonparametric
+                estimators, especially for inference away from the simpler
+                structure that the adaptive method has learned.
+              </p>
+            </article>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="section-heading">
+            <p class="eyebrow">Guarantees And Assumptions</p>
+            <h2>What changes relative to standard calibrated DML</h2>
+            <p>
+              The two estimator families solve related problems but they are not
+              justified by the same theory. The right comparison is simply
+              “different estimator, different guarantees.”
+            </p>
+          </div>
+
+          <div class="comparison-grid">
+            <article class="comparison-card">
+              <p class="panel-label">Standard Calibrated DML</p>
+              <h3>Regular and doubly robust</h3>
+              <p>
+                Standard calibrated DML is built around broader regularity and a
+                doubly robust inference story for the original target.
+              </p>
+            </article>
+            <article class="comparison-card">
+              <p class="panel-label">Adaptive DML</p>
+              <h3>Adaptive to simpler learned structure</h3>
+              <p>
+                Adaptive DML can be more efficient at favorable distributions,
+                but its regularity behavior and inferential guarantees are tied
+                to the oracle-style simpler structure it is approximating.
+              </p>
+            </article>
+          </div>
+
+          <div class="argument-grid" style="margin-top: 16px;">
+            <article class="argument-card">
+              <h3>Usual causal assumptions still matter</h3>
+              <p>
+                Adaptive DML still depends on the usual causal conditions behind
+                outcome-regression and treatment-effect estimation, including
+                consistency, no unmeasured confounding, and overlap.
+              </p>
+            </article>
+            <article class="argument-card">
+              <h3>Adaptive gain needs a good learned working model</h3>
+              <p>
+                The efficiency gain comes from learning a working model that
+                approximates a simpler oracle structure well enough for the
+                model-selection error to be higher order.
+              </p>
+            </article>
+            <article class="argument-card">
+              <h3>Weak overlap may be helped, zero overlap is not solved</h3>
+              <p>
+                Adaptive structure can improve stability when overlap is weak,
+                but it does not remove the underlying population-level support
+                requirements needed for causal interpretation.
+              </p>
+            </article>
+          </div>
+        </section>
+
+        <section class="section" id="modes">
+          <div class="section-heading">
+            <p class="eyebrow">Package Modes</p>
+            <h2>Current package entry points</h2>
+            <p>
+              The package currently exposes adaptive binary-treatment methods
+              through separate Python and R interfaces, with isotonic
+              calibration used internally.
+            </p>
+          </div>
+
+          <div class="comparison-grid">
+            <article class="comparison-card">
+              <p class="panel-label">Mode</p>
+              <h3><code>plugin</code></h3>
+              <p>
+                The plug-in route calibrates the outcome regression and uses the
+                calibrated prediction as the simpler summary entering the target.
+              </p>
+            </article>
+            <article class="comparison-card">
+              <p class="panel-label">Mode</p>
+              <h3><code>calibrated_rlearner</code></h3>
+              <p>
+                The calibrated R-learner route estimates and calibrates a CATE
+                working model. It is especially natural when effects may be
+                close to homogeneous but some heterogeneity is possible.
+              </p>
+            </article>
+          </div>
+
+          <div class="comparison-grid" style="margin-top: 16px;">
             <article class="comparison-card">
               <p class="panel-label">Python</p>
               <h3><code>AdaptiveCalibratedDML</code></h3>
@@ -181,37 +347,11 @@ fit.fit(X, A, y)</code></pre>
 
         <section class="section">
           <div class="section-heading">
-            <p class="eyebrow">Caveats</p>
-            <h2>Practical caveats</h2>
+            <p class="eyebrow">References</p>
+            <h2>Related documentation and papers</h2>
             <p>
-              Treat adaptive methods as a specialized follow-on rather than the
-              package entry point.
-            </p>
-          </div>
-
-          <div class="argument-grid">
-            <article class="argument-card">
-              <h3>Binary-treatment only</h3>
-              <p>This page does not replace the standard multi-arm workflow.</p>
-            </article>
-            <article class="argument-card">
-              <h3>Advanced use only</h3>
-              <p>Inference choices such as Wald, bootstrap, and jackknife deserve extra care here.</p>
-            </article>
-            <article class="argument-card">
-              <h3>Keep a baseline</h3>
-              <p>Compare back to standard calibrated DML before treating the adaptive route as your default analysis.</p>
-            </article>
-          </div>
-        </section>
-
-        <section class="section">
-          <div class="section-heading">
-            <p class="eyebrow">Next</p>
-            <h2>Continue with the main site</h2>
-            <p>
-              The standard calibrated DML pages remain the main documentation
-              path for most practitioners.
+              The package documents standard calibrated DML and adaptive DML
+              separately because they emphasize different estimator stories.
             </p>
           </div>
 
@@ -220,6 +360,7 @@ fit.fit(X, A, y)</code></pre>
             <a class="footer-link" href="./examples.html">Workflow chooser</a>
             <a class="footer-link" href="./r.html">R package page</a>
             <a class="footer-link" href="https://github.com/Larsvanderlaan/DRinference">GitHub Repository</a>
+            <a class="footer-link" href="https://arxiv.org/abs/2411.02771">Doubly robust inference via calibration</a>
           </div>
         </section>
       </main>

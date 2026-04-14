@@ -39,9 +39,10 @@
               for point estimation, but valid confidence intervals usually still
               need both nuisance functions estimated sufficiently well.
               <code>calibratedDML</code> is built to change that: calibration
-              extends double robustness to inference, so confidence intervals
-              can remain valid when one nuisance is estimated sufficiently well,
-              even if the other is slow or wrong.
+              extends double robustness to
+              <a href="https://academic.oup.com/biomet/article/104/4/863/4554445">doubly robust inference</a>,
+              so confidence intervals can remain valid when one nuisance is
+              estimated sufficiently well, even if the other is slow or wrong.
             </p>
             <div class="hero-actions">
               <a class="button button-primary" href="#start-here">Start Here</a>
@@ -57,19 +58,19 @@
 
           <aside class="hero-panel">
             <div class="panel-card gradient-card">
-              <p class="panel-label">Use This First</p>
+              <p class="panel-label">Estimator Map</p>
               <div class="hero-stat-grid">
                 <div class="hero-stat">
-                  <strong>Standard workflow</strong>
-                  <span><code>CalibratedDML</code> in Python and <code>calibrated_dml()</code> in R are the default route.</span>
+                  <strong>Standard calibrated DML</strong>
+                  <span><code>CalibratedDML</code> in Python and <code>calibrated_dml()</code> in R cover the main calibrated doubly robust inference workflow.</span>
                 </div>
                 <div class="hero-stat">
                   <strong>Main target</strong>
                   <span>Mean potential outcomes and treatment-vs-control contrasts.</span>
                 </div>
                 <div class="hero-stat">
-                  <strong>Adaptive methods</strong>
-                  <span>Binary-treatment only and described separately on the <a href="./adaptive.html">adaptive page</a>.</span>
+                  <strong>Adaptive DML</strong>
+                  <span>Binary-treatment adaptive estimators are documented separately on the <a href="./adaptive.html">Adaptive</a> tab.</span>
                 </div>
               </div>
             </div>
@@ -87,7 +88,9 @@ fit.summary()</code></pre>
                 </div>
                 <div class="example-entry">
                   <p class="example-label">R</p>
-                  <pre class="inline-code"><code>fit <- calibrated_dml(
+                  <pre class="inline-code"><code>library(calibratedDML)
+
+fit <- calibrated_dml(
   data = df, ...
 )
 summary(fit)</code></pre>
@@ -102,20 +105,20 @@ summary(fit)</code></pre>
         <section class="section" id="start-here">
           <div class="section-heading split">
             <div>
-              <p class="eyebrow">Start Here</p>
-              <h2>Start with standard calibrated DML</h2>
+              <p class="eyebrow">Estimator Families</p>
+              <h2>Two estimator families are documented on the site</h2>
               <p>
-                For most users, the default path is the standard estimator for
-                calibrated doubly robust inference. If you are specifically
-                looking for the advanced binary-treatment route, go to the
-                separate <a href="./adaptive.html">adaptive methods page</a>.
+                This overview focuses on standard calibrated DML. Adaptive DML
+                is documented separately on the
+                <a href="./adaptive.html">Adaptive</a> tab because it tells a
+                different estimator story and comes with different guarantees.
               </p>
             </div>
           </div>
 
           <div class="comparison-grid">
             <article class="comparison-card">
-              <p class="panel-label">Recommended Default</p>
+              <p class="panel-label">Estimator Family</p>
               <h3>Standard calibrated DML</h3>
               <p>
                 Use this when you want calibrated, doubly robust inference for
@@ -126,14 +129,14 @@ calibrated_dml(data, outcome, treatment, covariates, ...)</code></pre>
             </article>
 
             <article class="comparison-card">
-              <p class="panel-label">Advanced</p>
-              <h3>Adaptive methods</h3>
+              <p class="panel-label">Estimator Family</p>
+              <h3>Adaptive DML</h3>
               <p>
-                Binary-treatment only, with a different efficiency tradeoff and
-                more delicate uncertainty quantification.
+                Binary-treatment adaptive estimators with a separate
+                dimension-reduction and super-efficiency story.
               </p>
               <div class="chip-row">
-                <a class="chip-link" href="./adaptive.html">See adaptive methods</a>
+                <a class="chip-link" href="./adaptive.html">Open Adaptive tab</a>
               </div>
             </article>
           </div>
@@ -145,8 +148,7 @@ calibrated_dml(data, outcome, treatment, covariates, ...)</code></pre>
               <p class="eyebrow">Install</p>
               <h2>Install the interface you need</h2>
               <p>
-                Once you know you want the standard calibrated DML workflow,
-                install the Python package or the R package from the repository.
+                Install the Python package or the R package from the repository.
               </p>
             </div>
           </div>
@@ -208,11 +210,12 @@ calibrated_dml(data, outcome, treatment, covariates, ...)</code></pre>
               <p><strong>Call:</strong> standard calibrated DML with <code>control_level</code></p>
             </article>
             <article class="argument-card">
-              <h3>Advanced adaptive methods</h3>
+              <h3>Adaptive DML</h3>
               <p>
-                Separate page for the advanced binary-treatment workflow.
+                Separate tab for binary-treatment adaptive estimators with a
+                different inferential story.
               </p>
-              <p><strong>Next step:</strong> <a href="./adaptive.html">Open adaptive methods</a></p>
+              <p><strong>Next step:</strong> <a href="./adaptive.html">Open Adaptive tab</a></p>
             </article>
           </div>
 
@@ -243,6 +246,27 @@ calibrated_dml(data, outcome, treatment, covariates, ...)</code></pre>
             </div>
           </div>
 
+          <div class="schematic-card" style="margin-bottom: 18px;">
+            <svg class="schematic-svg" viewBox="0 0 920 190" role="img" aria-label="Workflow schematic showing fit nuisances, calibrate them with one-dimensional maps, and then debias to form the final estimator.">
+              <rect x="28" y="44" width="238" height="92" rx="26" fill="rgba(255,255,255,0.82)" stroke="rgba(24, 52, 58, 0.12)" />
+              <rect x="342" y="44" width="238" height="92" rx="26" fill="rgba(217,239,232,0.54)" stroke="rgba(24, 52, 58, 0.12)" />
+              <rect x="656" y="44" width="238" height="92" rx="26" fill="rgba(246,221,189,0.52)" stroke="rgba(24, 52, 58, 0.12)" />
+              <line x1="266" y1="90" x2="342" y2="90" stroke="rgba(24, 52, 58, 0.34)" stroke-width="4" stroke-linecap="round" />
+              <polygon points="342,90 326,80 326,100" fill="rgba(24, 52, 58, 0.5)" />
+              <line x1="580" y1="90" x2="656" y2="90" stroke="rgba(24, 52, 58, 0.34)" stroke-width="4" stroke-linecap="round" />
+              <polygon points="656,90 640,80 640,100" fill="rgba(24, 52, 58, 0.5)" />
+              <text x="147" y="77" text-anchor="middle" class="panel-label">Step 1</text>
+              <text x="147" y="102" text-anchor="middle" style="fill: var(--ink); font-family: 'Source Serif 4', Georgia, serif; font-size: 28px;">Fit nuisances</text>
+              <text x="147" y="124" text-anchor="middle" class="axis-label">Estimate outcome and treatment models</text>
+              <text x="461" y="77" text-anchor="middle" class="panel-label">Step 2</text>
+              <text x="461" y="102" text-anchor="middle" style="fill: var(--ink); font-family: 'Source Serif 4', Georgia, serif; font-size: 28px;">Calibrate</text>
+              <text x="461" y="124" text-anchor="middle" class="axis-label">Post-hoc one-dimensional maps align fitted scales</text>
+              <text x="775" y="77" text-anchor="middle" class="panel-label">Step 3</text>
+              <text x="775" y="102" text-anchor="middle" style="fill: var(--ink); font-family: 'Source Serif 4', Georgia, serif; font-size: 28px;">Debias</text>
+              <text x="775" y="124" text-anchor="middle" class="axis-label">Form the final calibrated estimator and interval</text>
+            </svg>
+          </div>
+
           <div class="calibration-grid">
             <article class="calibration-card">
               <p class="panel-label">Outcome Regression Calibration</p>
@@ -268,23 +292,27 @@ calibrated_dml(data, outcome, treatment, covariates, ...)</code></pre>
 
             <article class="calibration-card">
               <p class="panel-label">Propensity Calibration</p>
-              <h3>Weights stabilize and balance improves</h3>
+              <h3>Estimated propensities line up better with true propensities</h3>
               <div class="schematic-card">
-                <svg class="schematic-svg" viewBox="0 0 260 180" role="img" aria-label="Propensity calibration schematic showing unstable raw inverse weights and a smoother calibrated curve over estimated propensity score.">
+                <svg class="schematic-svg" viewBox="0 0 260 180" role="img" aria-label="Propensity calibration schematic showing calibrated estimated propensities tracking the true propensity curve more closely.">
                   <line x1="36" y1="22" x2="36" y2="146" class="axis-line" />
                   <line x1="36" y1="146" x2="232" y2="146" class="axis-line" />
-                  <path d="M48 132 C58 56, 74 44, 88 122 C102 152, 120 62, 136 96 C156 138, 176 78, 196 104 C206 116, 214 122, 220 126" class="raw-line" />
-                  <path d="M48 122 C74 110, 98 100, 122 92 C148 84, 174 88, 198 98 C208 102, 214 108, 220 112" class="cal-line" />
+                  <line x1="50" y1="126" x2="220" y2="42" class="guide-line" />
+                  <path d="M50 134 C72 118, 90 76, 114 88 C136 100, 154 56, 178 70 C196 80, 208 58, 220 54" class="raw-line" />
+                  <path d="M50 128 C74 116, 96 104, 118 94 C142 82, 164 72, 188 61 C200 56, 210 50, 220 44" class="cal-line" />
                   <text x="134" y="167" class="axis-label" text-anchor="middle">Estimated propensity score</text>
-                  <text x="16" y="88" class="axis-label" text-anchor="middle" transform="rotate(-90 16 88)">Weight instability / imbalance</text>
-                  <text x="152" y="50" class="legend-label">Raw</text>
-                  <text x="176" y="88" class="legend-label">Calibrated</text>
+                  <text x="16" y="88" class="axis-label" text-anchor="middle" transform="rotate(-90 16 88)">True propensity score</text>
+                  <text x="118" y="76" class="legend-label">Raw</text>
+                  <text x="182" y="82" class="legend-label">Calibrated</text>
                 </svg>
               </div>
               <p>
-                Calibration adjusts the propensity score scale so units within
-                levels of estimated propensity behave more like balanced groups,
-                which automatically dampens extreme inverse weights.
+                Calibration adjusts the propensity-score scale so fitted
+                propensities better match true propensities on average. If the
+                calibrated scores are still extreme, that is more consistent
+                with the true propensities actually being small or large there,
+                rather than those extremes being artifacts of miscalibration
+                alone.
               </p>
             </article>
           </div>
@@ -302,7 +330,8 @@ calibrated_dml(data, outcome, treatment, covariates, ...)</code></pre>
             <h2>Where to go next</h2>
             <p>
               The package lives in the main repository, and the calibrated DML
-              methodology is described in the main paper.
+              methodology is described in the main paper together with the
+              doubly robust inference line of work that motivates it.
             </p>
           </div>
 
@@ -310,6 +339,10 @@ calibrated_dml(data, outcome, treatment, covariates, ...)</code></pre>
             <a class="footer-link" href="https://github.com/Larsvanderlaan/DRinference">GitHub Repository</a>
             <a class="footer-link" href="https://arxiv.org/abs/2411.02771">Doubly robust inference via calibration</a>
             <a class="footer-link" href="https://arxiv.org/abs/2411.06342">Stabilized inverse weighting paper</a>
+            <a class="footer-link" href="https://academic.oup.com/biomet/article/104/4/863/4554445">Benkeser et al. (2017)</a>
+            <a class="footer-link" href="https://pubmed.ncbi.nlm.nih.gov/28744883/">Diaz and van der Laan (2017)</a>
+            <a class="footer-link" href="https://www.jmlr.org/papers/v25/22-1233.html">Dukes, Vansteelandt, and Whitney (2024)</a>
+            <a class="footer-link" href="https://arxiv.org/abs/2405.08525">Bonvini et al. (2024)</a>
             <a class="footer-link" href="./examples.html">Workflow chooser</a>
             <a class="footer-link" href="./r.html">R package page</a>
             <a class="footer-link" href="./adaptive.html">Adaptive methods</a>

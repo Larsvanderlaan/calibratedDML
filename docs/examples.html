@@ -37,8 +37,8 @@
             <p class="lede">
               Choose based on whether you want the package to fit nuisances for
               you and whether you already have cross-fitted nuisance inputs.
-              The advanced adaptive binary-treatment route now lives on its own
-              page.
+              Adaptive DML for binary treatment is documented separately on the
+              <a href="./adaptive.html">Adaptive</a> tab.
             </p>
             <div class="hero-actions">
               <a class="button button-primary" href="#workflows">Browse Workflows</a>
@@ -131,13 +131,12 @@
               <p class="panel-label">Workflow 4</p>
               <h3>Adaptive binary-treatment methods</h3>
               <p>
-                Separate advanced page for binary-treatment users who
-                intentionally want the adaptive route rather than the standard
-                calibrated DML workflow.
+                Separate page for binary-treatment adaptive estimators with a
+                different dimension-reduction and efficiency story.
               </p>
-              <p><strong>Why this workflow:</strong> It is a different, advanced goal than routine calibrated doubly robust inference.</p>
+              <p><strong>Why this workflow:</strong> It is a different estimator family with different guarantees.</p>
               <div class="chip-row">
-                <a class="chip-link" href="./adaptive.html">Open adaptive page</a>
+                <a class="chip-link" href="./adaptive.html">Open Adaptive tab</a>
               </div>
             </article>
           </div>
@@ -151,7 +150,7 @@
               <p>
                 If you already have nuisance estimates, they should usually be
                 cross-fitted. If you later branch to adaptive methods,
-                inference choice matters more.
+                be deliberate about the inference layer you want to use.
               </p>
             </div>
           </div>
@@ -167,9 +166,8 @@
             <article class="callout">
               <p class="panel-label">Inference choice</p>
               <p>
-                Standard calibrated DML is the routine default. If you branch
-                to adaptive binary-treatment methods, be deliberate about
-                whether you want Wald, bootstrap, or jackknife intervals.
+                Adaptive DML has a different inferential story, so be deliberate
+                about whether you want Wald, bootstrap, or jackknife intervals.
               </p>
             </article>
           </div>
