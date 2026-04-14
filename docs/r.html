@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>calibratedDML R package</title>
+    <meta
+      name="description"
+      content="R package overview for calibratedDML, including standard categorical-treatment estimation and adaptive binary-treatment methods."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./site.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="hero">
+        <nav class="topbar">
+          <div class="brand"><a href="./index.html">calibratedDML</a></div>
+          <div class="toplinks">
+            <a href="./index.html">Overview</a>
+            <a href="./examples.html">Examples</a>
+            <a href="./r.html">R Package</a>
+            <a href="https://github.com/Larsvanderlaan/DRinference">GitHub</a>
+          </div>
+        </nav>
+
+        <div class="hero-grid">
+          <section class="hero-copy">
+            <p class="eyebrow">R Package</p>
+            <h1>The R interface is a first-class path for calibrated DML workflows.</h1>
+            <p class="lede">
+              The R package supports standard calibrated DML for categorical
+              treatments, direct nuisance-matrix workflows, and binary-treatment
+              adaptive estimators. It is especially well suited for users who
+              want to plug into <code>sl3</code>, <code>SuperLearner</code>, or
+              custom nuisance backends while keeping the inferential layer in a
+              single package.
+            </p>
+            <div class="hero-actions">
+              <a class="button button-primary" href="#install">Install</a>
+              <a class="button button-secondary" href="#entry-points">Main Entry Points</a>
+            </div>
+          </section>
+
+          <aside class="hero-panel">
+            <div class="panel-card gradient-card">
+              <p class="panel-label">R Quick Summary</p>
+              <div class="hero-stat-grid">
+                <div class="hero-stat">
+                  <strong>Standard estimator</strong>
+                  <span><code>calibrated_dml()</code> handles categorical treatment.</span>
+                </div>
+                <div class="hero-stat">
+                  <strong>Direct nuisance path</strong>
+                  <span><code>calibrated_dml_from_nuisances()</code> is built in.</span>
+                </div>
+                <div class="hero-stat">
+                  <strong>Adaptive scope</strong>
+                  <span><code>adaptive_calibrated_dml()</code> is binary-treatment only.</span>
+                </div>
+              </div>
+            </div>
+            <div class="panel-card">
+              <p class="panel-label">Compact R Example</p>
+              <pre class="code-block"><code>fit <- calibrated_dml(
+  data = df,
+  outcome = "Y",
+  treatment = "A",
+  covariates = c("W1", "W2", "W3"),
+  control_level = 0,
+  outcome_model = "lasso",
+  treatment_model = "lasso",
+  calibration_method = "auto",
+  inference = "wald"
+)
+
+summary(fit)</code></pre>
+            </div>
+          </aside>
+        </div>
+      </header>
+
+      <main>
+        <section class="section" id="install">
+          <div class="section-heading split">
+            <div>
+              <p class="eyebrow">Install</p>
+              <h2>Install the R package from GitHub</h2>
+              <p>
+                The repository contains the R package alongside the Python
+                package. GitHub install is the current public path from this
+                repository.
+              </p>
+            </div>
+            <p class="section-side-note">
+              This is the right path if you want the R interface, optional
+              modeling backends, and the current package implementation.
+            </p>
+          </div>
+
+          <div class="argument-grid">
+            <article class="argument-card">
+              <p class="mini-label">Install</p>
+              <h3>GitHub</h3>
+              <pre class="inline-code"><code>remotes::install_github("Larsvanderlaan/DRinference")</code></pre>
+            </article>
+            <article class="argument-card">
+              <p class="mini-label">Optional</p>
+              <h3>Advanced nuisance backends</h3>
+              <p>
+                The package can integrate with <code>sl3</code> and
+                <code>SuperLearner</code> when those ecosystems are available.
+              </p>
+            </article>
+            <article class="argument-card">
+              <p class="mini-label">Output</p>
+              <h3>Printed summaries</h3>
+              <p>
+                Standard fitted objects support <code>summary()</code> for a
+                quick table of arm means and treatment-vs-control contrasts.
+              </p>
+            </article>
+          </div>
+        </section>
+
+        <section class="section" id="entry-points">
+          <div class="section-heading split">
+            <div>
+              <p class="eyebrow">Entry Points</p>
+              <h2>Main R entry points</h2>
+              <p>
+                The R API is organized around whether nuisances are fit inside
+                the package or supplied directly, plus a separate adaptive path
+                for binary treatment.
+              </p>
+            </div>
+            <p class="section-side-note">
+              Start with the standard estimator unless you have a specific
+              adaptive or external-nuisance need.
+            </p>
+          </div>
+
+          <div class="comparison-grid">
+            <article class="comparison-card">
+              <p class="panel-label">Standard</p>
+              <h3><code>calibrated_dml()</code></h3>
+              <ul>
+                <li>Categorical treatment support in the standard estimator</li>
+                <li>Fits nuisances internally when <code>mu_mat</code> and <code>pi_mat</code> are omitted</li>
+                <li>Returns fitted objects with printed summaries</li>
+                <li>Supports <code>wald</code>, <code>bootstrap</code>, and <code>jackknife</code></li>
+              </ul>
+            </article>
+            <article class="comparison-card">
+              <p class="panel-label">Direct Nuisance Path</p>
+              <h3><code>calibrated_dml_from_nuisances()</code></h3>
+              <ul>
+                <li>Supply cross-fitted <code>mu_mat</code> and <code>pi_mat</code> directly</li>
+                <li>Useful for custom nuisance pipelines and reproducibility checks</li>
+                <li>Still runs the calibration, debiasing, and inference layers</li>
+                <li>Works with explicit treatment-level alignment</li>
+              </ul>
+            </article>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="section-heading split">
+            <div>
+              <p class="eyebrow">Backends</p>
+              <h2>Built-in and advanced nuisance backends</h2>
+              <p>
+                The standard R estimator supports built-in model names and also
+                leaves room for richer nuisance-learning stacks when you want to
+                bring in external learners.
+              </p>
+            </div>
+            <p class="section-side-note">
+              This is where the R package is broader than the lean Python
+              package interface.
+            </p>
+          </div>
+
+          <div class="argument-grid">
+            <article class="argument-card">
+              <h3>Built-in choices</h3>
+              <p>
+                Standard built-in model names include options such as
+                <code>"mean"</code>, <code>"lm"</code>, <code>"lasso"</code>,
+                <code>"gam"</code>, <code>"random_forest"</code>,
+                <code>"boosted_trees"</code>, and <code>"auto"</code>.
+              </p>
+            </article>
+            <article class="argument-card">
+              <h3><code>sl3</code> integration</h3>
+              <p>
+                Advanced users can fit nuisances through the
+                <code>tlverse</code> ecosystem when they want learner stacks or
+                richer cross-validated pipelines.
+              </p>
+            </article>
+            <article class="argument-card">
+              <h3><code>SuperLearner</code> integration</h3>
+              <p>
+                The package also leaves room for <code>SuperLearner</code>
+                libraries when that is the preferred nuisance-estimation path.
+              </p>
+            </article>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="section-heading split">
+            <div>
+              <p class="eyebrow">Estimator Families</p>
+              <h2>Standard versus adaptive estimators</h2>
+              <p>
+                The R package exposes both the standard calibrated DML
+                estimator family and a broader adaptive binary-treatment layer.
+              </p>
+            </div>
+            <p class="section-side-note">
+              Adaptive methods are available, but they are still not the default
+              recommendation for routine work.
+            </p>
+          </div>
+
+          <div class="comparison-grid">
+            <article class="comparison-card">
+              <p class="panel-label">Routine Use</p>
+              <h3>Standard calibrated DML</h3>
+              <p>
+                Use the standard estimator for most empirical work. It handles
+                categorical treatment directly and keeps the inferential target
+                clear: arm means and treatment-vs-control contrasts.
+              </p>
+            </article>
+            <article class="comparison-card">
+              <p class="panel-label">Advanced</p>
+              <h3><code>adaptive_calibrated_dml()</code></h3>
+              <p>
+                The adaptive R API is binary-treatment only and intended for
+                users who explicitly want plugin or calibrated R-learner style
+                adaptive methods.
+              </p>
+              <ul>
+                <li>Binary-treatment only</li>
+                <li>Supports broader adaptive modes than Python</li>
+                <li>Inference can be less stable than standard calibrated DML</li>
+              </ul>
+            </article>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="section-heading split">
+            <div>
+              <p class="eyebrow">Defaults</p>
+              <h2>Practical defaults and inference choices</h2>
+              <p>
+                For most users, the goal is to keep the nuisance-learning side
+                flexible while keeping the inferential choices explicit and
+                boring.
+              </p>
+            </div>
+            <p class="section-side-note">
+              Good defaults lower friction, but the user should still know which
+              inference mode they are asking for.
+            </p>
+          </div>
+
+          <div class="argument-grid">
+            <article class="argument-card">
+              <h3>Default recommendation</h3>
+              <p>
+                Start with the standard estimator, use the package-managed
+                nuisance path unless you already have cross-fitted nuisances,
+                and treat adaptive methods as deliberate advanced choices.
+              </p>
+            </article>
+            <article class="argument-card">
+              <h3>Inference modes</h3>
+              <p>
+                The standard R interface supports
+                <code>"wald"</code>, <code>"bootstrap"</code>, and
+                <code>"jackknife"</code>. Choose the uncertainty layer
+                explicitly rather than inheriting it by accident.
+              </p>
+            </article>
+            <article class="argument-card">
+              <h3>Longer walkthrough</h3>
+              <p>
+                The repository contains a longer vignette source, but this page
+                focuses on the package surface and default user paths.
+              </p>
+            </article>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="section-heading">
+            <p class="eyebrow">Next</p>
+            <h2>Continue through the rest of the microsite</h2>
+          </div>
+          <div class="footer-links">
+            <a class="footer-link" href="./index.html">Overview</a>
+            <a class="footer-link" href="./examples.html">Workflow chooser</a>
+            <a class="footer-link" href="https://github.com/Larsvanderlaan/DRinference">GitHub repository</a>
+          </div>
+        </section>
+      </main>
+    </div>
+  </body>
+</html>
