@@ -32,13 +32,23 @@
 
         <div class="hero-grid">
           <section class="hero-copy">
-            <p class="eyebrow">Causal Inference And Econometrics</p>
-            <h1 class="hero-title-main">Calibrated debiased machine learning for causal effect inference.</h1>
+            <p class="eyebrow">Causal Inference</p>
+            <div class="hero-head">
+              <h1 class="hero-title-main">Calibrated debiased machine learning for causal effect inference.</h1>
+              <div class="hero-art">
+                <img
+                  src="./assets/calibrateddml-badge-mark.svg"
+                  alt="Circular calibratedDML package badge with a calibration plot"
+                  width="1024"
+                  height="1024"
+                />
+              </div>
+            </div>
             <p class="lede">
               Standard doubly robust estimators such as AIPW are doubly robust
               for point estimation, but valid confidence intervals usually still
               need both nuisance functions estimated sufficiently well.
-              <code>calibratedDML</code> is built to change that: calibration
+              <a href="https://arxiv.org/abs/2411.02771"><code>calibratedDML</code></a> is built to change that: calibration
               extends double robustness to
               <a href="https://academic.oup.com/biomet/article/104/4/863/4554445">doubly robust inference</a>,
               so confidence intervals can remain valid when one nuisance is
@@ -69,15 +79,15 @@
                   <span>Mean potential outcomes and treatment-vs-control contrasts.</span>
                 </div>
                 <div class="hero-stat">
-                  <strong>Adaptive DML</strong>
-                  <span>Binary-treatment adaptive estimators are documented separately on the <a href="./adaptive.html">Adaptive</a> tab.</span>
+                  <strong>Experimental</strong>
+                  <span><a href="./adaptive.html">Adaptive</a></span>
                 </div>
               </div>
             </div>
 
-            <div class="panel-card">
+            <div class="panel-card quick-start-card">
               <p class="panel-label">Quick Start</p>
-              <div class="example-entry-grid">
+              <div class="example-entry-grid quick-start-grid">
                 <div class="example-entry">
                   <p class="example-label">Python</p>
                   <pre class="inline-code"><code>from calibrateddml import CalibratedDML
@@ -105,20 +115,19 @@ summary(fit)</code></pre>
         <section class="section" id="start-here">
           <div class="section-heading split">
             <div>
-              <p class="eyebrow">Estimator Families</p>
-              <h2>Two estimator families are documented on the site</h2>
+              <p class="eyebrow">Start Here</p>
+              <h2>The overview page focuses on standard calibrated DML</h2>
               <p>
-                This overview focuses on standard calibrated DML. Adaptive DML
-                is documented separately on the
-                <a href="./adaptive.html">Adaptive</a> tab because it tells a
-                different estimator story and comes with different guarantees.
+                Use the main estimator when you want calibrated, doubly robust
+                inference for mean potential outcomes and treatment-vs-control
+                contrasts.
               </p>
             </div>
           </div>
 
           <div class="comparison-grid">
             <article class="comparison-card">
-              <p class="panel-label">Estimator Family</p>
+              <p class="panel-label">Main Estimator</p>
               <h3>Standard calibrated DML</h3>
               <p>
                 Use this when you want calibrated, doubly robust inference for
@@ -127,19 +136,112 @@ summary(fit)</code></pre>
               <pre class="inline-code"><code>CalibratedDML(...).fit(X, A, y)
 calibrated_dml(data, outcome, treatment, covariates, ...)</code></pre>
             </article>
+          </div>
 
-            <article class="comparison-card">
-              <p class="panel-label">Estimator Family</p>
-              <h3>Adaptive DML</h3>
+          <div class="chip-row" style="margin-top: 18px;">
+            <a class="chip-link" href="./adaptive.html">Experimental: Adaptive</a>
+          </div>
+        </section>
+
+        <section class="section" id="calibration">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Calibration</p>
+              <h2>Calibration is why the package gives doubly robust inference</h2>
               <p>
-                Binary-treatment adaptive estimators with a separate
-                dimension-reduction and super-efficiency story.
+                The package calibrates the nuisance functions after fitting and
+                before debiasing. That extra step is what turns a standard
+                doubly robust estimator into a calibrated one with weaker
+                nuisance-rate requirements for inference.
               </p>
-              <div class="chip-row">
-                <a class="chip-link" href="./adaptive.html">Open Adaptive tab</a>
+              <p>
+                In practice, calibration can also automatically stabilize
+                extreme inverse weights and reduce variance, especially when
+                overlap is limited; see
+                <a href="https://arxiv.org/abs/2411.06342">Stabilized Inverse Probability Weighting via Isotonic Calibration</a>.
+                But this does not remove the need for population-level
+                positivity or overlap assumptions in the theory.
+              </p>
+            </div>
+          </div>
+
+          <div class="schematic-card calibration-flow-card">
+            <div class="workflow-strip" role="img" aria-label="Workflow schematic showing fit nuisances, calibrate them with one-dimensional maps, and then debias to form the final estimator.">
+              <article class="workflow-step workflow-step-plain">
+                <p class="workflow-step-label">Step 1</p>
+                <h3>Fit nuisances</h3>
+                <p>Estimate outcome and treatment models</p>
+              </article>
+              <div class="workflow-connector" aria-hidden="true"></div>
+              <article class="workflow-step workflow-step-accent">
+                <p class="workflow-step-label">Step 2</p>
+                <h3>Calibrate</h3>
+                <p>Post-hoc one-dimensional maps align fitted scales</p>
+              </article>
+              <div class="workflow-connector" aria-hidden="true"></div>
+              <article class="workflow-step workflow-step-warm">
+                <p class="workflow-step-label">Step 3</p>
+                <h3>Debias</h3>
+                <p>Form the final calibrated estimator and interval</p>
+              </article>
+            </div>
+          </div>
+
+          <div class="calibration-grid">
+            <article class="calibration-card">
+              <p class="panel-label">Outcome Regression Calibration</p>
+              <h3>Predictions align with observed outcomes</h3>
+              <div class="schematic-card">
+                <svg class="schematic-svg" viewBox="0 0 260 180" role="img" aria-label="Outcome calibration schematic showing a raw curved fit and a calibrated line closer to the diagonal relationship between predicted and observed outcomes.">
+                  <line x1="36" y1="22" x2="36" y2="146" class="axis-line" />
+                  <line x1="36" y1="146" x2="232" y2="146" class="axis-line" />
+                  <line x1="52" y1="130" x2="216" y2="34" class="guide-line" />
+                  <path d="M52 120 C88 112, 116 88, 146 82 C172 77, 190 60, 216 42" class="raw-line" />
+                  <path d="M52 128 C88 112, 118 95, 146 78 C172 63, 194 49, 216 36" class="cal-line" />
+                  <text x="134" y="167" class="axis-label" text-anchor="middle">Predicted outcome</text>
+                  <text x="16" y="88" class="axis-label" text-anchor="middle" transform="rotate(-90 16 88)">Observed outcome</text>
+                  <text x="182" y="104" class="legend-label">Raw</text>
+                  <text x="186" y="60" class="legend-label">Calibrated</text>
+                </svg>
               </div>
+              <p>
+                Calibration maps raw outcome predictions so units with similar
+                predicted outcomes have observed outcomes on the right scale.
+              </p>
+            </article>
+
+            <article class="calibration-card">
+              <p class="panel-label">Propensity Calibration</p>
+              <h3>Estimated propensities line up better with true propensities</h3>
+              <div class="schematic-card">
+                <svg class="schematic-svg" viewBox="0 0 260 180" role="img" aria-label="Propensity calibration schematic showing calibrated estimated propensities tracking the true propensity curve more closely.">
+                  <line x1="36" y1="22" x2="36" y2="146" class="axis-line" />
+                  <line x1="36" y1="146" x2="232" y2="146" class="axis-line" />
+                  <line x1="50" y1="126" x2="220" y2="42" class="guide-line" />
+                  <path d="M50 134 C72 118, 90 76, 114 88 C136 100, 154 56, 178 70 C196 80, 208 58, 220 54" class="raw-line" />
+                  <path d="M50 128 C74 116, 96 104, 118 94 C142 82, 164 72, 188 61 C200 56, 210 50, 220 44" class="cal-line" />
+                  <text x="134" y="167" class="axis-label" text-anchor="middle">Estimated propensity score</text>
+                  <text x="16" y="88" class="axis-label" text-anchor="middle" transform="rotate(-90 16 88)">True propensity score</text>
+                  <text x="118" y="76" class="legend-label">Raw</text>
+                  <text x="182" y="82" class="legend-label">Calibrated</text>
+                </svg>
+              </div>
+              <p>
+                Calibration adjusts the propensity-score scale so fitted
+                propensities better match true propensities on average. If the
+                calibrated scores are still extreme, that is more consistent
+                with the true propensities actually being small or large there,
+                rather than those extremes being artifacts of miscalibration
+                alone.
+              </p>
             </article>
           </div>
+
+          <p class="calibration-summary">
+            These calibration steps help with finite-sample bias and variance,
+            and in the calibrated-DML theory they are the reason one sufficiently
+            good nuisance can be enough for valid inference.
+          </p>
         </section>
 
         <section class="section" id="install">
@@ -209,119 +311,12 @@ calibrated_dml(data, outcome, treatment, covariates, ...)</code></pre>
               </p>
               <p><strong>Call:</strong> standard calibrated DML with <code>control_level</code></p>
             </article>
-            <article class="argument-card">
-              <h3>Adaptive DML</h3>
-              <p>
-                Separate tab for binary-treatment adaptive estimators with a
-                different inferential story.
-              </p>
-              <p><strong>Next step:</strong> <a href="./adaptive.html">Open Adaptive tab</a></p>
-            </article>
           </div>
 
           <div class="chip-row" style="margin-top: 18px;">
             <a class="chip-link" href="./examples.html">Open the workflow chooser</a>
+            <a class="chip-link" href="./adaptive.html">Experimental: Adaptive</a>
           </div>
-        </section>
-
-        <section class="section" id="calibration">
-          <div class="section-heading">
-            <div>
-              <p class="eyebrow">Calibration</p>
-              <h2>Calibration is why the package gives doubly robust inference</h2>
-              <p>
-                The package calibrates the nuisance functions after fitting and
-                before debiasing. That extra step is what turns a standard
-                doubly robust estimator into a calibrated one with weaker
-                nuisance-rate requirements for inference.
-              </p>
-              <p>
-                In practice, calibration can also automatically stabilize
-                extreme inverse weights and reduce variance, especially when
-                overlap is limited; see
-                <a href="https://arxiv.org/abs/2411.06342">Stabilized Inverse Probability Weighting via Isotonic Calibration</a>.
-                But this does not remove the need for population-level
-                positivity or overlap assumptions in the theory.
-              </p>
-            </div>
-          </div>
-
-          <div class="schematic-card" style="margin-bottom: 18px;">
-            <svg class="schematic-svg" viewBox="0 0 920 190" role="img" aria-label="Workflow schematic showing fit nuisances, calibrate them with one-dimensional maps, and then debias to form the final estimator.">
-              <rect x="28" y="44" width="238" height="92" rx="26" fill="rgba(255,255,255,0.82)" stroke="rgba(24, 52, 58, 0.12)" />
-              <rect x="342" y="44" width="238" height="92" rx="26" fill="rgba(217,239,232,0.54)" stroke="rgba(24, 52, 58, 0.12)" />
-              <rect x="656" y="44" width="238" height="92" rx="26" fill="rgba(246,221,189,0.52)" stroke="rgba(24, 52, 58, 0.12)" />
-              <line x1="266" y1="90" x2="342" y2="90" stroke="rgba(24, 52, 58, 0.34)" stroke-width="4" stroke-linecap="round" />
-              <polygon points="342,90 326,80 326,100" fill="rgba(24, 52, 58, 0.5)" />
-              <line x1="580" y1="90" x2="656" y2="90" stroke="rgba(24, 52, 58, 0.34)" stroke-width="4" stroke-linecap="round" />
-              <polygon points="656,90 640,80 640,100" fill="rgba(24, 52, 58, 0.5)" />
-              <text x="147" y="77" text-anchor="middle" class="panel-label">Step 1</text>
-              <text x="147" y="102" text-anchor="middle" style="fill: var(--ink); font-family: 'Source Serif 4', Georgia, serif; font-size: 28px;">Fit nuisances</text>
-              <text x="147" y="124" text-anchor="middle" class="axis-label">Estimate outcome and treatment models</text>
-              <text x="461" y="77" text-anchor="middle" class="panel-label">Step 2</text>
-              <text x="461" y="102" text-anchor="middle" style="fill: var(--ink); font-family: 'Source Serif 4', Georgia, serif; font-size: 28px;">Calibrate</text>
-              <text x="461" y="124" text-anchor="middle" class="axis-label">Post-hoc one-dimensional maps align fitted scales</text>
-              <text x="775" y="77" text-anchor="middle" class="panel-label">Step 3</text>
-              <text x="775" y="102" text-anchor="middle" style="fill: var(--ink); font-family: 'Source Serif 4', Georgia, serif; font-size: 28px;">Debias</text>
-              <text x="775" y="124" text-anchor="middle" class="axis-label">Form the final calibrated estimator and interval</text>
-            </svg>
-          </div>
-
-          <div class="calibration-grid">
-            <article class="calibration-card">
-              <p class="panel-label">Outcome Regression Calibration</p>
-              <h3>Predictions align with observed outcomes</h3>
-              <div class="schematic-card">
-                <svg class="schematic-svg" viewBox="0 0 260 180" role="img" aria-label="Outcome calibration schematic showing a raw curved fit and a calibrated line closer to the diagonal relationship between predicted and observed outcomes.">
-                  <line x1="36" y1="22" x2="36" y2="146" class="axis-line" />
-                  <line x1="36" y1="146" x2="232" y2="146" class="axis-line" />
-                  <line x1="52" y1="130" x2="216" y2="34" class="guide-line" />
-                  <path d="M52 120 C88 112, 116 88, 146 82 C172 77, 190 60, 216 42" class="raw-line" />
-                  <path d="M52 128 C88 112, 118 95, 146 78 C172 63, 194 49, 216 36" class="cal-line" />
-                  <text x="134" y="167" class="axis-label" text-anchor="middle">Predicted outcome</text>
-                  <text x="16" y="88" class="axis-label" text-anchor="middle" transform="rotate(-90 16 88)">Observed outcome</text>
-                  <text x="182" y="104" class="legend-label">Raw</text>
-                  <text x="186" y="60" class="legend-label">Calibrated</text>
-                </svg>
-              </div>
-              <p>
-                Calibration maps raw outcome predictions so units with similar
-                predicted outcomes have observed outcomes on the right scale.
-              </p>
-            </article>
-
-            <article class="calibration-card">
-              <p class="panel-label">Propensity Calibration</p>
-              <h3>Estimated propensities line up better with true propensities</h3>
-              <div class="schematic-card">
-                <svg class="schematic-svg" viewBox="0 0 260 180" role="img" aria-label="Propensity calibration schematic showing calibrated estimated propensities tracking the true propensity curve more closely.">
-                  <line x1="36" y1="22" x2="36" y2="146" class="axis-line" />
-                  <line x1="36" y1="146" x2="232" y2="146" class="axis-line" />
-                  <line x1="50" y1="126" x2="220" y2="42" class="guide-line" />
-                  <path d="M50 134 C72 118, 90 76, 114 88 C136 100, 154 56, 178 70 C196 80, 208 58, 220 54" class="raw-line" />
-                  <path d="M50 128 C74 116, 96 104, 118 94 C142 82, 164 72, 188 61 C200 56, 210 50, 220 44" class="cal-line" />
-                  <text x="134" y="167" class="axis-label" text-anchor="middle">Estimated propensity score</text>
-                  <text x="16" y="88" class="axis-label" text-anchor="middle" transform="rotate(-90 16 88)">True propensity score</text>
-                  <text x="118" y="76" class="legend-label">Raw</text>
-                  <text x="182" y="82" class="legend-label">Calibrated</text>
-                </svg>
-              </div>
-              <p>
-                Calibration adjusts the propensity-score scale so fitted
-                propensities better match true propensities on average. If the
-                calibrated scores are still extreme, that is more consistent
-                with the true propensities actually being small or large there,
-                rather than those extremes being artifacts of miscalibration
-                alone.
-              </p>
-            </article>
-          </div>
-
-          <p class="calibration-summary">
-            These calibration steps help with finite-sample bias and variance,
-            and in the calibrated-DML theory they are the reason one sufficiently
-            good nuisance can be enough for valid inference.
-          </p>
         </section>
 
         <section class="section" id="references">
@@ -337,6 +332,7 @@ calibrated_dml(data, outcome, treatment, covariates, ...)</code></pre>
 
           <div class="footer-links">
             <a class="footer-link" href="https://github.com/Larsvanderlaan/DRinference">GitHub Repository</a>
+            <a class="footer-link" href="https://larsvanderlaan.github.io/ppi-aipw/index.html">Companion package: ppi_aipw</a>
             <a class="footer-link" href="https://arxiv.org/abs/2411.02771">Doubly robust inference via calibration</a>
             <a class="footer-link" href="https://arxiv.org/abs/2411.06342">Stabilized inverse weighting paper</a>
             <a class="footer-link" href="https://academic.oup.com/biomet/article/104/4/863/4554445">Benkeser et al. (2017)</a>

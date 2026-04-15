@@ -100,7 +100,7 @@ a {
 
 .hero-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.3fr) minmax(320px, 0.8fr);
+  grid-template-columns: minmax(0, 1.14fr) minmax(420px, 0.96fr);
   gap: 24px;
   margin-top: 22px;
   align-items: stretch;
@@ -147,6 +147,38 @@ a {
 
 .hero-title-main {
   max-width: 30ch;
+}
+
+.hero-copy {
+  min-width: 0;
+}
+
+.hero-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) clamp(176px, 20vw, 232px);
+  gap: clamp(18px, 3vw, 30px);
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.hero-head .hero-title-main {
+  margin-bottom: 0;
+  max-width: 14ch;
+}
+
+.hero-art {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.hero-art img {
+  display: block;
+  width: min(100%, 224px);
+  max-width: 100%;
+  height: auto;
+  filter: drop-shadow(0 16px 30px rgba(41, 65, 73, 0.12));
 }
 
 .lede {
@@ -217,6 +249,24 @@ a {
 .hero-panel {
   display: grid;
   gap: 16px;
+  align-content: start;
+}
+
+.quick-start-card {
+  padding: 22px 24px 24px;
+}
+
+.quick-start-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.quick-start-card .example-entry {
+  padding: 16px;
+}
+
+.quick-start-card .inline-code {
+  padding: 14px 16px;
 }
 
 .section,
@@ -382,11 +432,112 @@ a {
   margin-bottom: 18px;
 }
 
+.calibration-flow-card {
+  margin-bottom: 18px;
+  padding: 26px 24px;
+}
+
+.workflow-strip {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 52px minmax(0, 1fr) 52px minmax(0, 1fr);
+  align-items: center;
+}
+
+.workflow-step {
+  min-height: 150px;
+  padding: 22px 24px 20px;
+  border-radius: 26px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.84);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55);
+  text-align: center;
+}
+
+.workflow-step-plain {
+  background: rgba(255, 255, 255, 0.82);
+}
+
+.workflow-step-accent {
+  background: rgba(217, 239, 232, 0.54);
+}
+
+.workflow-step-warm {
+  background: rgba(246, 221, 189, 0.52);
+}
+
+.workflow-step-label {
+  margin: 0 0 8px;
+  font-size: 0.82rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #111518;
+  font-weight: 700;
+}
+
+.workflow-step h3 {
+  margin: 0 0 10px;
+  font-size: clamp(2rem, 3.2vw, 2.65rem);
+  line-height: 0.95;
+  color: var(--ink);
+}
+
+.workflow-step p {
+  margin: 0 auto;
+  max-width: 22ch;
+  color: var(--muted);
+  line-height: 1.5;
+  font-size: 1rem;
+}
+
+.workflow-connector {
+  position: relative;
+  height: 4px;
+  margin: 0 2px;
+  border-radius: 999px;
+  background: rgba(24, 52, 58, 0.3);
+}
+
+.workflow-connector::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: -1px;
+  transform: translateY(-50%);
+  border-top: 10px solid transparent;
+  border-bottom: 10px solid transparent;
+  border-left: 16px solid rgba(24, 52, 58, 0.42);
+}
+
 .calibration-card {
   background: rgba(255, 255, 255, 0.78);
   border: 1px solid var(--line);
   border-radius: var(--radius-sm);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.calibration-card .panel-label {
+  margin-bottom: 0;
+}
+
+.calibration-card h3 {
+  margin: 0;
+  font-size: clamp(1.8rem, 3vw, 2.35rem);
+  line-height: 1.02;
+  max-width: 14ch;
+}
+
+.calibration-card .schematic-card {
+  margin: 2px 0 4px;
   padding: 18px;
+}
+
+.calibration-card > p:last-child {
+  margin: 0;
+  font-size: 1.02rem;
+  line-height: 1.65;
 }
 
 .schematic-card {
@@ -527,6 +678,36 @@ a {
   .argument-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
+  .hero-head {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .hero-art {
+    justify-content: flex-start;
+  }
+
+  .quick-start-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .workflow-strip {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .workflow-connector {
+    display: none;
+  }
+
+  .workflow-step {
+    min-height: auto;
+  }
+
+  .calibration-card h3 {
+    max-width: none;
+  }
 }
 
 @media (max-width: 720px) {
@@ -544,7 +725,8 @@ a {
   .footer-card,
   .comparison-card,
   .argument-card,
-  .callout {
+  .callout,
+  .calibration-card {
     border-radius: 24px;
   }
 
@@ -559,6 +741,14 @@ a {
   .argument-grid,
   .example-entry-grid {
     grid-template-columns: 1fr;
+  }
+
+  .calibration-flow-card {
+    padding: 18px;
+  }
+
+  .workflow-step {
+    padding: 18px;
   }
 
   .button {

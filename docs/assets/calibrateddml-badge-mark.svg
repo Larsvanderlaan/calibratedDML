@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-labelledby="title desc">
+  <title id="title">calibratedDML circular badge</title>
+  <desc id="desc">Circular calibratedDML badge with a calibration plot and the package name centered beneath it.</desc>
+  <defs>
+    <clipPath id="plot-window-calibrateddml">
+      <rect x="278" y="258" width="468" height="276" rx="46"/>
+    </clipPath>
+  </defs>
+  <g fill="none" fill-rule="evenodd">
+    <circle cx="512" cy="512" r="336" fill="#FFF8F0" stroke="#18343A" stroke-width="24"/>
+    <circle cx="512" cy="512" r="292" fill="none" stroke="#1E7B6F" stroke-opacity="0.14" stroke-width="10"/>
+
+    <rect x="252" y="232" width="520" height="328" rx="54" fill="#FFFDF9" stroke="#18343A" stroke-width="18"/>
+    <path d="M320 486h384" stroke="#18343A" stroke-opacity="0.14" stroke-linecap="round" stroke-width="8"/>
+    <path d="M320 422h384" stroke="#18343A" stroke-opacity="0.1" stroke-linecap="round" stroke-width="8"/>
+    <path d="M320 358h384" stroke="#18343A" stroke-opacity="0.08" stroke-linecap="round" stroke-width="8"/>
+    <path d="M338 496L690 290" stroke="#18343A" stroke-opacity="0.12" stroke-dasharray="14 12" stroke-linecap="round" stroke-width="10"/>
+
+    <g clip-path="url(#plot-window-calibrateddml)">
+      <path d="M338 500C380 480 414 446 448 426C488 402 528 390 562 386C598 382 628 364 654 338C672 320 688 304 706 292" stroke="#1E7B6F" stroke-linecap="round" stroke-linejoin="round" stroke-width="22"/>
+      <path d="M338 484C376 470 412 436 444 424C476 412 502 402 532 406C558 410 590 398 626 366C654 342 684 330 706 324" stroke="#C98B48" stroke-linecap="round" stroke-linejoin="round" stroke-width="18"/>
+      <circle cx="338" cy="500" r="13" fill="#FFF8F0" stroke="#18343A" stroke-width="8"/>
+      <circle cx="448" cy="426" r="13" fill="#FFF8F0" stroke="#18343A" stroke-width="8"/>
+      <circle cx="562" cy="386" r="13" fill="#FFF8F0" stroke="#18343A" stroke-width="8"/>
+      <circle cx="654" cy="338" r="13" fill="#FFF8F0" stroke="#18343A" stroke-width="8"/>
+      <circle cx="706" cy="292" r="13" fill="#FFF8F0" stroke="#18343A" stroke-width="8"/>
+    </g>
+
+    <text x="512" y="682" fill="#18343A" font-family="'Avenir Next', 'Helvetica Neue', Arial, sans-serif" font-size="68" font-weight="700" text-anchor="middle">calibratedDML</text>
+  </g>
+</svg>
