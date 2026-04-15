@@ -33,13 +33,12 @@
         <div class="hero-grid">
           <section class="hero-copy">
             <p class="eyebrow">R Package</p>
-            <h1>Use the R package when you want doubly robust inference, not just doubly robust point estimates.</h1>
+            <h1>R interface for calibratedDML.</h1>
             <p class="lede">
-              Use the R package when you want the standard calibrated DML
-              workflow for categorical treatment effects, either with
-              package-fitted nuisances or with your own cross-fitted nuisance
-              inputs. Binary-treatment adaptive estimators are documented
-              separately on the <a href="./adaptive.html">Adaptive</a> tab.
+              This page documents the R interface to calibratedDML, including
+              the standard estimator, supplied-nuisance workflows, and
+              available inference modes. Adaptive DML is documented separately
+              on the <a href="./adaptive.html">Adaptive</a> tab.
             </p>
             <div class="hero-actions">
               <a class="button button-primary" href="#install">Install</a>
@@ -53,11 +52,11 @@
               <div class="hero-stat-grid">
                 <div class="hero-stat">
                   <strong>Main function</strong>
-                  <span><code>calibrated_dml()</code> fits the standard calibrated DML estimator.</span>
+                  <span><code>calibrated_dml()</code> fits the standard calibrated DML estimator in R.</span>
                 </div>
                 <div class="hero-stat">
-                  <strong>Bring your own nuisances</strong>
-                  <span><code>calibrated_dml_from_nuisances()</code> is built in.</span>
+                  <strong>Supplied nuisances</strong>
+                  <span><code>calibrated_dml_from_nuisances()</code> is available for cross-fitted nuisance inputs.</span>
                 </div>
                 <div class="hero-stat">
                   <strong>Adaptive DML</strong>
@@ -133,17 +132,15 @@ summary(fit)</code></pre>
               <p class="eyebrow">Entry Points</p>
               <h2>Main R entry points</h2>
               <p>
-                Use <code>calibrated_dml()</code> when the package should fit
-                nuisances for you, and use
-                <code>calibrated_dml_from_nuisances()</code> when you already
-                have cross-fitted nuisance estimates.
+                The R interface supports fitting the standard estimator from raw
+                data or from supplied cross-fitted nuisance estimates.
               </p>
             </div>
           </div>
 
           <div class="comparison-grid">
             <article class="comparison-card">
-              <p class="panel-label">Standard</p>
+              <p class="panel-label">Main R entry point</p>
               <h3><code>calibrated_dml()</code></h3>
               <ul>
                 <li>Categorical treatment support in the standard estimator</li>
@@ -153,7 +150,7 @@ summary(fit)</code></pre>
               </ul>
             </article>
             <article class="comparison-card">
-              <p class="panel-label">Direct Nuisance Path</p>
+              <p class="panel-label">Supplied nuisance estimates</p>
               <h3><code>calibrated_dml_from_nuisances()</code></h3>
               <ul>
                 <li>Supply cross-fitted <code>mu_mat</code> and <code>pi_mat</code> directly</li>
@@ -171,9 +168,9 @@ summary(fit)</code></pre>
               <p class="eyebrow">Inference</p>
               <h2>Inference choices and package scope</h2>
               <p>
-                Choose the inference mode explicitly, and treat the standard and
-                adaptive tabs as separate estimator families with different
-                guarantees.
+                Choose the inference mode explicitly. The standard R interface
+                and the adaptive page document different estimator families with
+                different guarantees.
               </p>
             </div>
           </div>
@@ -182,8 +179,8 @@ summary(fit)</code></pre>
             <article class="argument-card">
               <h3>Standard estimator</h3>
               <p>
-                Use <code>calibrated_dml()</code> when you want the standard
-                calibrated DML estimator for categorical treatment settings.
+                <code>calibrated_dml()</code> is the standard R interface for
+                calibrated DML with categorical treatment.
               </p>
             </article>
             <article class="argument-card">

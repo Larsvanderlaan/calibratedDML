@@ -34,7 +34,7 @@
           <section class="hero-copy">
             <p class="eyebrow">Causal Inference</p>
             <div class="hero-head">
-              <h1 class="hero-title-main">Calibrated doubly robust inference for causal effects.</h1>
+              <h1 class="hero-title-main">Calibrated debiased machine learning for doubly robust causal inference.</h1>
               <div class="hero-art">
                 <img
                   src="./assets/calibrateddml-badge-mark.svg"
@@ -46,10 +46,11 @@
             </div>
             <p class="lede">
               <a href="https://arxiv.org/abs/2411.02771"><code>calibratedDML</code></a>
-              estimates mean potential outcomes and treatment contrasts using
-              calibrated doubly robust methods. It is intended for analyses
-              where interval validity matters and nuisance models may be fit
-              with flexible machine-learning methods.
+              estimates mean potential outcomes and treatment contrasts with
+              calibrated doubly robust estimators. It is designed for settings
+              where confidence intervals matter and nuisance models may be fit
+              flexibly, including cases where one nuisance model is estimated
+              well enough and the other is slower or misspecified.
             </p>
             <div class="hero-actions">
               <a class="button button-primary" href="#start-here">Get started</a>
@@ -87,6 +88,7 @@
               <div class="example-entry-grid quick-start-grid">
                 <div class="example-entry">
                   <p class="example-label">Python</p>
+                  <p class="mini-label">Python interface</p>
                   <pre class="inline-code"><code>from calibrateddml import CalibratedDML
 
 fit = CalibratedDML(...)
@@ -95,6 +97,7 @@ fit.summary()</code></pre>
                 </div>
                 <div class="example-entry">
                   <p class="example-label">R</p>
+                  <p class="mini-label">R interface</p>
                   <pre class="inline-code"><code>library(calibratedDML)
 
 fit <- calibrated_dml(
@@ -126,10 +129,10 @@ summary(fit)</code></pre>
           <div class="comparison-grid">
             <article class="comparison-card">
               <p class="panel-label">Primary method</p>
-              <h3>Standard calibrated DML</h3>
+              <h3>Calibrated DML for doubly robust inference</h3>
               <p>
-                The standard estimator is the main entry point for estimation
-                and inference on arm means and treatment-versus-control
+                The standard estimator is the main entry point for interval
+                valid inference on arm means and treatment-versus-control
                 contrasts.
               </p>
               <pre class="inline-code"><code>CalibratedDML(...).fit(X, A, y)
@@ -148,11 +151,12 @@ calibrated_dml(data, outcome, treatment, covariates, ...)</code></pre>
               <p class="eyebrow">Calibration</p>
               <h2>Why not use a standard doubly robust estimator?</h2>
               <p>
-                Standard doubly robust estimators protect point estimation, but
-                valid confidence intervals often still depend on both nuisance
-                functions being estimated well enough. Calibrated DML adds a
-                calibration step before debiasing so inference remains valid
-                under weaker nuisance-rate conditions.
+                Standard doubly robust estimators mainly protect point
+                estimates, but valid confidence intervals often still depend on
+                both nuisance functions being estimated well enough.
+                calibratedDML adds a calibration step before debiasing so
+                confidence intervals can remain valid under weaker
+                nuisance-rate conditions.
               </p>
               <p>
                 In practice, calibration can also stabilize extreme inverse
@@ -212,7 +216,7 @@ calibrated_dml(data, outcome, treatment, covariates, ...)</code></pre>
 
             <article class="calibration-card">
               <p class="panel-label">Propensity Calibration</p>
-              <h3>Estimated propensities better reflect the treatment mechanism</h3>
+              <h3>Propensity calibration fixes the weighting scale</h3>
               <div class="schematic-card">
                 <svg class="schematic-svg" viewBox="0 0 260 180" role="img" aria-label="Propensity calibration schematic showing calibrated estimated propensities tracking the true propensity curve more closely.">
                   <line x1="36" y1="22" x2="36" y2="146" class="axis-line" />
@@ -227,10 +231,10 @@ calibrated_dml(data, outcome, treatment, covariates, ...)</code></pre>
                 </svg>
               </div>
               <p>
-                Calibration adjusts the propensity-score scale so fitted
-                propensities better track the underlying treatment mechanism.
-                When calibrated scores remain extreme, that is more consistent
-                with limited overlap than with scale distortion alone.
+                Calibration helps ensure that inverse-propensity weights are
+                large only when they need to be. If calibrated propensities are
+                still very small, that points to real limited overlap rather
+                than avoidable estimation error.
               </p>
             </article>
           </div>

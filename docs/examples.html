@@ -32,12 +32,13 @@
 
         <div class="hero-grid">
           <section class="hero-copy">
-            <p class="eyebrow">Workflow Chooser</p>
-            <h1>Pick the workflow closest to your causal estimation problem.</h1>
+            <p class="eyebrow">Workflows</p>
+            <h1>Common calibratedDML workflows.</h1>
             <p class="lede">
-              Choose based on whether you want the package to fit nuisances for
-              you and whether you already have cross-fitted nuisance inputs.
-              Adaptive DML for binary treatment is documented separately on the
+              This page maps the main standard calibrated DML workflows:
+              fitting from raw data, starting from supplied nuisance
+              estimates, and multi-arm analyses. Adaptive DML for binary
+              treatment is documented separately on the
               <a href="./adaptive.html">Adaptive</a> tab.
             </p>
             <div class="hero-actions">
@@ -66,11 +67,10 @@
               <p class="panel-label">Workflow 1</p>
               <h3>Standard estimator from raw data</h3>
               <p>
-                Use this when your target is a mean potential outcome or
-                treatment-vs-control contrast and you want the package to fit
-                nuisances, cross-fit, calibrate, and run inference for you.
+                Use when the package should fit nuisance models, calibrate them,
+                and report inference from raw data.
               </p>
-              <p><strong>Why this workflow:</strong> It is the easiest route to calibrated, doubly robust inference from raw data.</p>
+              <p><strong>Call:</strong> <code>CalibratedDML(...).fit(X, A, y)</code> or <code>calibrated_dml(data, outcome, treatment, covariates, ...)</code></p>
               <div class="example-entry-grid">
                 <div class="example-entry">
                   <p class="example-label">Python</p>
@@ -87,11 +87,11 @@
               <p class="panel-label">Workflow 2</p>
               <h3>Estimator from supplied nuisance matrices</h3>
               <p>
-                Use this when you already have cross-fitted nuisance functions
-                and want the package to handle only calibration, debiasing, and
-                inference.
+                Use when cross-fitted nuisance estimates are already available
+                and only calibration, debiasing, and inference should be run
+                here.
               </p>
-              <p><strong>Why this workflow:</strong> It lets you keep your nuisance pipeline and use the package for calibrated inference.</p>
+              <p><strong>Call:</strong> <code>CalibratedDML(...).fit_from_nuisances(A, y, mu_mat, pi_mat, ...)</code> or <code>calibrated_dml_from_nuisances(A, Y, mu_mat, pi_mat, ...)</code></p>
               <div class="example-entry-grid">
                 <div class="example-entry">
                   <p class="example-label">Python</p>
@@ -108,13 +108,10 @@
               <p class="panel-label">Workflow 3</p>
               <h3>Multi-arm treatment with control contrasts</h3>
               <p>
-                Use the standard estimator when treatment has more than two
-                levels and your estimand is every arm mean plus each
-                treatment-vs-control contrast. The package aligns columns to
-                treatment levels and reports results relative to the chosen
-                control arm.
+                Use when treatment has more than two levels and the estimand is
+                arm means plus treatment-versus-control contrasts.
               </p>
-              <p><strong>Why this workflow:</strong> It gives the same calibrated inference idea for multi-arm means and control contrasts.</p>
+              <p><strong>Call:</strong> standard calibrated DML with <code>control_level</code></p>
               <div class="example-entry-grid">
                 <div class="example-entry">
                   <p class="example-label">Python</p>
@@ -131,10 +128,9 @@
               <p class="panel-label">Workflow 4</p>
               <h3>Adaptive binary-treatment methods</h3>
               <p>
-                Separate page for binary-treatment adaptive estimators with a
-                different dimension-reduction and efficiency story.
+                Adaptive DML is documented separately on the Adaptive page.
               </p>
-              <p><strong>Why this workflow:</strong> It is a different estimator family with different guarantees.</p>
+              <p><strong>Next:</strong> <a href="./adaptive.html">Open Adaptive tab</a></p>
               <div class="chip-row">
                 <a class="chip-link" href="./adaptive.html">Open Adaptive tab</a>
               </div>
@@ -149,8 +145,8 @@
               <h2>Two practical things to check</h2>
               <p>
                 If you already have nuisance estimates, they should usually be
-                cross-fitted. If you later branch to adaptive methods,
-                be deliberate about the inference layer you want to use.
+                cross-fitted. Adaptive DML is documented separately because it
+                has a different inferential story.
               </p>
             </div>
           </div>
