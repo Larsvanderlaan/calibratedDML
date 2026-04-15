@@ -175,7 +175,7 @@ fit <- adaptive_calibrated_dml(
               <p class="panel-label">Step 3</p>
               <h3>Debias and average to the ATE</h3>
               <p>
-                Debias in the induced working model and average to estimate the
+                Debias in the adaptive working model and average to estimate the
                 ATE.
               </p>
             </article>
@@ -188,9 +188,12 @@ fit <- adaptive_calibrated_dml(
             <h2>Why use it?</h2>
             <p>
               The motivation is the overlap and weighting tradeoff for ATE
-              estimation: fully nonparametric methods are flexible but can be
-              unstable, while constant-effect models are stable but restrictive.
-              Adaptive DML sits between those two regimes.
+              estimation. The key difference across estimators is how much
+              inverse-overlap variation they allow: fully nonparametric
+              estimators vary with all of <code>W</code>, constant-effect
+              partially linear models collapse to one constant regime, and the
+              adaptive estimator varies only along the learned one-dimensional
+              CATE summary.
             </p>
           </div>
 
@@ -198,6 +201,7 @@ fit <- adaptive_calibrated_dml(
             <article class="comparison-card">
               <p class="panel-label">Fully nonparametric AIPW</p>
               <h3>Most flexible, strongest overlap demands</h3>
+              <pre class="inline-code"><code>1 / {pi(W)(1 - pi(W))}</code></pre>
               <p>
                 This route allows rich heterogeneity but typically needs the
                 most overlap and can have the highest variance.
@@ -206,28 +210,31 @@ fit <- adaptive_calibrated_dml(
             <article class="comparison-card">
               <p class="panel-label">Constant-effect PLM</p>
               <h3>Most structured, least overlap-sensitive</h3>
+              <pre class="inline-code"><code>1 / E[pi(W)(1 - pi(W))]</code></pre>
               <p>
-                This can be much more stable, but it can be wrong if the
-                treatment effect is not constant.
+                This can work with much less overlap, but it can be biased if
+                the constant-effect model is wrong.
               </p>
             </article>
             <article class="comparison-card">
               <p class="panel-label">Learned CATE model</p>
               <h3>Middle ground</h3>
+              <pre class="inline-code"><code>1 / E[pi(W)(1 - pi(W)) | tau(W)]</code></pre>
               <p>
-                Adaptive DML uses the learned CATE as a one-dimensional middle
-                ground: more structured than the nonparametric route, less
-                restrictive than a constant-effect model.
+                Adaptive DML uses the estimated CATE as a scalar reduction, so
+                it is more structured than the nonparametric route while
+                remaining more flexible than a constant-effect model.
               </p>
             </article>
           </div>
 
           <p class="calibration-summary">
-            The adaptive estimator works through overlap in the learned
-            one-dimensional CATE summary rather than through the full
-            covariate space. When that summary is informative, this can yield
-            a lower-variance alternative to the fully nonparametric route; in
-            favorable cases, this is the super-efficiency phenomenon.
+            The adaptive estimator reduces the relevant overlap problem from
+            the full covariate space to variation along the learned CATE
+            summary. When that summary captures the treatment-effect structure
+            well, this can substantially reduce variance; in favorable cases
+            this is the super-efficiency phenomenon, meaning lower variance
+            than the fully nonparametric estimator at those truths.
           </p>
         </section>
 
@@ -238,8 +245,8 @@ fit <- adaptive_calibrated_dml(
             <p>
               Adaptive DML is mainly worth considering when overlap is too weak
               for reliable or precise fully nonparametric inference and the
-              treatment-effect pattern may be simpler than the full outcome
-              surface.
+              CATE may be close to constant or well-approximated by a simpler
+              one-dimensional effect structure.
             </p>
           </div>
 
@@ -252,7 +259,7 @@ fit <- adaptive_calibrated_dml(
               </p>
             </article>
             <article class="argument-card">
-              <h3>It adapts to near-constant effects</h3>
+              <h3>Constant-effect models are nested inside it</h3>
               <p>
                 Constant-effect models are contained in the adaptive working
                 model, so the estimator adapts naturally when the CATE is close
@@ -260,10 +267,12 @@ fit <- adaptive_calibrated_dml(
               </p>
             </article>
             <article class="argument-card">
-              <h3>Use cautiously</h3>
+              <h3>Inference theory is model-based</h3>
               <p>
-                Inference is for the induced working model, not the broadest
-                standard calibrated DML target.
+                Inference is based on the adaptive working model. The theory
+                treats the learned reduction as approximating an oracle model
+                built from the true CATE-based reduction; see the paper for
+                the formal conditions.
               </p>
             </article>
           </div>
@@ -321,6 +330,9 @@ fit <- adaptive_calibrated_dml(
             <a class="footer-link" href="https://arxiv.org/abs/2506.03833">Adaptive debiased machine learning using data-driven model selection techniques</a>
             <a class="footer-link" href="https://projecteuclid.org/journals/statistical-science/volume-34/issue-1/A-Super-Efficient-Estimator-of-the-Average-Treatment-Effect/10.1214/18-STS690.full">A Super-Efficient Estimator of the Average Treatment Effect</a>
             <a class="footer-link" href="https://arxiv.org/abs/2411.02771">Doubly robust inference via calibration</a>
+            <a class="footer-link" href="https://www.jstor.org/stable/1912705">Robinson (1988): Root-N-consistent semiparametric regression</a>
+            <a class="footer-link" href="https://doi.org/10.1093/biomet/asn055">Crump et al. (2009): Dealing with limited overlap in estimation of average treatment effects</a>
+            <a class="footer-link" href="https://doi.org/10.1093/aje/kwy201">Li, Thomas, and Li (2019): Addressing extreme propensity scores via the overlap weights</a>
           </div>
 
           <div class="footer-links">
