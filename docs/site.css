@@ -76,6 +76,7 @@ a {
 .brand a,
 .toplinks a,
 .button,
+.paper-link,
 .chip-link,
 .footer-link {
   text-decoration: none;
@@ -87,6 +88,44 @@ a {
   flex-wrap: wrap;
   align-items: center;
   flex: 1 1 auto;
+}
+
+.paper-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  color: var(--ink);
+  background: linear-gradient(135deg, rgba(255, 181, 98, 0.34), rgba(217, 239, 232, 0.72));
+  border: 1px solid rgba(30, 123, 111, 0.18);
+  box-shadow: 0 10px 24px rgba(41, 65, 73, 0.08);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.paper-link:hover {
+  transform: translateY(-1px);
+}
+
+.paper-link-icon {
+  position: relative;
+  width: 14px;
+  height: 16px;
+  border: 1.6px solid currentColor;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.78);
+  flex: 0 0 auto;
+}
+
+.paper-link-icon::after {
+  content: "";
+  position: absolute;
+  top: -1px;
+  right: -1px;
+  width: 6px;
+  height: 6px;
+  background: linear-gradient(135deg, transparent 49%, currentColor 50%);
 }
 
 .toplinks a {
@@ -155,15 +194,15 @@ a {
 
 .hero-head {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) clamp(176px, 20vw, 232px);
-  gap: clamp(18px, 3vw, 30px);
+  grid-template-columns: minmax(0, 1.32fr) clamp(176px, 17vw, 212px);
+  gap: clamp(16px, 2.4vw, 26px);
   align-items: center;
   margin-bottom: 10px;
 }
 
 .hero-head .hero-title-main {
   margin-bottom: 0;
-  max-width: 14ch;
+  max-width: 22ch;
 }
 
 .hero-art {
