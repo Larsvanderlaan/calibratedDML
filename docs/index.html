@@ -34,7 +34,7 @@
           <section class="hero-copy">
             <p class="eyebrow">Causal Inference</p>
             <div class="hero-head">
-              <h1 class="hero-title-main">Calibrated debiased machine learning for causal effect inference.</h1>
+              <h1 class="hero-title-main">Calibrated doubly robust inference for causal effects.</h1>
               <div class="hero-art">
                 <img
                   src="./assets/calibrateddml-badge-mark.svg"
@@ -45,19 +45,16 @@
               </div>
             </div>
             <p class="lede">
-              Standard doubly robust estimators such as AIPW are doubly robust
-              for point estimation, but valid confidence intervals usually still
-              need both nuisance functions estimated sufficiently well.
-              <a href="https://arxiv.org/abs/2411.02771"><code>calibratedDML</code></a> is built to change that: calibration
-              extends double robustness to
-              <a href="https://academic.oup.com/biomet/article/104/4/863/4554445">doubly robust inference</a>,
-              so confidence intervals can remain valid when one nuisance is
-              estimated sufficiently well, even if the other is slow or wrong.
+              <a href="https://arxiv.org/abs/2411.02771"><code>calibratedDML</code></a>
+              estimates mean potential outcomes and treatment contrasts using
+              calibrated doubly robust methods. It is intended for analyses
+              where interval validity matters and nuisance models may be fit
+              with flexible machine-learning methods.
             </p>
             <div class="hero-actions">
-              <a class="button button-primary" href="#start-here">Start Here</a>
-              <a class="button button-secondary" href="./examples.html">Choose A Workflow</a>
-              <a class="button button-secondary" href="./r.html">Explore The R Package</a>
+              <a class="button button-primary" href="#start-here">Get started</a>
+              <a class="button button-secondary" href="./examples.html">Examples</a>
+              <a class="button button-secondary" href="./r.html">R package</a>
             </div>
             <ul class="hero-pills">
               <li>Doubly robust confidence intervals</li>
@@ -68,19 +65,19 @@
 
           <aside class="hero-panel">
             <div class="panel-card gradient-card">
-              <p class="panel-label">Estimator Map</p>
+              <p class="panel-label">At A Glance</p>
               <div class="hero-stat-grid">
                 <div class="hero-stat">
-                  <strong>Standard calibrated DML</strong>
-                  <span><code>CalibratedDML</code> in Python and <code>calibrated_dml()</code> in R cover the main calibrated doubly robust inference workflow.</span>
+                  <strong>Interfaces</strong>
+                  <span><code>CalibratedDML</code> in Python and <code>calibrated_dml()</code> in R fit the standard calibrated DML estimator.</span>
                 </div>
                 <div class="hero-stat">
-                  <strong>Main target</strong>
-                  <span>Mean potential outcomes and treatment-vs-control contrasts.</span>
+                  <strong>Estimands</strong>
+                  <span>Mean potential outcomes and treatment-versus-control contrasts.</span>
                 </div>
                 <div class="hero-stat">
                   <strong>Experimental</strong>
-                  <span><a href="./adaptive.html">Adaptive</a></span>
+                  <span><a href="./adaptive.html">Adaptive DML</a> is documented separately.</span>
                 </div>
               </div>
             </div>
@@ -115,23 +112,25 @@ summary(fit)</code></pre>
         <section class="section" id="start-here">
           <div class="section-heading split">
             <div>
-              <p class="eyebrow">Start Here</p>
-              <h2>The overview page focuses on standard calibrated DML</h2>
+              <p class="eyebrow">Overview</p>
+              <h2>What can I estimate?</h2>
               <p>
-                Use the main estimator when you want calibrated, doubly robust
-                inference for mean potential outcomes and treatment-vs-control
-                contrasts.
+                The standard implementation estimates arm means and
+                treatment-versus-control contrasts. You can run the full
+                procedure from raw data or start from cross-fitted nuisance
+                estimates prepared elsewhere.
               </p>
             </div>
           </div>
 
           <div class="comparison-grid">
             <article class="comparison-card">
-              <p class="panel-label">Main Estimator</p>
+              <p class="panel-label">Primary method</p>
               <h3>Standard calibrated DML</h3>
               <p>
-                Use this when you want calibrated, doubly robust inference for
-                arm means and treatment-vs-control contrasts.
+                The standard estimator is the main entry point for estimation
+                and inference on arm means and treatment-versus-control
+                contrasts.
               </p>
               <pre class="inline-code"><code>CalibratedDML(...).fit(X, A, y)
 calibrated_dml(data, outcome, treatment, covariates, ...)</code></pre>
@@ -139,7 +138,7 @@ calibrated_dml(data, outcome, treatment, covariates, ...)</code></pre>
           </div>
 
           <div class="chip-row" style="margin-top: 18px;">
-            <a class="chip-link" href="./adaptive.html">Experimental: Adaptive</a>
+            <a class="chip-link" href="./adaptive.html">Adaptive DML (experimental)</a>
           </div>
         </section>
 
@@ -147,20 +146,21 @@ calibrated_dml(data, outcome, treatment, covariates, ...)</code></pre>
           <div class="section-heading">
             <div>
               <p class="eyebrow">Calibration</p>
-              <h2>Calibration is why the package gives doubly robust inference</h2>
+              <h2>Why not use a standard doubly robust estimator?</h2>
               <p>
-                The package calibrates the nuisance functions after fitting and
-                before debiasing. That extra step is what turns a standard
-                doubly robust estimator into a calibrated one with weaker
-                nuisance-rate requirements for inference.
+                Standard doubly robust estimators protect point estimation, but
+                valid confidence intervals often still depend on both nuisance
+                functions being estimated well enough. Calibrated DML adds a
+                calibration step before debiasing so inference remains valid
+                under weaker nuisance-rate conditions.
               </p>
               <p>
-                In practice, calibration can also automatically stabilize
-                extreme inverse weights and reduce variance, especially when
-                overlap is limited; see
+                In practice, calibration can also stabilize extreme inverse
+                weights and reduce variance, especially when overlap is
+                limited; see
                 <a href="https://arxiv.org/abs/2411.06342">Stabilized Inverse Probability Weighting via Isotonic Calibration</a>.
-                But this does not remove the need for population-level
-                positivity or overlap assumptions in the theory.
+                This does not remove the population-level overlap assumptions
+                required by the theory.
               </p>
             </div>
           </div>
@@ -190,7 +190,7 @@ calibrated_dml(data, outcome, treatment, covariates, ...)</code></pre>
           <div class="calibration-grid">
             <article class="calibration-card">
               <p class="panel-label">Outcome Regression Calibration</p>
-              <h3>Predictions align with observed outcomes</h3>
+              <h3>Outcome predictions are put on the right scale</h3>
               <div class="schematic-card">
                 <svg class="schematic-svg" viewBox="0 0 260 180" role="img" aria-label="Outcome calibration schematic showing a raw curved fit and a calibrated line closer to the diagonal relationship between predicted and observed outcomes.">
                   <line x1="36" y1="22" x2="36" y2="146" class="axis-line" />
@@ -205,14 +205,14 @@ calibrated_dml(data, outcome, treatment, covariates, ...)</code></pre>
                 </svg>
               </div>
               <p>
-                Calibration maps raw outcome predictions so units with similar
-                predicted outcomes have observed outcomes on the right scale.
+                Calibration adjusts the outcome-regression scale so predicted
+                values better match observed outcomes among comparable units.
               </p>
             </article>
 
             <article class="calibration-card">
               <p class="panel-label">Propensity Calibration</p>
-              <h3>Estimated propensities line up better with true propensities</h3>
+              <h3>Estimated propensities better reflect the treatment mechanism</h3>
               <div class="schematic-card">
                 <svg class="schematic-svg" viewBox="0 0 260 180" role="img" aria-label="Propensity calibration schematic showing calibrated estimated propensities tracking the true propensity curve more closely.">
                   <line x1="36" y1="22" x2="36" y2="146" class="axis-line" />
@@ -228,29 +228,27 @@ calibrated_dml(data, outcome, treatment, covariates, ...)</code></pre>
               </div>
               <p>
                 Calibration adjusts the propensity-score scale so fitted
-                propensities better match true propensities on average. If the
-                calibrated scores are still extreme, that is more consistent
-                with the true propensities actually being small or large there,
-                rather than those extremes being artifacts of miscalibration
-                alone.
+                propensities better track the underlying treatment mechanism.
+                When calibrated scores remain extreme, that is more consistent
+                with limited overlap than with scale distortion alone.
               </p>
             </article>
           </div>
 
           <p class="calibration-summary">
-            These calibration steps help with finite-sample bias and variance,
-            and in the calibrated-DML theory they are the reason one sufficiently
-            good nuisance can be enough for valid inference.
+            In calibrated DML, these calibration steps are what connect the
+            practical procedure to the inferential guarantees.
           </p>
         </section>
 
         <section class="section" id="install">
           <div class="section-heading">
             <div>
-              <p class="eyebrow">Install</p>
-              <h2>Install the interface you need</h2>
+              <p class="eyebrow">Installation</p>
+              <h2>How do I install it?</h2>
               <p>
-                Install the Python package or the R package from the repository.
+                The repository provides both Python and R interfaces for the
+                standard calibrated DML estimator.
               </p>
             </div>
           </div>
@@ -278,55 +276,56 @@ calibrated_dml(data, outcome, treatment, covariates, ...)</code></pre>
           <div class="section-heading">
             <div>
               <p class="eyebrow">Workflows</p>
-              <h2>Common ways people use the package</h2>
+              <h2>Which workflow fits my analysis?</h2>
               <p>
-                Use the workflow page if you want the full chooser. This is the
-                short version.
+                The package supports estimation from raw data, estimation from
+                supplied nuisance functions, and multi-arm analyses.
               </p>
             </div>
           </div>
 
           <div class="argument-grid">
             <article class="argument-card">
-              <h3>Fit nuisances internally</h3>
+              <h3>Estimate from raw data</h3>
               <p>
-                Use this when you want the easiest route to calibrated,
-                doubly robust inference from raw data.
+                Choose this path if the package should fit the nuisance models,
+                perform calibration, and report inference.
               </p>
               <p><strong>Call:</strong> <code>CalibratedDML(...).fit(...)</code> or <code>calibrated_dml(...)</code></p>
             </article>
             <article class="argument-card">
-              <h3>Supply nuisance matrices directly</h3>
+              <h3>Start from nuisance estimates</h3>
               <p>
-                Use this when you already have cross-fitted nuisances and want
-                calibrated inference without refitting the nuisance layer.
+                Choose this path when cross-fitted nuisance estimates come from
+                an external pipeline and only calibration, debiasing, and
+                inference should be run here.
               </p>
               <p><strong>Call:</strong> <code>fit_from_nuisances(...)</code> or <code>calibrated_dml_from_nuisances(...)</code></p>
             </article>
             <article class="argument-card">
-              <h3>Multi-arm treatment</h3>
+              <h3>Analyze multi-arm treatment</h3>
               <p>
-                Use the standard estimator when treatment has more than two
-                levels and you want arm means plus control contrasts.
+                The standard estimator also handles treatments with more than
+                two levels, returning arm means and contrasts relative to a
+                specified control arm.
               </p>
               <p><strong>Call:</strong> standard calibrated DML with <code>control_level</code></p>
             </article>
           </div>
 
           <div class="chip-row" style="margin-top: 18px;">
-            <a class="chip-link" href="./examples.html">Open the workflow chooser</a>
-            <a class="chip-link" href="./adaptive.html">Experimental: Adaptive</a>
+            <a class="chip-link" href="./examples.html">Examples</a>
+            <a class="chip-link" href="./adaptive.html">Adaptive DML (experimental)</a>
           </div>
         </section>
 
         <section class="section" id="references">
           <div class="section-heading">
             <p class="eyebrow">References</p>
-            <h2>Where to go next</h2>
+            <h2>Where are the paper and related resources?</h2>
             <p>
-              The package lives in the main repository, and the calibrated DML
-              methodology is described in the main paper together with the
-              doubly robust inference line of work that motivates it.
+              The main paper, repository, and related references are collected
+              here.
             </p>
           </div>
 
