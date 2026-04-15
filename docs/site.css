@@ -399,6 +399,16 @@ a {
   color: var(--ink);
 }
 
+.inline-code mjx-container {
+  margin: 0 !important;
+  font-size: 1.04em;
+}
+
+.inline-code mjx-container[display="true"] {
+  display: block;
+  text-align: center;
+}
+
 .section {
   padding: 30px;
   margin-top: 26px;
@@ -686,6 +696,48 @@ a {
   margin-top: 26px;
 }
 
+.companion-card {
+  display: grid;
+  grid-template-columns: 112px minmax(0, 1fr);
+  gap: 20px;
+  align-items: center;
+  padding: 20px 22px;
+  margin-top: 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line);
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.84), rgba(217, 239, 232, 0.36)),
+    rgba(255, 255, 255, 0.8);
+  box-shadow: var(--shadow);
+}
+
+.companion-card-badge {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.companion-card-copy h3 {
+  margin: 0 0 8px;
+  font-size: clamp(1.8rem, 3vw, 2.2rem);
+}
+
+.companion-card-copy p:last-of-type {
+  margin-bottom: 0;
+}
+
+.companion-card-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(30, 123, 111, 0.18);
+  background: rgba(255, 255, 255, 0.84);
+  font-weight: 700;
+}
+
 .footer-links {
   margin-top: 16px;
 }
@@ -780,6 +832,16 @@ a {
   .argument-grid,
   .example-entry-grid {
     grid-template-columns: 1fr;
+  }
+
+  .companion-card {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+
+  .companion-card-badge {
+    width: min(132px, 100%);
+    margin: 0 auto;
   }
 
   .calibration-flow-card {

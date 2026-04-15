@@ -15,6 +15,22 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="./site.css" />
+    <script>
+      window.MathJax = {
+        tex: {
+          inlineMath: [['\\(', '\\)'], ['$', '$']],
+          displayMath: [['\\[', '\\]'], ['$$', '$$']]
+        },
+        options: {
+          skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      };
+    </script>
+    <script
+      id="MathJax-script"
+      async
+      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"
+    ></script>
   </head>
   <body>
     <div class="page-shell">
@@ -28,6 +44,10 @@
             <a href="./adaptive.html">Adaptive</a>
             <a href="https://github.com/Larsvanderlaan/DRinference">GitHub</a>
           </div>
+          <a class="paper-link" href="https://arxiv.org/abs/2307.12544">
+            <span class="paper-link-icon" aria-hidden="true"></span>
+            <span>Paper PDF</span>
+          </a>
         </nav>
 
         <div class="hero-grid">
@@ -35,10 +55,9 @@
             <p class="eyebrow">Adaptive DML</p>
             <h1>Adaptive DML for binary-treatment ATE estimation.</h1>
             <p class="lede">
-              Adaptive DML for the ATE works in a partially linear model, uses
-              an estimated CATE as a one-dimensional summary of effect
-              heterogeneity, calibrates along that summary, and debiases in
-              the induced working model.
+              Adaptive DML estimates the binary-treatment ATE by learning a
+              treatment-effect summary, calibrating along that one-dimensional
+              score, and debiasing in the induced working model.
             </p>
             <div class="hero-actions">
               <a class="button button-primary" href="#what">Overview</a>
@@ -54,18 +73,18 @@
 
           <aside class="hero-panel">
             <div class="panel-card gradient-card">
-              <p class="panel-label">At A Glance</p>
+              <p class="panel-label">At a glance</p>
               <div class="hero-stat-grid">
                 <div class="hero-stat">
                   <strong>Scope</strong>
                   <span>Binary-treatment adaptive ATE estimation.</span>
                 </div>
                 <div class="hero-stat">
-                  <strong>Main mode</strong>
+                  <strong>Primary mode</strong>
                   <span><code>calibrated_rlearner</code> uses the estimated CATE as the adaptive summary.</span>
                 </div>
                 <div class="hero-stat">
-                  <strong>Alternative</strong>
+                  <strong>Secondary mode</strong>
                   <span><code>plugin</code> uses the outcome regression as the summary instead.</span>
                 </div>
               </div>
@@ -104,7 +123,7 @@ fit <- adaptive_calibrated_dml(
         <section class="section" id="what">
           <div class="section-heading">
             <p class="eyebrow">What</p>
-            <h2>What is the estimator?</h2>
+            <h2>Target and estimator</h2>
             <p>
               The target on this page is the binary-treatment ATE.
               <code>calibrated_rlearner</code> is the main adaptive mode:
@@ -125,7 +144,7 @@ fit <- adaptive_calibrated_dml(
               </p>
             </article>
             <article class="comparison-card">
-              <p class="panel-label">Adaptive summary</p>
+              <p class="panel-label">Working summary</p>
               <h3>Estimated CATE as a scalar reduction</h3>
               <p>
                 The estimated CATE compresses the effect model to one
@@ -145,7 +164,7 @@ fit <- adaptive_calibrated_dml(
         <section class="section" id="how">
           <div class="section-heading">
             <p class="eyebrow">How</p>
-            <h2>How does it work?</h2>
+            <h2>Estimation steps</h2>
             <p>
               In the main documented path, a partially linear R-learner setup
               separates baseline outcome prediction from treatment-effect
@@ -185,15 +204,21 @@ fit <- adaptive_calibrated_dml(
         <section class="section" id="why">
           <div class="section-heading">
             <p class="eyebrow">Why</p>
-            <h2>Why use it?</h2>
+            <h2>Overlap reduction</h2>
             <p>
-              The motivation is the overlap and weighting tradeoff for ATE
-              estimation. The key difference across estimators is how much
-              inverse-overlap variation they allow: fully nonparametric
-              estimators vary with all of <code>W</code>, constant-effect
-              partially linear models collapse to one constant regime, and the
-              adaptive estimator varies only along the learned one-dimensional
-              CATE summary.
+              The key difference across estimators is how much inverse-overlap
+              variation they allow. Fully nonparametric estimators vary with
+              all of <code>W</code>, constant-effect partially linear models
+              collapse to one regime, and the adaptive estimator varies only
+              along the learned one-dimensional CATE summary.
+            </p>
+            <p>
+              Here, \( \pi(W) = \Pr(A=1 \mid W) \) is the propensity score and
+              \( \tau(W) = \mathbb{E}[Y(1)-Y(0) \mid W] \) is the CATE.
+            </p>
+            <p>
+              Smaller effective overlap weights generally mean a more stable,
+              lower-variance ATE estimator.
             </p>
           </div>
 
@@ -201,7 +226,7 @@ fit <- adaptive_calibrated_dml(
             <article class="comparison-card">
               <p class="panel-label">Fully nonparametric AIPW</p>
               <h3>Most flexible, strongest overlap demands</h3>
-              <pre class="inline-code"><code>1 / {pi(W)(1 - pi(W))}</code></pre>
+              <div class="inline-code">\[ \frac{1}{\pi(W)(1-\pi(W))} \]</div>
               <p>
                 This route allows rich heterogeneity but typically needs the
                 most overlap and can have the highest variance.
@@ -210,7 +235,7 @@ fit <- adaptive_calibrated_dml(
             <article class="comparison-card">
               <p class="panel-label">Constant-effect PLM</p>
               <h3>Most structured, least overlap-sensitive</h3>
-              <pre class="inline-code"><code>1 / E[pi(W)(1 - pi(W))]</code></pre>
+              <div class="inline-code">\[ \frac{1}{\mathbb{E}[\pi(W)(1-\pi(W))]} \]</div>
               <p>
                 This can work with much less overlap, but it can be biased if
                 the constant-effect model is wrong.
@@ -219,7 +244,7 @@ fit <- adaptive_calibrated_dml(
             <article class="comparison-card">
               <p class="panel-label">Learned CATE model</p>
               <h3>Middle ground</h3>
-              <pre class="inline-code"><code>1 / E[pi(W)(1 - pi(W)) | tau(W)]</code></pre>
+              <div class="inline-code">\[ \frac{1}{\mathbb{E}[\pi(W)(1-\pi(W)) \mid \tau(W)]} \]</div>
               <p>
                 Adaptive DML uses the estimated CATE as a scalar reduction, so
                 it is more structured than the nonparametric route while
@@ -232,16 +257,17 @@ fit <- adaptive_calibrated_dml(
             The adaptive estimator reduces the relevant overlap problem from
             the full covariate space to variation along the learned CATE
             summary. When that summary captures the treatment-effect structure
-            well, this can substantially reduce variance; in favorable cases
-            this is the super-efficiency phenomenon, meaning lower variance
-            than the fully nonparametric estimator at those truths.
+            well, this can substantially reduce variance. In favorable cases,
+            this yields the super-efficiency phenomenon studied in the paper:
+            lower variance than the fully nonparametric estimator at those
+            truths.
           </p>
         </section>
 
         <section class="section" id="when">
           <div class="section-heading">
             <p class="eyebrow">When</p>
-            <h2>When is it useful?</h2>
+            <h2>When it can help</h2>
             <p>
               Adaptive DML is mainly worth considering when overlap is too weak
               for reliable or precise fully nonparametric inference and the
@@ -281,9 +307,10 @@ fit <- adaptive_calibrated_dml(
         <section class="section" id="mode">
           <div class="section-heading">
             <p class="eyebrow">Modes</p>
-            <h2>Available adaptive modes</h2>
+            <h2>Modes</h2>
             <p>
-              The package exposes two adaptive modes.
+              The package exposes two adaptive modes for binary-treatment ATE
+              estimation.
             </p>
           </div>
 
@@ -323,7 +350,7 @@ fit <- adaptive_calibrated_dml(
           <div class="section-heading">
             <p class="eyebrow">References</p>
             <h2>References</h2>
-            <p>Core references for the adaptive estimator are listed here.</p>
+            <p>Key references for the adaptive estimator.</p>
           </div>
 
           <div class="footer-links">
