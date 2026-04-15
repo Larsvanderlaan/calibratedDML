@@ -157,7 +157,6 @@ test_that("adaptive oracle-nuisance coverage is reasonable across clean binary D
     mode = "plugin",
     n_rep = 24,
     n = 600,
-    calibration_method = "isotonic",
     inference = "wald"
   )
   coverage_plugin_nonlinear <- simulate_adaptive_coverage(
@@ -165,7 +164,6 @@ test_that("adaptive oracle-nuisance coverage is reasonable across clean binary D
     mode = "plugin",
     n_rep = 24,
     n = 600,
-    calibration_method = "isotonic",
     inference = "wald"
   )
   coverage_rlearner_linear <- simulate_adaptive_coverage(
@@ -173,7 +171,6 @@ test_that("adaptive oracle-nuisance coverage is reasonable across clean binary D
     mode = "calibrated_rlearner",
     n_rep = 20,
     n = 600,
-    calibration_method = "isotonic",
     inference = "wald",
     cate_model = "lm"
   )

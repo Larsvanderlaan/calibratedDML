@@ -6,6 +6,7 @@
 #' plug-in potential outcomes and ATEs. The adaptive R-learner mode calibrates
 #' an initial CATE estimate from an R-learner pseudo-outcome and then plugs the
 #' calibrated CATE back into Robinson's partially linear parameterization.
+#' Adaptive estimation always uses isotonic regression internally.
 #'
 #' These adaptive estimators are super-efficient methods in the sense that they
 #' can have lower realized variance and lower mean-squared error than standard
@@ -41,9 +42,6 @@
 #'   levels.
 #' @param stratify Controls whether nuisance fitting is stratified by
 #'   `"outcome"`, `"treatment"`, or both.
-#' @param calibration_method Adaptive estimators use isotonic calibration
-#'   internally. `"auto"` is accepted as a compatibility alias and mapped to
-#'   `"isotonic"`.
 #' @param calibration_options Optional list of calibration tuning options.
 #' @param calibration_stratify Optional calibration stratification control.
 #' @param inference One of `"jackknife"`, `"wald"`, or `"bootstrap"`.
@@ -76,7 +74,6 @@ adaptive_calibrated_dml <- function(
   sample_weight = NULL,
   treatment_levels = NULL,
   stratify = c("outcome", "treatment"),
-  calibration_method = c("isotonic", "auto"),
   calibration_options = list(),
   calibration_stratify = NULL,
   inference = c("jackknife", "wald", "bootstrap"),
@@ -92,7 +89,7 @@ adaptive_calibrated_dml <- function(
   mode <- normalize_adaptive_mode(match.arg(mode))
   plugin_parametrization <- match.arg(plugin_parametrization)
   inference <- match.arg(inference)
-  calibration_method <- normalize_adaptive_calibration_method(match.arg(calibration_method))
+  calibration_method <- "isotonic"
   inference_options <- resolve_inference_options(
     conf_level = conf_level,
     alpha = alpha,
@@ -206,7 +203,6 @@ adaptive_calibrated_dml <- function(
         weights = weights[index],
         levels = standardized$levels,
         control_index = control_index,
-        calibration_method = calibration_method,
         calibration_options = calibration_options,
         calibration_stratify = plugin_calibration_stratify
       )
@@ -229,7 +225,6 @@ adaptive_calibrated_dml <- function(
         weights = weights[index],
         levels = standardized$levels,
         control_index = control_index,
-        calibration_method = calibration_method,
         calibration_options = calibration_options,
         calibration_stratify = plugin_calibration_stratify
       )
@@ -243,7 +238,6 @@ adaptive_calibrated_dml <- function(
       weights = weights[index],
       levels = standardized$levels,
       control_index = control_index,
-      calibration_method = calibration_method,
       calibration_options = calibration_options
     ),
     working_rlearner = function(index) compute_adaptive_rlearner_working_fit(
@@ -320,20 +314,6 @@ normalize_adaptive_mode <- function(mode) {
   mode
 }
 
-normalize_adaptive_calibration_method <- function(calibration_method) {
-  if (identical(calibration_method, "auto")) {
-    return("isotonic")
-  }
-  if (!identical(calibration_method, "isotonic")) {
-    stop(
-      "Adaptive estimators use isotonic calibration internally. ",
-      "Set `calibration_method = \"isotonic\"`.",
-      call. = FALSE
-    )
-  }
-  calibration_method
-}
-
 compute_adaptive_plugin_fit <- function(
   A_index,
   Y,
@@ -342,7 +322,6 @@ compute_adaptive_plugin_fit <- function(
   weights,
   levels,
   control_index,
-  calibration_method,
   calibration_options,
   calibration_stratify
 ) {
@@ -351,7 +330,7 @@ compute_adaptive_plugin_fit <- function(
     mu_mat = mu_hat,
     A_index = A_index,
     weights = weights,
-    method = calibration_method,
+    method = "isotonic",
     calibration_options = calibration_options,
     calibration_stratify = calibration_stratify
   )$calibrated
@@ -388,7 +367,6 @@ compute_adaptive_rlearner_fit <- function(
   weights,
   levels,
   control_index,
-  calibration_method,
   calibration_options
 ) {
   pseudo <- rlearner_pseudo_outcome(
@@ -398,18 +376,14 @@ compute_adaptive_rlearner_fit <- function(
     pi_treat = pi_treat,
     weights = weights
   )
-  tau_star <- if (identical(calibration_method, "none")) {
-    tau_hat
-  } else {
-    calibrator <- fit_monotone_calibrator(
-      x = tau_hat[pseudo$keep],
-      y = pseudo$pseudo_outcome[pseudo$keep],
-      weights = pseudo$pseudo_weights[pseudo$keep],
-      method = calibration_method,
-      calibration_options = calibration_options
-    )
-    predict_monotone_calibrator(calibrator, tau_hat)
-  }
+  calibrator <- fit_monotone_calibrator(
+    x = tau_hat[pseudo$keep],
+    y = pseudo$pseudo_outcome[pseudo$keep],
+    weights = pseudo$pseudo_weights[pseudo$keep],
+    method = "isotonic",
+    calibration_options = calibration_options
+  )
+  tau_star <- predict_monotone_calibrator(calibrator, tau_hat)
   mu_star <- build_mu_from_rlearner(
     m_hat = m_hat,
     pi_treat = pi_treat,

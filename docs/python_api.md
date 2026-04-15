@@ -127,7 +127,6 @@ AdaptiveCalibratedDML(
     treatment_model="lasso",
     cate_model="lasso",
     stratify=("outcome", "treatment"),
-    calibration_method="isotonic",
     calibration_stratify=None,
     inference="jackknife",
     conf_level=0.95,
@@ -145,6 +144,7 @@ Current status:
 - binary-treatment only
 - modes limited to `"plugin"` and `"calibrated_rlearner"`
 - isotonic calibration only
+- no adaptive `calibration_method` parameter
 
 Adaptive methods are intentionally documented separately from the standard estimator because they are super-efficient procedures. In this context, super-efficient means they can achieve lower mean-squared error and smaller realized variance than regular calibrated DML at favorable data-generating distributions. The tradeoff is that standard-error estimation is harder, so interval coverage can be less stable in practice.
 

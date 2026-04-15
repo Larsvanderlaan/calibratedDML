@@ -56,8 +56,9 @@
             <h1>Adaptive DML for binary-treatment ATE estimation.</h1>
             <p class="lede">
               Adaptive DML estimates the binary-treatment ATE by learning a
-              treatment-effect summary, calibrating along that one-dimensional
-              score, and debiasing in the induced working model.
+              treatment-effect summary, calibrating that one-dimensional score
+              with isotonic regression, and debiasing in the induced working
+              model.
             </p>
             <div class="hero-actions">
               <a class="button button-primary" href="#what">Overview</a>
@@ -67,7 +68,7 @@
             <ul class="hero-pills">
               <li>Binary treatment only</li>
               <li>ATE estimated through a scalar CATE summary</li>
-              <li>Different inferential scope than standard calibrated DML</li>
+              <li>Isotonic calibration internally</li>
             </ul>
           </section>
 

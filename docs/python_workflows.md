@@ -79,7 +79,6 @@ fit = AdaptiveCalibratedDML(
     control_level=0,
     mode="calibrated_rlearner",
     cate_model="linear",
-    calibration_method="isotonic",
     inference="jackknife",
     jackknife_folds=20,
     random_state=123,
@@ -92,7 +91,7 @@ Current adaptive Python scope:
 - binary treatment only
 - experimental
 - `plugin` and `calibrated_rlearner` only
-- isotonic calibration only
+- isotonic calibration only, with no adaptive calibration switch
 
 Practical guidance:
 

@@ -146,9 +146,9 @@ def main():
         "standard_multiarm_wald": run_standard(make_multiarm_oracle_data, "wald", reps=16),
         "standard_multiarm_bootstrap": run_standard(make_multiarm_oracle_data, "bootstrap", reps=12, bootstrap_reps=40, random_state=9),
         "standard_multiarm_jackknife": run_standard(make_multiarm_oracle_data, "jackknife", reps=12, jackknife_folds=10),
-        "adaptive_plugin_linear": run_adaptive(make_binary_oracle_data, "plugin", reps=16, calibration_method="none", inference="wald"),
-        "adaptive_plugin_nonlinear": run_adaptive(make_binary_nonlinear_oracle_data, "plugin", reps=16, calibration_method="none", inference="wald"),
-        "adaptive_rlearner_linear": run_adaptive(make_binary_oracle_data, "calibrated_rlearner", reps=16, calibration_method="none", inference="wald", cate_model="linear"),
+        "adaptive_plugin_linear": run_adaptive(make_binary_oracle_data, "plugin", reps=16, inference="wald"),
+        "adaptive_plugin_nonlinear": run_adaptive(make_binary_nonlinear_oracle_data, "plugin", reps=16, inference="wald"),
+        "adaptive_rlearner_linear": run_adaptive(make_binary_oracle_data, "calibrated_rlearner", reps=16, inference="wald", cate_model="linear"),
         "fitted_binary_wald": run_fitted(make_binary_oracle_data, reps=12, outcome_model="linear", treatment_model="linear"),
         "fitted_multiarm_wald": run_fitted(make_multiarm_oracle_data, reps=10, outcome_model="linear", treatment_model="linear"),
     }

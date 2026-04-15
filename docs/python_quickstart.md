@@ -66,7 +66,6 @@ from calibrateddml import AdaptiveCalibratedDML
 fit = AdaptiveCalibratedDML(
     control_level=0,
     mode="plugin",
-    calibration_method="isotonic",
     inference="jackknife",
     jackknife_folds=20,
     random_state=123,
@@ -75,6 +74,6 @@ fit = AdaptiveCalibratedDML(
 fit.fit(X, A, y)
 ```
 
-The adaptive Python API is binary-treatment only, experimental, limited to `mode="plugin"` and `mode="calibrated_rlearner"`, and uses isotonic calibration internally.
+The adaptive Python API is binary-treatment only, experimental, limited to `mode="plugin"` and `mode="calibrated_rlearner"`, and uses isotonic calibration internally with no separate calibration option.
 
 `CalibratedDML` is the recommended default for general use. `AdaptiveCalibratedDML` is an advanced option. In particular, `calibrated_rlearner` is especially appealing when the truth may be close to homogeneous but some heterogeneity is possible. These adaptive estimators are super-efficient methods, so they can have lower realized variance and lower MSE than standard calibrated DML in favorable settings, but inference is harder and interval coverage can be less stable. For adaptive inference details, see Benkeser and van der Laan, "A Super-Efficient Estimator of the Average Treatment Effect," and van der Laan, Carone, Luedtke, and van der Laan, "Adaptive debiased machine learning using data-driven model selection techniques." For standard calibrated DML, see van der Laan, Luedtke, and Carone, "Doubly robust inference via calibration."

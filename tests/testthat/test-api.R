@@ -131,14 +131,13 @@ test_that("weighted adaptive calibrated r-learner targets weighted oracle ate", 
     pi_mat = fixture$pi_mat,
     sample_weight = "weight",
     mode = "calibrated_rlearner",
-    calibration_method = "isotonic",
     inference = "wald"
   )
 
   expect_lt(abs(fit$contrasts$estimate[[1]] - fixture$contrast_truth[["ATE1"]]), 0.2)
 })
 
-test_that("adaptive estimator only allows isotonic calibration", {
+test_that("adaptive estimator no longer exposes calibration_method", {
   fixture <- oracle_binary_fixture()
   expect_error(
     adaptive_calibrated_dml(
@@ -150,9 +149,8 @@ test_that("adaptive estimator only allows isotonic calibration", {
       mu_mat = fixture$mu_mat,
       pi_mat = fixture$pi_mat,
       mode = "plugin",
-      calibration_method = "smooth_isotonic"
-    ),
-    class = "error"
+      calibration_method = "isotonic"
+    )
   )
 })
 

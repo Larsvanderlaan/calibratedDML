@@ -161,6 +161,7 @@ The repository also includes adaptive binary-treatment estimators through:
 Adaptive methods should be treated as experimental. They target the ATE
 through a learned and calibrated treatment-effect summary and have a narrower,
 more delicate inferential scope than standard calibrated DML.
+Adaptive estimation always uses isotonic calibration internally.
 
 Documented adaptive modes:
 

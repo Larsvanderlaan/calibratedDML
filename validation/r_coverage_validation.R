@@ -129,9 +129,9 @@ studies <- list(
   standard_multiarm_wald = safe_run("standard_multiarm_wald", run_standard(oracle_multiarm_fixture, "wald", n_rep = 16, n = 700)),
   standard_multiarm_bootstrap = safe_run("standard_multiarm_bootstrap", run_standard(oracle_multiarm_fixture, "bootstrap", n_rep = 12, n = 700, bootstrap_reps = 40, seed = 9)),
   standard_multiarm_jackknife = safe_run("standard_multiarm_jackknife", run_standard(oracle_multiarm_fixture, "jackknife", n_rep = 12, n = 700, jackknife_folds = 10)),
-  adaptive_plugin_linear = safe_run("adaptive_plugin_linear", run_adaptive(oracle_binary_fixture, "plugin", n_rep = 16, n = 600, calibration_method = "none", inference = "wald")),
-  adaptive_plugin_nonlinear = safe_run("adaptive_plugin_nonlinear", run_adaptive(oracle_binary_nonlinear_fixture, "plugin", n_rep = 16, n = 600, calibration_method = "none", inference = "wald")),
-  adaptive_rlearner_linear = safe_run("adaptive_rlearner_linear", run_adaptive(oracle_binary_fixture, "calibrated_rlearner", n_rep = 16, n = 600, calibration_method = "none", inference = "wald", cate_model = "lm")),
+  adaptive_plugin_linear = safe_run("adaptive_plugin_linear", run_adaptive(oracle_binary_fixture, "plugin", n_rep = 16, n = 600, inference = "wald")),
+  adaptive_plugin_nonlinear = safe_run("adaptive_plugin_nonlinear", run_adaptive(oracle_binary_nonlinear_fixture, "plugin", n_rep = 16, n = 600, inference = "wald")),
+  adaptive_rlearner_linear = safe_run("adaptive_rlearner_linear", run_adaptive(oracle_binary_fixture, "calibrated_rlearner", n_rep = 16, n = 600, inference = "wald", cate_model = "lm")),
   fitted_binary_wald = safe_run("fitted_binary_wald", run_fitted(oracle_binary_fixture, n_rep = 12, n = 600, outcome_model = "lm", treatment_model = "multinom"))
 )
 

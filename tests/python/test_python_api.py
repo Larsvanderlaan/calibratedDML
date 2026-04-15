@@ -468,16 +468,9 @@ def test_adaptive_plugin_and_calibrated_rlearner_modes_run():
     assert abs(rlearner_fit.contrasts_.loc[0, "estimate"] - truth["ATE"]) < 0.25
 
 
-def test_adaptive_methods_require_isotonic_calibration():
-    x, a, y, mu_mat, pi_mat, _ = make_binary_oracle_data()
-    with pytest.raises(ValueError, match="isotonic calibration internally"):
-        AdaptiveCalibratedDML(control_level=0, calibration_method="smooth_isotonic").fit_from_nuisances(
-            X=x,
-            A=a,
-            y=y,
-            mu_mat=mu_mat,
-            pi_mat=pi_mat,
-        )
+def test_adaptive_constructor_no_longer_accepts_calibration_method():
+    with pytest.raises(TypeError, match="calibration_method"):
+        AdaptiveCalibratedDML(control_level=0, calibration_method="isotonic")
 
 
 def test_adaptive_fit_from_nuisances_validates_probability_matrix():
@@ -499,7 +492,6 @@ def test_weighted_adaptive_fit_from_nuisances_runs_and_targets_weighted_ate():
     fit = AdaptiveCalibratedDML(
         control_level=0,
         mode="calibrated_rlearner",
-        calibration_method="isotonic",
         inference="wald",
         cate_model="linear",
     ).fit_from_nuisances(
@@ -608,7 +600,6 @@ def test_adaptive_oracle_coverage_is_reasonable_across_clean_binary_dgps():
         mode="plugin",
         n_rep=16,
         n=600,
-        calibration_method="isotonic",
         inference="wald",
     )
     coverage_plugin_nonlinear = simulate_adaptive_coverage(
@@ -616,7 +607,6 @@ def test_adaptive_oracle_coverage_is_reasonable_across_clean_binary_dgps():
         mode="plugin",
         n_rep=16,
         n=600,
-        calibration_method="isotonic",
         inference="wald",
     )
     coverage_rlearner_linear = simulate_adaptive_coverage(
@@ -624,7 +614,6 @@ def test_adaptive_oracle_coverage_is_reasonable_across_clean_binary_dgps():
         mode="calibrated_rlearner",
         n_rep=16,
         n=600,
-        calibration_method="isotonic",
         inference="wald",
         cate_model="linear",
     )
@@ -633,7 +622,6 @@ def test_adaptive_oracle_coverage_is_reasonable_across_clean_binary_dgps():
         mode="plugin",
         n_rep=12,
         n=600,
-        calibration_method="isotonic",
         inference="jackknife",
         jackknife_folds=20,
     )
@@ -642,7 +630,6 @@ def test_adaptive_oracle_coverage_is_reasonable_across_clean_binary_dgps():
         mode="calibrated_rlearner",
         n_rep=12,
         n=600,
-        calibration_method="isotonic",
         inference="jackknife",
         jackknife_folds=20,
         cate_model="linear",

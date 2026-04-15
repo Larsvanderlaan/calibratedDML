@@ -62,7 +62,6 @@ test_that("adaptive plugin and calibrated r-learner honor supplied nuisances", {
     mu_mat = fixture$mu_mat,
     pi_mat = fixture$pi_mat,
     mode = "calibrated_rlearner",
-    calibration_method = "isotonic",
     inference = "wald"
   )
 

@@ -43,7 +43,6 @@ class AdaptiveCalibratedDML(BaseEstimator, ResultMixin):
         treatment_model="lasso",
         cate_model="lasso",
         stratify=("outcome", "treatment"),
-        calibration_method="isotonic",
         calibration_stratify=None,
         inference="jackknife",
         conf_level=0.95,
@@ -59,7 +58,6 @@ class AdaptiveCalibratedDML(BaseEstimator, ResultMixin):
         self.treatment_model = treatment_model
         self.cate_model = cate_model
         self.stratify = stratify
-        self.calibration_method = calibration_method
         self.calibration_stratify = calibration_stratify
         self.inference = inference
         self.conf_level = conf_level
@@ -118,7 +116,7 @@ class AdaptiveCalibratedDML(BaseEstimator, ResultMixin):
     def _fit_from_nuisances(self, X, treatment, y, mu_mat, pi_mat, weights, nuisance_source):
         if self.mode not in {"plugin", "calibrated_rlearner"}:
             raise ValueError("`mode` must be 'plugin' or 'calibrated_rlearner'.")
-        adaptive_calibration_method = _resolve_adaptive_calibration_method(self.calibration_method)
+        adaptive_calibration_method = "isotonic"
         control_index = treatment.control_index
         treat_index = 1 - control_index
         a_binary = (treatment.encoded == treat_index).astype(int)
@@ -135,7 +133,6 @@ class AdaptiveCalibratedDML(BaseEstimator, ResultMixin):
                 weights=weights,
                 levels=treatment.levels,
                 control_index=control_index,
-                calibration_method=adaptive_calibration_method,
                 calibration_stratify=plugin_calibration_stratify,
             )
             refit = lambda index: _compute_plugin_adaptive_fit(
@@ -146,7 +143,6 @@ class AdaptiveCalibratedDML(BaseEstimator, ResultMixin):
                 weights=weights[index],
                 levels=treatment.levels,
                 control_index=control_index,
-                calibration_method=adaptive_calibration_method,
                 calibration_stratify=plugin_calibration_stratify,
             )
         else:
@@ -160,7 +156,6 @@ class AdaptiveCalibratedDML(BaseEstimator, ResultMixin):
                 levels=treatment.levels,
                 control_index=control_index,
                 cate_model=self.cate_model,
-                calibration_method=adaptive_calibration_method,
                 random_state=self.random_state,
             )
             refit = lambda index: _compute_rlearner_adaptive_fit(
@@ -173,7 +168,6 @@ class AdaptiveCalibratedDML(BaseEstimator, ResultMixin):
                 levels=treatment.levels,
                 control_index=control_index,
                 cate_model=self.cate_model,
-                calibration_method=adaptive_calibration_method,
                 random_state=self.random_state,
             )
 
@@ -212,15 +206,6 @@ class AdaptiveCalibratedDML(BaseEstimator, ResultMixin):
         self.adaptive_mode_ = self.mode
         self.calibration_method_ = adaptive_calibration_method
         return self
-
-
-def _resolve_adaptive_calibration_method(method):
-    if method in (None, "auto", "isotonic"):
-        return "isotonic"
-    raise ValueError(
-        "AdaptiveCalibratedDML uses isotonic calibration internally. "
-        "Set `calibration_method='isotonic'`."
-    )
 
 
 def _summarize_arm_scores(arm_scores, levels, control_index, weights, calibrated_mu_mat):
@@ -300,7 +285,7 @@ def _estimate_gamma_weights(tau_star, residual_treatment_sq, weights, min_count=
     return gamma
 
 
-def _compute_plugin_adaptive_fit(a_encoded, y, mu_mat, pi_mat, weights, levels, control_index, calibration_method, calibration_stratify):
+def _compute_plugin_adaptive_fit(a_encoded, y, mu_mat, pi_mat, weights, levels, control_index, calibration_stratify):
     from .calibration import calibrate_outcome_matrix
 
     calibrated = calibrate_outcome_matrix(
@@ -308,7 +293,7 @@ def _compute_plugin_adaptive_fit(a_encoded, y, mu_mat, pi_mat, weights, levels, 
         mu_mat=mu_mat,
         a_encoded=a_encoded,
         weights=weights,
-        method=calibration_method,
+        method="isotonic",
         calibration_stratify=calibration_stratify,
     )["calibrated"]
     normalized_weights = normalize_weights(weights)
@@ -343,21 +328,18 @@ def _rlearner_pseudo(a_binary, y, m_hat, pi_treat, weights):
     return pseudo_outcome, pseudo_weights, keep
 
 
-def _compute_rlearner_adaptive_fit(X, a_binary, y, m_hat, pi_treat, weights, levels, control_index, cate_model, calibration_method, random_state):
+def _compute_rlearner_adaptive_fit(X, a_binary, y, m_hat, pi_treat, weights, levels, control_index, cate_model, random_state):
     pseudo_outcome, pseudo_weights, keep = _rlearner_pseudo(a_binary, y, m_hat, pi_treat, weights)
     cate_spec = resolve_regressor(cate_model, random_state=random_state)
     cate_fit = fit_regressor(cate_spec, X.iloc[keep], pseudo_outcome[keep], sample_weight=pseudo_weights[keep], random_state=random_state)
     tau_hat = predict_regressor(cate_fit, X)
-    if calibration_method == "none":
-        tau_star = tau_hat
-    else:
-        calibrator = fit_monotone_calibrator(
-            x=tau_hat[keep],
-            y=pseudo_outcome[keep],
-            weights=pseudo_weights[keep],
-            method=calibration_method,
-        )
-        tau_star = calibrator.predict(tau_hat)
+    calibrator = fit_monotone_calibrator(
+        x=tau_hat[keep],
+        y=pseudo_outcome[keep],
+        weights=pseudo_weights[keep],
+        method="isotonic",
+    )
+    tau_star = calibrator.predict(tau_hat)
     mu0 = m_hat - pi_treat * tau_star
     mu1 = m_hat + (1.0 - pi_treat) * tau_star
     calibrated_mu = np.column_stack([mu0, mu1]) if control_index == 0 else np.column_stack([mu1, mu0])
