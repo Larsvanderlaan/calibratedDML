@@ -16,6 +16,25 @@ Python and R interfaces are both included in this repository.
 - Main paper: [Doubly robust inference via calibration](https://arxiv.org/abs/2411.02771)
 - Companion package: [ppi_aipw](https://larsvanderlaan.github.io/ppi-aipw/index.html)
 
+## Repository layout
+
+The repository contains both the Python and R packages, plus tutorials, docs,
+and paper-reproduction material.
+
+- `src/calibrateddml/`: Python package source
+- `src/calibratedDML.py`: Python compatibility shim for the historical import path
+- `R/`, `man/`, `vignettes/`: R package source, reference docs, and R vignettes
+- `Python/tutorials/`: Python tutorial notebooks and script mirrors
+- `docs/`: built website pages for the project site
+- `examples/`: small runnable examples
+- `tests/`: Python and R package tests
+- `validation/`: focused coverage and validation scripts for inference behavior
+- `paper_experiment_scripts/`, `paper_experiment_results/`, `paper_data/`: paper reproduction code, outputs, and datasets
+
+For Python package development, use `src/` as the source of truth. The
+top-level `Python/` directory is for tutorial material and legacy compatibility
+helpers, not the main packaged implementation.
+
 ## Installation
 
 ### Python
