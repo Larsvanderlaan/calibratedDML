@@ -34,6 +34,15 @@ def as_1d_array(x, name: str) -> np.ndarray:
     return array
 
 
+def validate_matching_observations(**objects) -> None:
+    lengths = {name: len(obj) for name, obj in objects.items()}
+    unique_lengths = set(lengths.values())
+    if len(unique_lengths) <= 1:
+        return
+    details = ", ".join(f"{name}={length}" for name, length in lengths.items())
+    raise ValueError(f"Inputs must have the same number of observations; got {details}.")
+
+
 def resolve_weights(sample_weight, n: int) -> np.ndarray:
     if sample_weight is None:
         return np.ones(n, dtype=float)

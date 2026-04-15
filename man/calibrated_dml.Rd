@@ -22,10 +22,10 @@ calibrated_dml(
   calibration_stratify = NULL,
   n_folds = 5,
   fold_id = NULL,
-  inference = c("wald", "bootstrap", "jackknife"),
+  inference = c("jackknife", "bootstrap", "wald"),
   conf_level = 0.95,
   bootstrap_reps = 200,
-  jackknife_folds = 10,
+  jackknife_folds = 100,
   alpha = NULL,
   n_boot = NULL,
   seed = NULL

@@ -22,7 +22,7 @@ The repository contains both the Python and R packages, plus tutorials, docs,
 and paper-reproduction material.
 
 - `src/calibrateddml/`: Python package source
-- `src/calibratedDML.py`: Python compatibility shim for the historical import path
+- `src/calibratedDML.py`: source-tree compatibility shim for legacy code
 - `R/`, `man/`, `vignettes/`: R package source, reference docs, and R vignettes
 - `Python/tutorials/`: Python tutorial notebooks and script mirrors
 - `docs/`: built website pages for the project site
@@ -53,13 +53,11 @@ pip install 'calibratedDML[boosted]'
 pip install 'calibratedDML[dev]'
 ```
 
-The package name on PyPI is `calibratedDML`. For imports, prefer:
+The package name on PyPI is `calibratedDML`. For imports, use:
 
 ```python
 import calibrateddml
 ```
-
-A compatibility import path at `calibratedDML` is also available.
 
 ### R
 

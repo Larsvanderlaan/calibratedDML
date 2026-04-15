@@ -118,7 +118,13 @@ make_builtin_classification_spec <- function(model_name) {
         )
       },
       predict = function(model_fit, newx) {
-        pred <- as.matrix(stats::predict(model_fit$fit, newdata = newx, type = "probs"))
+        pred <- stats::predict(model_fit$fit, newdata = newx, type = "probs")
+        if (is.null(dim(pred))) {
+          pred <- cbind(1 - as.numeric(pred), as.numeric(pred))
+          colnames(pred) <- model_fit$levels
+          return(pred)
+        }
+        pred <- as.matrix(pred)
         if (is.null(colnames(pred))) {
           colnames(pred) <- model_fit$levels
         }

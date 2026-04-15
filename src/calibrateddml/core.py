@@ -19,6 +19,7 @@ from ._utils import (
     normalize_weights,
     resolve_fold_ids,
     resolve_weights,
+    validate_matching_observations,
     validate_supplied_probability_matrix,
 )
 from .calibration import fit_calibration_bundle
@@ -95,6 +96,7 @@ class CalibratedDML(BaseEstimator, ResultMixin):
         X_frame = as_feature_frame(X)
         y_array = np.asarray(y, dtype=float)
         treatment = encode_treatment(A, self.control_level)
+        validate_matching_observations(X=X_frame, A=treatment.encoded, y=y_array)
         weights = resolve_weights(sample_weight, len(y_array))
         stratify = normalize_stratify(self.stratify)
         fold_ids = resolve_fold_ids(treatment.encoded, self.n_folds, self.fold_ids, self.random_state)
@@ -126,8 +128,7 @@ class CalibratedDML(BaseEstimator, ResultMixin):
     def fit_from_nuisances(self, A, y, mu_mat, pi_mat, sample_weight=None, treatment_levels=None):
         treatment = encode_treatment(A, self.control_level, treatment_levels=treatment_levels)
         y_array = np.asarray(y, dtype=float)
-        if len(y_array) != len(treatment.encoded):
-            raise ValueError("`y` must have one entry per observation.")
+        validate_matching_observations(A=treatment.encoded, y=y_array)
         weights = resolve_weights(sample_weight, len(treatment.encoded))
         mu_aligned = align_nuisance_matrix(mu_mat, treatment.levels, "mu_mat")
         pi_aligned = validate_supplied_probability_matrix(pi_mat, treatment.levels, "pi_mat")

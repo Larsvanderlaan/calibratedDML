@@ -10,9 +10,12 @@ from ._utils import (
     as_feature_frame,
     bootstrap_indices,
     encode_treatment,
+    normalize_calibration_stratify,
     normalize_weights,
+    normalize_stratify,
     resolve_fold_ids,
     resolve_weights,
+    validate_matching_observations,
     validate_supplied_probability_matrix,
     validate_binary_treatment,
 )
@@ -72,6 +75,8 @@ class AdaptiveCalibratedDML(BaseEstimator, ResultMixin):
         treatment = encode_treatment(A, self.control_level)
         validate_binary_treatment(treatment.levels)
         y_array = np.asarray(y, dtype=float)
+        validate_matching_observations(X=X_frame, A=treatment.encoded, y=y_array)
+        stratify = normalize_stratify(self.stratify)
         weights = resolve_weights(sample_weight, len(y_array))
         fold_ids = resolve_fold_ids(treatment.encoded, self.n_folds, self.fold_ids, self.random_state)
         mu_mat, pi_mat = _fit_nuisances(
@@ -82,7 +87,7 @@ class AdaptiveCalibratedDML(BaseEstimator, ResultMixin):
             fold_ids=fold_ids,
             outcome_model=self.outcome_model,
             treatment_model=self.treatment_model,
-            stratify=tuple(self.stratify),
+            stratify=stratify,
             random_state=self.random_state,
         )
         self.n_features_in_ = X_frame.shape[1]
@@ -95,8 +100,7 @@ class AdaptiveCalibratedDML(BaseEstimator, ResultMixin):
         treatment = encode_treatment(A, self.control_level, treatment_levels=treatment_levels)
         validate_binary_treatment(treatment.levels)
         y_array = np.asarray(y, dtype=float)
-        if len(y_array) != len(treatment.encoded):
-            raise ValueError("`y` must have one entry per observation.")
+        validate_matching_observations(X=X_frame, A=treatment.encoded, y=y_array)
         weights = resolve_weights(sample_weight, len(treatment.encoded))
         mu_aligned = align_nuisance_matrix(mu_mat, treatment.levels, "mu_mat")
         pi_aligned = validate_supplied_probability_matrix(pi_mat, treatment.levels, "pi_mat")
@@ -114,8 +118,8 @@ class AdaptiveCalibratedDML(BaseEstimator, ResultMixin):
         )
 
     def _fit_from_nuisances(self, X, treatment, y, mu_mat, pi_mat, weights, nuisance_source):
-        if self.mode not in {"plugin", "calibrated_rlearner"}:
-            raise ValueError("`mode` must be 'plugin' or 'calibrated_rlearner'.")
+        _validate_adaptive_configuration(self)
+        normalized_calibration_stratify = normalize_calibration_stratify(self.calibration_stratify)
         adaptive_calibration_method = "isotonic"
         control_index = treatment.control_index
         treat_index = 1 - control_index
@@ -124,7 +128,7 @@ class AdaptiveCalibratedDML(BaseEstimator, ResultMixin):
         m_hat = np.sum(mu_mat * pi_mat, axis=1)
 
         if self.mode == "plugin":
-            plugin_calibration_stratify = "outcome" if self.calibration_stratify is None else self.calibration_stratify
+            plugin_calibration_stratify = "outcome" if normalized_calibration_stratify is None else normalized_calibration_stratify
             base_fit = _compute_plugin_adaptive_fit(
                 a_encoded=treatment.encoded,
                 y=y,
@@ -196,9 +200,7 @@ class AdaptiveCalibratedDML(BaseEstimator, ResultMixin):
         self.calibration_ = {
             "method": adaptive_calibration_method,
             "mode": self.mode,
-            "calibration_stratify": (
-                "outcome" if self.mode == "plugin" and self.calibration_stratify is None else self.calibration_stratify
-            ),
+            "calibration_stratify": "outcome" if self.mode == "plugin" and normalized_calibration_stratify is None else normalized_calibration_stratify,
         }
         self.is_experimental_ = True
         self.is_fitted_ = True
@@ -206,6 +208,20 @@ class AdaptiveCalibratedDML(BaseEstimator, ResultMixin):
         self.adaptive_mode_ = self.mode
         self.calibration_method_ = adaptive_calibration_method
         return self
+
+
+def _validate_adaptive_configuration(estimator: AdaptiveCalibratedDML) -> None:
+    if estimator.mode not in {"plugin", "calibrated_rlearner"}:
+        raise ValueError("`mode` must be 'plugin' or 'calibrated_rlearner'.")
+    if estimator.inference not in {"wald", "bootstrap", "jackknife"}:
+        raise ValueError("`inference` must be one of {'wald', 'bootstrap', 'jackknife'}.")
+    if not (0 < float(estimator.conf_level) < 1):
+        raise ValueError("`conf_level` must lie strictly between 0 and 1.")
+    if int(estimator.bootstrap_reps) < 0:
+        raise ValueError("`bootstrap_reps` must be non-negative.")
+    if int(estimator.jackknife_folds) < 2:
+        raise ValueError("`jackknife_folds` must be at least 2.")
+    normalize_calibration_stratify(estimator.calibration_stratify)
 
 
 def _summarize_arm_scores(arm_scores, levels, control_index, weights, calibrated_mu_mat):

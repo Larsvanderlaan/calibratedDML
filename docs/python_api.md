@@ -10,11 +10,7 @@ Primary import path:
 
 - `calibrateddml`
 
-Legacy compatibility alias:
-
-- `calibratedDML`
-
-For new code, prefer `calibrateddml`.
+For installed packages, prefer `calibrateddml`.
 
 ## `CalibratedDML`
 

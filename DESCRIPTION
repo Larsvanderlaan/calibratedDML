@@ -10,7 +10,7 @@ Description: Implements calibrated debiased machine learning estimators for
     R-learner calibration. The package supports direct nuisance-matrix input,
     lightweight built-in models, and optional integration with sl3 and
     SuperLearner.
-License: GPL-3
+License: GPL-3 + file LICENSE
 Encoding: UTF-8
 RoxygenNote: 7.3.3
 Imports: 

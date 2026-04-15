@@ -493,6 +493,72 @@ def test_adaptive_fit_from_nuisances_validates_probability_matrix():
         )
 
 
+def test_adaptive_fit_normalizes_compact_stratify_inputs():
+    x, a, y, _, _, _ = make_binary_oracle_data(n=180, seed=21)
+
+    fit_true = AdaptiveCalibratedDML(
+        control_level=0,
+        stratify=True,
+        outcome_model="linear",
+        treatment_model="linear",
+        inference="wald",
+        n_folds=3,
+        random_state=9,
+    ).fit(x, a, y)
+    fit_explicit = AdaptiveCalibratedDML(
+        control_level=0,
+        stratify=("outcome", "treatment"),
+        outcome_model="linear",
+        treatment_model="linear",
+        inference="wald",
+        n_folds=3,
+        random_state=9,
+    ).fit(x, a, y)
+    fit_string = AdaptiveCalibratedDML(
+        control_level=0,
+        stratify="outcome",
+        outcome_model="linear",
+        treatment_model="linear",
+        inference="wald",
+        n_folds=3,
+        random_state=9,
+    ).fit(x, a, y)
+    fit_tuple = AdaptiveCalibratedDML(
+        control_level=0,
+        stratify=("outcome",),
+        outcome_model="linear",
+        treatment_model="linear",
+        inference="wald",
+        n_folds=3,
+        random_state=9,
+    ).fit(x, a, y)
+
+    pd.testing.assert_frame_equal(fit_true.estimates_, fit_explicit.estimates_)
+    pd.testing.assert_frame_equal(fit_string.estimates_, fit_tuple.estimates_)
+
+
+def test_adaptive_fit_rejects_invalid_inference_configuration():
+    x, a, y, mu_mat, pi_mat, _ = make_binary_oracle_data()
+
+    with pytest.raises(ValueError, match="`inference`"):
+        AdaptiveCalibratedDML(control_level=0, inference="bad").fit_from_nuisances(
+            X=x,
+            A=a,
+            y=y,
+            mu_mat=mu_mat,
+            pi_mat=pi_mat,
+        )
+
+    with pytest.raises(ValueError, match="`conf_level`"):
+        AdaptiveCalibratedDML(control_level=0, conf_level=1.0).fit_from_nuisances(
+            X=x,
+            A=a,
+            y=y,
+            mu_mat=mu_mat,
+            pi_mat=pi_mat,
+        )
+
+
 def test_weighted_adaptive_fit_from_nuisances_runs_and_targets_weighted_ate():
     x, a, y, mu_mat, pi_mat, weights, truth = make_weighted_binary_oracle_data()
     fit = AdaptiveCalibratedDML(
@@ -510,6 +576,22 @@ def test_weighted_adaptive_fit_from_nuisances_runs_and_targets_weighted_ate():
     )
 
     assert abs(fit.contrasts_.loc[0, "estimate"] - truth["ATE"]) < 0.2
+
+
+def test_estimators_reject_mismatched_observation_counts():
+    x, a, y, mu_mat, pi_mat, _ = make_binary_oracle_data()
+
+    with pytest.raises(ValueError, match="same number of observations"):
+        CalibratedDML(control_level=0, n_folds=3).fit(x.iloc[:-1], a, y)
+
+    with pytest.raises(ValueError, match="same number of observations"):
+        AdaptiveCalibratedDML(control_level=0, n_folds=3).fit_from_nuisances(
+            X=x.iloc[:-1],
+            A=a,
+            y=y,
+            mu_mat=mu_mat,
+            pi_mat=pi_mat,
+        )
 
 
 def test_fixed_fixture_matches_manual_binary_dml_formula():

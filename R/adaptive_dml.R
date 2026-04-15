@@ -829,7 +829,8 @@ resolve_cate_model <- function(model) {
           X = x,
           family = stats::gaussian(),
           SL.library = sl_library,
-          obsWeights = weights
+          obsWeights = weights,
+          env = asNamespace("SuperLearner")
         )
       },
       predict = function(model_fit, newx) {

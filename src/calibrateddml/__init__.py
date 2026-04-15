@@ -1,7 +1,6 @@
 """Native Python interface for calibrated debiased machine learning.
 
 Primary import path: ``calibrateddml``.
-Legacy compatibility alias: ``calibratedDML``.
 """
 
 from importlib.metadata import PackageNotFoundError, version

@@ -188,6 +188,26 @@ test_that("main estimator fits nuisances internally with no-dependency built-ins
   expect_true(all(is.finite(fit$estimates$estimate)))
 })
 
+test_that("binary multinom treatment backend returns valid probability columns", {
+  fixture <- oracle_binary_fixture(n = 220, seed = 23)
+  fit <- calibrated_dml(
+    data = fixture$data,
+    outcome = "Y",
+    treatment = "A",
+    covariates = c("W1", "W2"),
+    control_level = 0,
+    outcome_model = "lm",
+    treatment_model = "multinom",
+    inference = "wald",
+    n_folds = 3,
+    seed = 8
+  )
+
+  expect_true(all(is.finite(fit$pi_mat)))
+  expect_equal(ncol(fit$pi_mat), 2)
+  expect_equal(as.numeric(rowSums(fit$pi_mat)), rep(1, nrow(fit$pi_mat)))
+})
+
 test_that("main estimator fits default lasso nuisances with balnet propensity backend", {
   skip_if_not_installed("balnet")
   skip_if_not_installed("glmnet")
@@ -204,6 +224,28 @@ test_that("main estimator fits default lasso nuisances with balnet propensity ba
   )
 
   expect_s3_class(fit, "calibrated_dml_fit")
+  expect_true(all(is.finite(fit$estimates$estimate)))
+  expect_true(all(is.finite(fit$estimates$std_error)))
+})
+
+test_that("SuperLearner backend works without attaching the package", {
+  skip_if_not_installed("SuperLearner")
+
+  fixture <- oracle_binary_fixture(n = 220, seed = 29)
+  sl_spec <- list(SL.library = c("SL.mean", "SL.glm"))
+  fit <- calibrated_dml(
+    data = fixture$data,
+    outcome = "Y",
+    treatment = "A",
+    covariates = c("W1", "W2"),
+    control_level = 0,
+    outcome_model = sl_spec,
+    treatment_model = sl_spec,
+    inference = "wald",
+    n_folds = 3,
+    seed = 9
+  )
+
   expect_true(all(is.finite(fit$estimates$estimate)))
   expect_true(all(is.finite(fit$estimates$std_error)))
 })
