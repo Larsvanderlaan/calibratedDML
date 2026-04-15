@@ -6,7 +6,7 @@
     <title>calibratedDML adaptive methods</title>
     <meta
       name="description"
-      content="Adaptive DML for binary-treatment ATE estimation through a learned and calibrated treatment-effect summary."
+      content="Adaptive DML documentation for binary-treatment ATE estimation through a calibrated treatment-effect summary."
     />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -33,21 +33,22 @@
         <div class="hero-grid">
           <section class="hero-copy">
             <p class="eyebrow">Adaptive DML</p>
-            <h1>Adaptive DML estimates the ATE through a calibrated treatment-effect summary.</h1>
+            <h1>Adaptive DML for binary-treatment ATE estimation.</h1>
             <p class="lede">
-              The adaptive estimator documented here is for binary treatment.
-              It learns a treatment-effect summary, calibrates that summary,
-              and averages it to estimate the ATE.
+              Adaptive DML for the ATE works in a partially linear model, uses
+              an estimated CATE as a one-dimensional summary of effect
+              heterogeneity, calibrates along that summary, and debiases in
+              the induced working model.
             </p>
             <div class="hero-actions">
-              <a class="button button-primary" href="#scope">Overview</a>
-              <a class="button button-secondary" href="#estimator">Estimator</a>
-              <a class="button button-secondary" href="./index.html">Overview</a>
+              <a class="button button-primary" href="#what">Overview</a>
+              <a class="button button-secondary" href="#how">How it works</a>
+              <a class="button button-secondary" href="#mode">Modes</a>
             </div>
             <ul class="hero-pills">
               <li>Binary treatment only</li>
-              <li>ATE estimated through a CATE summary</li>
-              <li>Narrower inference scope than standard calibrated DML</li>
+              <li>ATE estimated through a scalar CATE summary</li>
+              <li>Different inferential scope than standard calibrated DML</li>
             </ul>
           </section>
 
@@ -60,12 +61,12 @@
                   <span>Binary-treatment adaptive ATE estimation.</span>
                 </div>
                 <div class="hero-stat">
-                  <strong>Modes</strong>
-                  <span><code>calibrated_rlearner</code> and <code>plugin</code>.</span>
+                  <strong>Main mode</strong>
+                  <span><code>calibrated_rlearner</code> uses the estimated CATE as the adaptive summary.</span>
                 </div>
                 <div class="hero-stat">
-                  <strong>Calibration</strong>
-                  <span>Adaptive methods calibrate the learned treatment-effect summary.</span>
+                  <strong>Alternative</strong>
+                  <span><code>plugin</code> uses the outcome regression as the summary instead.</span>
                 </div>
               </div>
             </div>
@@ -75,6 +76,7 @@
               <div class="example-entry-grid">
                 <div class="example-entry">
                   <p class="example-label">Python</p>
+                  <p class="mini-label">Python interface</p>
                   <pre class="inline-code"><code>from calibrateddml import AdaptiveCalibratedDML
 
 fit = AdaptiveCalibratedDML(
@@ -84,6 +86,7 @@ fit.fit(X, A, y)</code></pre>
                 </div>
                 <div class="example-entry">
                   <p class="example-label">R</p>
+                  <p class="mini-label">R interface</p>
                   <pre class="inline-code"><code>library(calibratedDML)
 
 fit <- adaptive_calibrated_dml(
@@ -98,15 +101,17 @@ fit <- adaptive_calibrated_dml(
       </header>
 
       <main>
-        <section class="section" id="scope">
+        <section class="section" id="what">
           <div class="section-heading">
-            <p class="eyebrow">Scope</p>
-            <h2>What is documented on this page?</h2>
+            <p class="eyebrow">What</p>
+            <h2>What is the estimator?</h2>
             <p>
-              This page documents adaptive DML for binary-treatment ATE
-              estimation. The estimator works by learning and calibrating a
-              treatment-effect summary rather than relying on a fully
-              unrestricted outcome model.
+              The target on this page is the binary-treatment ATE.
+              <code>calibrated_rlearner</code> is the main adaptive mode:
+              it uses the estimated CATE, meaning how treatment effects vary
+              across units, as a scalar summary of effect heterogeneity and
+              targets the ATE through the induced one-dimensional working
+              model.
             </p>
           </div>
 
@@ -120,185 +125,145 @@ fit <- adaptive_calibrated_dml(
               </p>
             </article>
             <article class="comparison-card">
-              <p class="panel-label">Treatment</p>
-              <h3>Binary treatment</h3>
+              <p class="panel-label">Adaptive summary</p>
+              <h3>Estimated CATE as a scalar reduction</h3>
               <p>
-                The adaptive workflow documented here is for treatment versus
-                control.
-              </p>
-            </article>
-          </div>
-
-          <div class="comparison-grid" style="margin-top: 16px;">
-            <article class="comparison-card">
-              <p class="panel-label">Working structure</p>
-              <h3>Treatment effects may be simpler than the full outcome surface</h3>
-              <p>
-                This estimator is most appealing when the treatment-effect
-                pattern is simpler than a fully unrestricted model would
-                suggest.
+                The estimated CATE compresses the effect model to one
+                dimension before calibration and debiasing.
               </p>
             </article>
             <article class="comparison-card">
-              <p class="panel-label">Baseline</p>
-              <h3>Standard calibrated DML remains the broader default</h3>
+              <p class="panel-label">Primary mode</p>
+              <h3><code>calibrated_rlearner</code></h3>
               <p>
-                If the priority is broader inferential scope, standard
-                calibrated DML remains the default baseline.
+                This is the main adaptive path documented on this page.
               </p>
             </article>
           </div>
         </section>
 
-        <section class="section" id="estimator">
+        <section class="section" id="how">
           <div class="section-heading">
-            <p class="eyebrow">Estimator</p>
-            <h2>How is the ATE estimated?</h2>
+            <p class="eyebrow">How</p>
+            <h2>How does it work?</h2>
             <p>
-              Adaptive DML first learns a treatment-effect summary, then
-              calibrates that summary, and finally averages it to estimate the
-              ATE.
+              In the main documented path, a partially linear R-learner setup
+              separates baseline outcome prediction from treatment-effect
+              learning, then calibrates and debiases the learned effect
+              summary.
             </p>
           </div>
 
           <div class="comparison-grid">
             <article class="comparison-card">
               <p class="panel-label">Step 1</p>
-              <h3>Estimate nuisance components</h3>
+              <h3>Fit nuisances and a preliminary CATE</h3>
               <p>
-                Estimate the outcome and treatment-assignment components needed
-                for the adaptive estimator.
+                Estimate the outcome and treatment-assignment functions, then
+                fit a preliminary CATE.
               </p>
             </article>
             <article class="comparison-card">
               <p class="panel-label">Step 2</p>
-              <h3>Learn the treatment-effect summary</h3>
+              <h3>Calibrate along the estimated CATE</h3>
               <p>
-                Learn the conditional treatment-effect pattern that will be used
-                to construct the ATE.
+                Use the estimated CATE as a one-dimensional summary and
+                calibrate along that summary.
               </p>
             </article>
-          </div>
-
-          <div class="comparison-grid" style="margin-top: 16px;">
             <article class="comparison-card">
               <p class="panel-label">Step 3</p>
-              <h3>Calibrate the learned summary</h3>
+              <h3>Debias and average to the ATE</h3>
               <p>
-                Calibrate the treatment-effect summary before forming the final
-                estimator.
-              </p>
-            </article>
-            <article class="comparison-card">
-              <p class="panel-label">Step 4</p>
-              <h3>Average to the ATE</h3>
-              <p>
-                Average the calibrated treatment-effect summary to estimate the
+                Debias in the induced working model and average to estimate the
                 ATE.
               </p>
             </article>
           </div>
         </section>
 
-        <section class="section">
+        <section class="section" id="why">
           <div class="section-heading">
-            <p class="eyebrow">Structure</p>
-            <h2>Why go through a treatment-effect summary?</h2>
+            <p class="eyebrow">Why</p>
+            <h2>Why use it?</h2>
             <p>
-              The adaptive estimator can be more stable when treatment effects
-              are simpler than the full outcome surface.
+              The motivation is the overlap and weighting tradeoff for ATE
+              estimation: fully nonparametric methods are flexible but can be
+              unstable, while constant-effect models are stable but restrictive.
+              Adaptive DML sits between those two regimes.
             </p>
           </div>
 
           <div class="comparison-grid">
             <article class="comparison-card">
-              <p class="panel-label">Simple pattern</p>
-              <h3>Near-constant effects</h3>
+              <p class="panel-label">Fully nonparametric AIPW</p>
+              <h3>Most flexible, strongest overlap demands</h3>
               <p>
-                When treatment effects are close to constant, a simpler
-                treatment-effect model can stabilize ATE estimation.
+                This route allows rich heterogeneity but typically needs the
+                most overlap and can have the highest variance.
               </p>
             </article>
             <article class="comparison-card">
-              <p class="panel-label">Heterogeneity</p>
-              <h3>Effects may still vary</h3>
+              <p class="panel-label">Constant-effect PLM</p>
+              <h3>Most structured, least overlap-sensitive</h3>
               <p>
-                The estimator does not require exact homogeneity. Richer
-                treatment-effect patterns can still be learned when supported
-                by the data.
+                This can be much more stable, but it can be wrong if the
+                treatment effect is not constant.
               </p>
             </article>
-          </div>
-        </section>
-
-        <section class="section">
-          <div class="section-heading">
-            <p class="eyebrow">R-learner setup</p>
-            <h2>Why the partially linear setup is used</h2>
-            <p>
-              The partially linear setup separates baseline outcome prediction
-              from treatment-effect learning. That separation is what allows
-              the estimator to work through a treatment-effect summary.
-            </p>
+            <article class="comparison-card">
+              <p class="panel-label">Learned CATE model</p>
+              <h3>Middle ground</h3>
+              <p>
+                Adaptive DML uses the learned CATE as a one-dimensional middle
+                ground: more structured than the nonparametric route, less
+                restrictive than a constant-effect model.
+              </p>
+            </article>
           </div>
 
           <p class="calibration-summary">
-            In practice, the method removes baseline outcome and treatment
-            assignment patterns before learning the treatment-effect summary.
+            The adaptive estimator works through overlap in the learned
+            one-dimensional CATE summary rather than through the full
+            covariate space. When that summary is informative, this can yield
+            a lower-variance alternative to the fully nonparametric route; in
+            favorable cases, this is the super-efficiency phenomenon.
           </p>
         </section>
 
-        <section class="section" id="guarantees">
+        <section class="section" id="when">
           <div class="section-heading">
-            <p class="eyebrow">Inference</p>
-            <h2>What is the tradeoff relative to standard calibrated DML?</h2>
+            <p class="eyebrow">When</p>
+            <h2>When is it useful?</h2>
             <p>
-              Adaptive DML can be more stable when the treatment-effect pattern
-              is simple. Its inferential scope is narrower and more delicate
-              than standard calibrated DML.
+              Adaptive DML is mainly worth considering when overlap is too weak
+              for reliable or precise fully nonparametric inference and the
+              treatment-effect pattern may be simpler than the full outcome
+              surface.
             </p>
           </div>
 
-          <div class="comparison-grid">
-            <article class="comparison-card">
-              <p class="panel-label">Adaptive DML</p>
-              <h3>Targets simpler treatment-effect structure</h3>
-              <p>
-                Most appealing when treatment-effect structure can stabilize ATE
-                estimation.
-              </p>
-            </article>
-            <article class="comparison-card">
-              <p class="panel-label">Standard Calibrated DML</p>
-              <h3>Broader inferential baseline</h3>
-              <p>
-                Better suited when broader inferential guarantees are the main
-                priority.
-              </p>
-            </article>
-          </div>
-
-          <div class="argument-grid" style="margin-top: 16px;">
+          <div class="argument-grid">
             <article class="argument-card">
-              <h3>Causal assumptions still apply</h3>
+              <h3>Weak overlap is the main use case</h3>
               <p>
-                You still need the usual assumptions behind causal effect
-                estimation, including no unmeasured confounding, consistency,
-                and overlap.
+                This page is most relevant when the fully nonparametric route is
+                unstable because inverse-overlap weights are too variable.
               </p>
             </article>
             <article class="argument-card">
-              <h3>Weak overlap may still matter</h3>
+              <h3>It adapts to near-constant effects</h3>
               <p>
-                Adaptive structure can improve stability under weak overlap, but
-                it does not solve zero-overlap problems.
+                Constant-effect models are contained in the adaptive working
+                model, so the estimator adapts naturally when the CATE is close
+                to constant.
               </p>
             </article>
             <article class="argument-card">
-              <h3>The signal must be informative</h3>
+              <h3>Use cautiously</h3>
               <p>
-                Any gain depends on learning a treatment-effect pattern that is
-                informative for the ATE.
+                Inference is for the induced working model, not the broadest
+                standard calibrated DML target.
               </p>
             </article>
           </div>
@@ -306,29 +271,27 @@ fit <- adaptive_calibrated_dml(
 
         <section class="section" id="mode">
           <div class="section-heading">
-            <p class="eyebrow">Mode</p>
-            <h2>Which mode is the default adaptive entry point?</h2>
+            <p class="eyebrow">Modes</p>
+            <h2>Available adaptive modes</h2>
             <p>
-              <code>calibrated_rlearner</code> is the default adaptive entry
-              point on this page. It is the mode that most directly estimates
-              the ATE through a learned treatment-effect summary.
+              The package exposes two adaptive modes.
             </p>
           </div>
 
           <div class="comparison-grid">
             <article class="comparison-card">
-              <p class="panel-label">Estimator</p>
-              <h3>Direct treatment-effect route</h3>
+              <p class="panel-label">Primary mode</p>
+              <h3><code>calibrated_rlearner</code></h3>
               <p>
-                The calibrated R-learner learns a treatment-effect summary,
-                calibrates it, and plugs it into the ATE estimator.
+                Uses the estimated CATE as the adaptive one-dimensional summary
+                for calibration and debiasing.
               </p>
             </article>
             <article class="comparison-card">
-              <p class="panel-label">Scope</p>
-              <h3>Binary treatment only</h3>
+              <p class="panel-label">Alternative mode</p>
+              <h3><code>plugin</code></h3>
               <p>
-                This documented adaptive workflow is for binary treatment.
+                Uses the outcome regression as the adaptive summary instead.
               </p>
             </article>
           </div>
@@ -337,46 +300,12 @@ fit <- adaptive_calibrated_dml(
             <article class="comparison-card">
               <p class="panel-label">Python</p>
               <h3><code>AdaptiveCalibratedDML</code></h3>
-              <p>
-                Set <code>mode="calibrated_rlearner"</code>.
-              </p>
+              <p>Set <code>mode="calibrated_rlearner"</code>.</p>
             </article>
             <article class="comparison-card">
               <p class="panel-label">R</p>
               <h3><code>adaptive_calibrated_dml()</code></h3>
-              <p>
-                Set <code>mode = "calibrated_rlearner"</code>.
-              </p>
-            </article>
-          </div>
-        </section>
-
-        <section class="section">
-          <div class="section-heading">
-            <p class="eyebrow">Alternative mode</p>
-            <h2>What does <code>plugin</code> do?</h2>
-            <p>
-              The <code>plugin</code> mode calibrates the outcome regression
-              directly instead of a treatment-effect summary.
-            </p>
-          </div>
-
-          <div class="comparison-grid">
-            <article class="comparison-card">
-              <p class="panel-label">Mode</p>
-              <h3><code>plugin</code></h3>
-              <p>
-                Calibrates the outcome regression directly and uses that
-                calibrated outcome-regression summary in the estimator.
-              </p>
-            </article>
-            <article class="comparison-card">
-              <p class="panel-label">Position</p>
-              <h3>Secondary to the calibrated R-learner path</h3>
-              <p>
-                This page treats it as secondary to the calibrated R-learner
-                path.
-              </p>
+              <p>Set <code>mode = "calibrated_rlearner"</code>.</p>
             </article>
           </div>
         </section>
@@ -385,9 +314,7 @@ fit <- adaptive_calibrated_dml(
           <div class="section-heading">
             <p class="eyebrow">References</p>
             <h2>References</h2>
-            <p>
-              Core references for the adaptive estimator are listed here.
-            </p>
+            <p>Core references for the adaptive estimator are listed here.</p>
           </div>
 
           <div class="footer-links">
@@ -398,9 +325,9 @@ fit <- adaptive_calibrated_dml(
 
           <div class="footer-links">
             <a class="footer-link" href="./index.html">Overview</a>
-            <a class="footer-link" href="./examples.html">Workflow chooser</a>
-            <a class="footer-link" href="./r.html">R package page</a>
-            <a class="footer-link" href="https://github.com/Larsvanderlaan/DRinference">GitHub Repository</a>
+            <a class="footer-link" href="./examples.html">Examples</a>
+            <a class="footer-link" href="./r.html">R package</a>
+            <a class="footer-link" href="https://github.com/Larsvanderlaan/DRinference">GitHub</a>
           </div>
         </section>
       </main>

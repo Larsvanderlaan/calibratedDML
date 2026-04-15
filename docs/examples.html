@@ -6,7 +6,7 @@
     <title>calibratedDML examples</title>
     <meta
       name="description"
-      content="Scenario-based workflow chooser for calibratedDML users in causal inference and econometrics."
+      content="Common calibratedDML workflows for raw-data fitting, supplied nuisance estimates, and multi-arm treatment analyses in Python and R."
     />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -35,15 +35,15 @@
             <p class="eyebrow">Workflows</p>
             <h1>Common calibratedDML workflows.</h1>
             <p class="lede">
-              This page maps the main standard calibrated DML workflows:
+              This page summarizes the standard calibrated DML workflows:
               fitting from raw data, starting from supplied nuisance
               estimates, and multi-arm analyses. Adaptive DML for binary
               treatment is documented separately on the
               <a href="./adaptive.html">Adaptive</a> tab.
             </p>
             <div class="hero-actions">
-              <a class="button button-primary" href="#workflows">Browse Workflows</a>
-              <a class="button button-secondary" href="./index.html">Back To Overview</a>
+              <a class="button button-primary" href="#workflows">Browse workflows</a>
+              <a class="button button-secondary" href="./index.html">Overview</a>
             </div>
           </section>
         </div>
@@ -56,21 +56,20 @@
               <p class="eyebrow">Workflows</p>
               <h2>Common workflows</h2>
               <p>
-                Each card gives when to use it, what to call, and why it is the
-                right route for inference.
+                Each card gives when to use it and the corresponding Python and
+                R entry points.
               </p>
             </div>
           </div>
 
           <div class="examples-grid">
             <article class="argument-card">
-              <p class="panel-label">Workflow 1</p>
+              <p class="panel-label">Standard workflow</p>
               <h3>Standard estimator from raw data</h3>
               <p>
                 Use when the package should fit nuisance models, calibrate them,
                 and report inference from raw data.
               </p>
-              <p><strong>Call:</strong> <code>CalibratedDML(...).fit(X, A, y)</code> or <code>calibrated_dml(data, outcome, treatment, covariates, ...)</code></p>
               <div class="example-entry-grid">
                 <div class="example-entry">
                   <p class="example-label">Python</p>
@@ -84,14 +83,13 @@
             </article>
 
             <article class="argument-card">
-              <p class="panel-label">Workflow 2</p>
+              <p class="panel-label">Supplied nuisances</p>
               <h3>Estimator from supplied nuisance matrices</h3>
               <p>
                 Use when cross-fitted nuisance estimates are already available
                 and only calibration, debiasing, and inference should be run
                 here.
               </p>
-              <p><strong>Call:</strong> <code>CalibratedDML(...).fit_from_nuisances(A, y, mu_mat, pi_mat, ...)</code> or <code>calibrated_dml_from_nuisances(A, Y, mu_mat, pi_mat, ...)</code></p>
               <div class="example-entry-grid">
                 <div class="example-entry">
                   <p class="example-label">Python</p>
@@ -105,13 +103,12 @@
             </article>
 
             <article class="argument-card">
-              <p class="panel-label">Workflow 3</p>
+              <p class="panel-label">Multi-arm treatment</p>
               <h3>Multi-arm treatment with control contrasts</h3>
               <p>
                 Use when treatment has more than two levels and the estimand is
                 arm means plus treatment-versus-control contrasts.
               </p>
-              <p><strong>Call:</strong> standard calibrated DML with <code>control_level</code></p>
               <div class="example-entry-grid">
                 <div class="example-entry">
                   <p class="example-label">Python</p>
@@ -125,12 +122,11 @@
             </article>
 
             <article class="argument-card">
-              <p class="panel-label">Workflow 4</p>
+              <p class="panel-label">Adaptive methods</p>
               <h3>Adaptive binary-treatment methods</h3>
               <p>
                 Adaptive DML is documented separately on the Adaptive page.
               </p>
-              <p><strong>Next:</strong> <a href="./adaptive.html">Open Adaptive tab</a></p>
               <div class="chip-row">
                 <a class="chip-link" href="./adaptive.html">Open Adaptive tab</a>
               </div>
@@ -144,9 +140,9 @@
               <p class="eyebrow">Practical Notes</p>
               <h2>Two practical things to check</h2>
               <p>
-                If you already have nuisance estimates, they should usually be
-                cross-fitted. Adaptive DML is documented separately because it
-                has a different inferential story.
+                Supplied nuisance estimates should usually be cross-fitted.
+                Adaptive DML is documented separately because it has a
+                different inferential story.
               </p>
             </div>
           </div>
