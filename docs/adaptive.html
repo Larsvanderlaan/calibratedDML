@@ -42,11 +42,11 @@
             <a href="./examples.html">Examples</a>
             <a href="./r.html">R Package</a>
             <a href="./adaptive.html">Adaptive</a>
-            <a href="https://github.com/Larsvanderlaan/DRinference">GitHub</a>
+            <a href="https://github.com/Larsvanderlaan/calibratedDML">GitHub</a>
           </div>
-          <a class="paper-link" href="https://arxiv.org/abs/2307.12544">
+          <a class="paper-link" href="https://arxiv.org/pdf/2307.12544">
             <span class="paper-link-icon" aria-hidden="true"></span>
-            <span>Paper PDF</span>
+            <span>Paper</span>
           </a>
         </nav>
 
@@ -57,7 +57,7 @@
             <p class="lede">
               Adaptive DML estimates the binary-treatment ATE by learning a
               treatment-effect summary, calibrating that one-dimensional score
-              with isotonic regression, and debiasing in the induced working
+              with isotonic regression, and debiasing within the induced working
               model.
             </p>
             <div class="hero-actions">
@@ -92,11 +92,11 @@
             </div>
 
             <div class="panel-card">
-              <p class="panel-label">Quick Start</p>
+              <p class="panel-label">Quick start</p>
               <div class="example-entry-grid">
                 <div class="example-entry">
                   <p class="example-label">Python</p>
-                  <p class="mini-label">Python interface</p>
+                  <p class="mini-label">Class API</p>
                   <pre class="inline-code"><code>from calibrateddml import AdaptiveCalibratedDML
 
 fit = AdaptiveCalibratedDML(
@@ -106,13 +106,14 @@ fit.fit(X, A, y)</code></pre>
                 </div>
                 <div class="example-entry">
                   <p class="example-label">R</p>
-                  <p class="mini-label">R interface</p>
+                  <p class="mini-label">Function API</p>
                   <pre class="inline-code"><code>library(calibratedDML)
 
 fit <- adaptive_calibrated_dml(
   data = df,
   mode = "calibrated_rlearner"
-)</code></pre>
+)
+summary(fit)</code></pre>
                 </div>
               </div>
             </div>
@@ -367,7 +368,7 @@ fit <- adaptive_calibrated_dml(
             <a class="footer-link" href="./index.html">Overview</a>
             <a class="footer-link" href="./examples.html">Examples</a>
             <a class="footer-link" href="./r.html">R package</a>
-            <a class="footer-link" href="https://github.com/Larsvanderlaan/DRinference">GitHub</a>
+            <a class="footer-link" href="https://github.com/Larsvanderlaan/calibratedDML">GitHub</a>
           </div>
         </section>
       </main>

@@ -47,7 +47,7 @@ A compatibility import path at `calibratedDML` is also available.
 Install from GitHub:
 
 ```r
-remotes::install_github("Larsvanderlaan/DRinference")
+remotes::install_github("Larsvanderlaan/calibratedDML")
 ```
 
 The R package can work with built-in learners and can also integrate with

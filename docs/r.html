@@ -26,20 +26,20 @@
             <a href="./examples.html">Examples</a>
             <a href="./r.html">R Package</a>
             <a href="./adaptive.html">Adaptive</a>
-            <a href="https://github.com/Larsvanderlaan/DRinference">GitHub</a>
+            <a href="https://github.com/Larsvanderlaan/calibratedDML">GitHub</a>
           </div>
         </nav>
 
         <div class="hero-grid">
           <section class="hero-copy">
             <p class="eyebrow">R Package</p>
-            <h1>R interface for calibratedDML.</h1>
+            <h1>Use calibratedDML from R.</h1>
             <p class="lede">
-              This page documents the R interface to calibratedDML, including
-              the standard estimator, supplied-nuisance workflows, and
-              available inference modes. Adaptive DML is documented separately
-              on the <a href="./adaptive.html">Adaptive</a> tab. For longer
-              end-to-end walkthroughs, see the
+              This page covers the standard R workflow, supplied-nuisance
+              entry points, and available inference modes. Adaptive DML is
+              documented separately on the
+              <a href="./adaptive.html">Adaptive</a> page. For longer
+              runnable walkthroughs, see the
               <a href="./tutorials.html">Tutorials</a> page.
             </p>
             <div class="hero-actions">
@@ -50,7 +50,7 @@
 
           <aside class="hero-panel">
             <div class="panel-card gradient-card">
-              <p class="panel-label">R Interfaces</p>
+              <p class="panel-label">At a glance</p>
               <div class="hero-stat-grid">
                 <div class="hero-stat">
                   <strong>Main function</strong>
@@ -62,12 +62,12 @@
                 </div>
                 <div class="hero-stat">
                   <strong>Adaptive DML</strong>
-                  <span><a href="./adaptive.html">Adaptive DML</a> is the separate binary-treatment estimator tab.</span>
+                  <span>Documented separately on the <a href="./adaptive.html">Adaptive</a> page.</span>
                 </div>
               </div>
             </div>
             <div class="panel-card">
-              <p class="panel-label">Compact R Example</p>
+              <p class="panel-label">Quick example</p>
               <pre class="code-block"><code>library(calibratedDML)
 
 fit <- calibrated_dml(
@@ -96,7 +96,7 @@ summary(fit)</code></pre>
               <h2>Install the R package from GitHub</h2>
               <p>
                 The repository contains the R package alongside the Python
-                package. GitHub install is the current public path from this
+                package. GitHub is the current public install path from this
                 repository, with built-in nuisance model choices plus optional
                 <code>sl3</code> and <code>SuperLearner</code> integration.
               </p>
@@ -107,7 +107,7 @@ summary(fit)</code></pre>
             <article class="argument-card">
               <p class="mini-label">Install</p>
               <h3>GitHub</h3>
-              <pre class="inline-code"><code>remotes::install_github("Larsvanderlaan/DRinference")</code></pre>
+              <pre class="inline-code"><code>remotes::install_github("Larsvanderlaan/calibratedDML")</code></pre>
             </article>
             <article class="argument-card">
               <p class="mini-label">Optional</p>
@@ -134,8 +134,8 @@ summary(fit)</code></pre>
               <p class="eyebrow">Entry Points</p>
               <h2>Main R entry points</h2>
               <p>
-                The R interface supports fitting the standard estimator from raw
-                data or from supplied cross-fitted nuisance estimates.
+                Fit the standard estimator from raw data or start from
+                supplied cross-fitted nuisance estimates.
               </p>
             </div>
           </div>
@@ -170,9 +170,9 @@ summary(fit)</code></pre>
               <p class="eyebrow">Inference</p>
               <h2>Inference choices and package scope</h2>
               <p>
-                Choose the inference mode explicitly. The standard R interface
-                and the adaptive page document different estimator families with
-                different guarantees.
+                Choose the inference mode explicitly. The standard estimator
+                and the adaptive page document different estimator families
+                with different guarantees.
               </p>
             </div>
           </div>
@@ -181,14 +181,14 @@ summary(fit)</code></pre>
             <article class="argument-card">
               <h3>Standard estimator</h3>
               <p>
-                <code>calibrated_dml()</code> is the standard R interface for
+                <code>calibrated_dml()</code> is the main entry point for
                 calibrated DML with categorical treatment.
               </p>
             </article>
             <article class="argument-card">
               <h3>Inference modes</h3>
               <p>
-                The standard R interface supports
+                The standard estimator supports
                 <code>"wald"</code>, <code>"bootstrap"</code>, and
                 <code>"jackknife"</code>. Choose the uncertainty layer
                 explicitly rather than inheriting it by accident.
@@ -197,10 +197,10 @@ summary(fit)</code></pre>
             <article class="argument-card">
               <h3>Adaptive DML</h3>
               <p>
-                The separate <a href="./adaptive.html">Adaptive</a> tab
+                The separate <a href="./adaptive.html">Adaptive</a> page
                 documents the binary-treatment adaptive estimator family.
               </p>
-              <p>It has different guarantees and its own uncertainty story.</p>
+              <p>It has different guarantees and its own inferential scope.</p>
             </article>
           </div>
         </section>

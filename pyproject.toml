@@ -33,10 +33,10 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/Larsvanderlaan/DRinference"
-Repository = "https://github.com/Larsvanderlaan/DRinference"
-Issues = "https://github.com/Larsvanderlaan/DRinference/issues"
-Documentation = "https://github.com/Larsvanderlaan/DRinference/tree/main/docs"
+Homepage = "https://github.com/Larsvanderlaan/calibratedDML"
+Repository = "https://github.com/Larsvanderlaan/calibratedDML"
+Issues = "https://github.com/Larsvanderlaan/calibratedDML/issues"
+Documentation = "https://larsvanderlaan.github.io/calibratedDML/"
 
 [project.optional-dependencies]
 gam = ["pygam>=0.9"]

@@ -26,11 +26,11 @@
             <a href="./examples.html">Examples</a>
             <a href="./r.html">R Package</a>
             <a href="./adaptive.html">Adaptive</a>
-            <a href="https://github.com/Larsvanderlaan/DRinference">GitHub</a>
+            <a href="https://github.com/Larsvanderlaan/calibratedDML">GitHub</a>
           </div>
-          <a class="paper-link" href="https://arxiv.org/abs/2411.02771">
+          <a class="paper-link" href="https://arxiv.org/pdf/2411.02771">
             <span class="paper-link-icon" aria-hidden="true"></span>
-            <span>Paper PDF</span>
+            <span>Paper</span>
           </a>
         </nav>
 
@@ -50,11 +50,10 @@
             </div>
             <p class="lede">
               <a href="https://arxiv.org/abs/2411.02771"><code>calibratedDML</code></a>
-              calibrates nuisance estimators so that doubly robust estimators
-              provide doubly robust inference, meaning both point estimates and
-              confidence intervals are valid when one nuisance estimator is
-              estimated sufficiently well, even if the other is slower or
-              misspecified.
+              calibrates nuisance estimators so doubly robust estimators can
+              retain valid point estimates and confidence intervals when one
+              nuisance estimator is estimated sufficiently well, even if the
+              other is slower or misspecified.
             </p>
             <div class="hero-actions">
               <a class="button button-primary" href="#start-here">Get started</a>
@@ -70,7 +69,7 @@
 
           <aside class="hero-panel">
             <div class="panel-card gradient-card">
-              <p class="panel-label">At A Glance</p>
+              <p class="panel-label">At a glance</p>
               <div class="hero-stat-grid">
                 <div class="hero-stat">
                   <strong>Interfaces</strong>
@@ -88,11 +87,11 @@
             </div>
 
             <div class="panel-card quick-start-card">
-              <p class="panel-label">Quick Start</p>
+              <p class="panel-label">Quick start</p>
               <div class="example-entry-grid quick-start-grid">
                 <div class="example-entry">
                   <p class="example-label">Python</p>
-                  <p class="mini-label">Python interface</p>
+                  <p class="mini-label">Class API</p>
                   <pre class="inline-code"><code>from calibrateddml import CalibratedDML
 
 fit = CalibratedDML(...)
@@ -101,7 +100,7 @@ fit.summary()</code></pre>
                 </div>
                 <div class="example-entry">
                   <p class="example-label">R</p>
-                  <p class="mini-label">R interface</p>
+                  <p class="mini-label">Function API</p>
                   <pre class="inline-code"><code>library(calibratedDML)
 
 fit <- calibrated_dml(
@@ -158,7 +157,7 @@ calibrated_dml(data, outcome, treatment, covariates, ...)</code></pre>
                 Standard doubly robust estimators mainly protect point
                 estimates, but valid confidence intervals often still depend on
                 both nuisance functions being estimated well enough.
-                calibratedDML adds a calibration step before debiasing so
+                This package adds a calibration step before debiasing so
                 confidence intervals can remain valid under weaker
                 nuisance-rate conditions.
               </p>
@@ -270,12 +269,12 @@ calibrated_dml(data, outcome, treatment, covariates, ...)</code></pre>
             <article class="argument-card">
               <p class="mini-label">Python</p>
               <h3>GitHub</h3>
-              <pre class="inline-code"><code>pip install "git+https://github.com/Larsvanderlaan/DRinference.git"</code></pre>
+              <pre class="inline-code"><code>pip install "git+https://github.com/Larsvanderlaan/calibratedDML.git"</code></pre>
             </article>
             <article class="argument-card">
               <p class="mini-label">R</p>
               <h3>GitHub</h3>
-              <pre class="inline-code"><code>remotes::install_github("Larsvanderlaan/DRinference")</code></pre>
+              <pre class="inline-code"><code>remotes::install_github("Larsvanderlaan/calibratedDML")</code></pre>
             </article>
           </div>
         </section>
@@ -360,14 +359,14 @@ calibrated_dml(data, outcome, treatment, covariates, ...)</code></pre>
           </a>
 
           <div class="footer-links">
-            <a class="footer-link" href="https://github.com/Larsvanderlaan/DRinference">GitHub Repository</a>
+            <a class="footer-link" href="https://github.com/Larsvanderlaan/calibratedDML">GitHub Repository</a>
             <a class="footer-link" href="https://arxiv.org/abs/2411.02771">Doubly robust inference via calibration</a>
             <a class="footer-link" href="https://arxiv.org/abs/2411.06342">Stabilized inverse weighting paper</a>
             <a class="footer-link" href="https://academic.oup.com/biomet/article/104/4/863/4554445">Benkeser et al. (2017)</a>
             <a class="footer-link" href="https://pubmed.ncbi.nlm.nih.gov/28744883/">Diaz and van der Laan (2017)</a>
             <a class="footer-link" href="https://www.jmlr.org/papers/v25/22-1233.html">Dukes, Vansteelandt, and Whitney (2024)</a>
             <a class="footer-link" href="https://arxiv.org/abs/2405.08525">Bonvini et al. (2024)</a>
-            <a class="footer-link" href="./examples.html">Workflow chooser</a>
+            <a class="footer-link" href="./examples.html">Examples</a>
             <a class="footer-link" href="./r.html">R package page</a>
             <a class="footer-link" href="./adaptive.html">Adaptive methods</a>
           </div>
