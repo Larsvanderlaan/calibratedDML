@@ -1,0 +1,89 @@
+---
+title: "Standard calibrated DML workflows"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Standard calibrated DML workflows}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+library(calibratedDML)
+source("tutorial_helpers.R")
+```
+
+This vignette shows the standard calibrated DML workflow from raw data. It covers binary and multi-arm treatments, the main result tables, and the three supported inference modes.
+
+## Fit from raw data
+
+```{r}
+binary <- make_binary_fixture()
+
+fit_wald <- calibrated_dml(
+  data = binary$data,
+  outcome = "Y",
+  treatment = "A",
+  covariates = c("W1", "W2"),
+  control_level = 0,
+  outcome_model = "lm",
+  treatment_model = "multinom",
+  inference = "wald",
+  n_folds = 3,
+  seed = 1
+)
+
+summary(fit_wald)
+```
+
+The fitted object stores arm means, treatment-versus-control contrasts, calibrated nuisance matrices, and the nuisance source. The shortest result views are `summary(fit_wald)` and `confint(fit_wald)`.
+
+```{r}
+confint(fit_wald, type = "contrast")
+```
+
+## Choose the inference layer explicitly
+
+```{r}
+fit_bootstrap <- calibrated_dml(
+  data = binary$data,
+  outcome = "Y",
+  treatment = "A",
+  covariates = c("W1", "W2"),
+  control_level = 0,
+  outcome_model = "lm",
+  treatment_model = "multinom",
+  inference = "bootstrap",
+  bootstrap_reps = 25,
+  n_folds = 3,
+  seed = 2
+)
+
+confint(fit_bootstrap, type = "contrast")
+```
+
+For larger analyses, increase `bootstrap_reps` or `jackknife_folds`. The tutorial keeps them small so the vignette renders quickly.
+
+## Multi-arm treatment with control contrasts
+
+```{r}
+multiarm <- make_multiarm_fixture()
+
+fit_multiarm <- calibrated_dml(
+  data = multiarm$data,
+  outcome = "Y",
+  treatment = "A",
+  covariates = c("W1", "W2"),
+  control_level = 0,
+  outcome_model = "lm",
+  treatment_model = "multinom",
+  inference = "jackknife",
+  jackknife_folds = 5,
+  n_folds = 3,
+  seed = 3
+)
+
+summary(fit_multiarm)
+```
+
+This standard interface is the right starting point when the package should fit nuisance models internally from raw data.

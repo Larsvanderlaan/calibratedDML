@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>calibratedDML tutorials</title>
+    <meta
+      name="description"
+      content="Tested Python notebooks, script mirrors, and R vignettes for calibratedDML."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./site.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="hero">
+        <nav class="topbar">
+          <div class="brand"><a href="./index.html">calibratedDML</a></div>
+          <div class="toplinks">
+            <a href="./index.html">Overview</a>
+            <a href="./examples.html">Examples</a>
+            <a href="./r.html">R Package</a>
+            <a href="./adaptive.html">Adaptive</a>
+            <a href="https://github.com/Larsvanderlaan/DRinference">GitHub</a>
+          </div>
+        </nav>
+
+        <div class="hero-grid">
+          <section class="hero-copy">
+            <p class="eyebrow">Tutorials</p>
+            <h1>Tested tutorials for Python and R.</h1>
+            <p class="lede">
+              The tutorial suite has parallel Python and R coverage for the
+              standard estimator, plus a separate advanced adaptive tutorial.
+              Each tutorial is backed by small synthetic examples and smoke
+              tests in CI.
+            </p>
+            <div class="hero-actions">
+              <a class="button button-primary" href="#standard-tutorials">Standard tutorials</a>
+              <a class="button button-secondary" href="#adaptive-tutorial">Adaptive tutorial</a>
+            </div>
+          </section>
+        </div>
+      </header>
+
+      <main>
+        <section class="section" id="standard-tutorials">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Standard Estimator</p>
+              <h2>Parallel tutorial topics</h2>
+              <p>
+                The standard tutorial track covers raw-data fitting, custom
+                learners, and supplied nuisance matrices in both interfaces.
+              </p>
+            </div>
+          </div>
+
+          <div class="examples-grid">
+            <article class="argument-card">
+              <p class="panel-label">Standard workflows</p>
+              <h3>Fit from raw data and inspect results</h3>
+              <p>
+                Covers internal nuisance fitting, supported estimands, and the
+                main result tables.
+              </p>
+              <p>
+                <a href="https://github.com/Larsvanderlaan/DRinference/blob/main/Python/tutorials/standard-workflows.ipynb">Python notebook</a>
+                ·
+                <a href="https://github.com/Larsvanderlaan/DRinference/blob/main/Python/tutorials/standard_workflows.py">Python script</a>
+                ·
+                <a href="https://github.com/Larsvanderlaan/DRinference/blob/main/vignettes/standard-workflows.Rmd">R vignette</a>
+              </p>
+            </article>
+
+            <article class="argument-card">
+              <p class="panel-label">Custom learners</p>
+              <h3>Built-ins, interface-native learners, and optional backends</h3>
+              <p>
+                Covers built-in model strings, sklearn-compatible estimators in
+                Python, and built-in specs, custom model lists,
+                <code>SuperLearner</code>, and <code>sl3</code> in R.
+              </p>
+              <p>
+                <a href="https://github.com/Larsvanderlaan/DRinference/blob/main/Python/tutorials/custom-learners.ipynb">Python notebook</a>
+                ·
+                <a href="https://github.com/Larsvanderlaan/DRinference/blob/main/Python/tutorials/custom_learners.py">Python script</a>
+                ·
+                <a href="https://github.com/Larsvanderlaan/DRinference/blob/main/vignettes/custom-learners.Rmd">R vignette</a>
+              </p>
+            </article>
+
+            <article class="argument-card">
+              <p class="panel-label">Supplied nuisances</p>
+              <h3>Run calibration, debiasing, and inference from matrices</h3>
+              <p>
+                Covers matrix shapes, treatment-level alignment, and when to
+                use the direct nuisance path.
+              </p>
+              <p>
+                <a href="https://github.com/Larsvanderlaan/DRinference/blob/main/Python/tutorials/supplied-nuisances.ipynb">Python notebook</a>
+                ·
+                <a href="https://github.com/Larsvanderlaan/DRinference/blob/main/Python/tutorials/supplied_nuisances.py">Python script</a>
+                ·
+                <a href="https://github.com/Larsvanderlaan/DRinference/blob/main/vignettes/supplied-nuisances.Rmd">R vignette</a>
+              </p>
+            </article>
+          </div>
+        </section>
+
+        <section class="section" id="adaptive-tutorial">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Advanced</p>
+              <h2>Adaptive binary-treatment tutorial</h2>
+              <p>
+                The adaptive estimator has its own tutorial track so the
+                standard and adaptive workflows stay separate.
+              </p>
+            </div>
+          </div>
+
+          <div class="argument-grid">
+            <article class="argument-card">
+              <p class="panel-label">Adaptive DML</p>
+              <h3>Binary-treatment adaptive workflow</h3>
+              <p>
+                Covers the calibrated R-learner path, the plug-in alternative,
+                and the current binary-treatment scope.
+              </p>
+              <p>
+                <a href="https://github.com/Larsvanderlaan/DRinference/blob/main/Python/tutorials/adaptive-binary-treatment.ipynb">Python notebook</a>
+                ·
+                <a href="https://github.com/Larsvanderlaan/DRinference/blob/main/Python/tutorials/adaptive_binary_treatment.py">Python script</a>
+                ·
+                <a href="https://github.com/Larsvanderlaan/DRinference/blob/main/vignettes/adaptive-binary-treatment.Rmd">R vignette</a>
+              </p>
+            </article>
+            <article class="argument-card">
+              <p class="panel-label">Pages</p>
+              <h3>Reference pages</h3>
+              <p>
+                Use the site pages for concise workflow guidance, then move to
+                the long-form tutorials when you need runnable end-to-end
+                examples.
+              </p>
+              <p>
+                <a href="./examples.html">Examples</a> ·
+                <a href="./r.html">R package</a> ·
+                <a href="./adaptive.html">Adaptive</a>
+              </p>
+            </article>
+          </div>
+        </section>
+      </main>
+    </div>
+  </body>
+</html>

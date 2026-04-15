@@ -43,6 +43,9 @@ gam = ["pygam>=0.9"]
 boosted = ["lightgbm>=4.0"]
 dev = [
   "build>=1.2",
+  "ipykernel>=6.29",
+  "nbclient>=0.10",
+  "nbformat>=5.10",
   "pytest>=8.0"
 ]
 

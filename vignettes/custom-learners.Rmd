@@ -1,0 +1,117 @@
+---
+title: "Custom learners for calibrated DML"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Custom learners for calibrated DML}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+library(calibratedDML)
+source("tutorial_helpers.R")
+binary <- make_binary_fixture()
+```
+
+This vignette shows the supported learner-specification paths in the R interface:
+
+- built-in learner strings
+- custom model specification lists with `fit` and `predict`
+- optional `SuperLearner` backends
+- optional `sl3` learners
+
+## Built-in learner strings
+
+```{r}
+fit_builtin <- calibrated_dml(
+  data = binary$data,
+  outcome = "Y",
+  treatment = "A",
+  covariates = c("W1", "W2"),
+  control_level = 0,
+  outcome_model = "lm",
+  treatment_model = "multinom",
+  inference = "wald",
+  n_folds = 3,
+  seed = 4
+)
+
+confint(fit_builtin, type = "contrast")
+```
+
+## Custom model specification lists
+
+Custom specs are lists with:
+
+- `kind = "regression"` or `kind = "classification"`
+- a `fit(x, y, weights)` function
+- a `predict(model_fit, newx)` function
+
+```{r}
+fit_custom <- calibrated_dml(
+  data = binary$data,
+  outcome = "Y",
+  treatment = "A",
+  covariates = c("W1", "W2"),
+  control_level = 0,
+  outcome_model = make_regression_spec(),
+  treatment_model = make_binary_classification_spec(),
+  inference = "wald",
+  n_folds = 3,
+  seed = 5
+)
+
+confint(fit_custom, type = "contrast")
+```
+
+For multi-arm treatment, a custom classification model should return one probability column per treatment level.
+
+## Optional `SuperLearner` backends
+
+```{r}
+if (requireNamespace("SuperLearner", quietly = TRUE)) {
+  sl_spec <- list(SL.library = c("SL.mean", "SL.glm"))
+  fit_sl <- calibrated_dml(
+    data = binary$data,
+    outcome = "Y",
+    treatment = "A",
+    covariates = c("W1", "W2"),
+    control_level = 0,
+    outcome_model = sl_spec,
+    treatment_model = sl_spec,
+    inference = "wald",
+    n_folds = 3,
+    seed = 6
+  )
+  confint(fit_sl, type = "contrast")
+} else {
+  "Install SuperLearner to run the optional SuperLearner example."
+}
+```
+
+## Optional `sl3` learners
+
+```{r}
+if (requireNamespace("sl3", quietly = TRUE)) {
+  learners <- calibratedDML::default_learners()
+  fit_sl3 <- calibrated_dml(
+    data = binary$data,
+    outcome = "Y",
+    treatment = "A",
+    covariates = c("W1", "W2"),
+    control_level = 0,
+    outcome_model = learners[[2]],
+    treatment_model = learners[[2]],
+    stratify = c("outcome", "treatment"),
+    inference = "wald",
+    n_folds = 3,
+    seed = 7
+  )
+  confint(fit_sl3, type = "contrast")
+} else {
+  "Install sl3 to run the optional sl3 example."
+}
+```
+
+When nuisance estimation already happens elsewhere, the cleaner route is often to skip learner integration entirely and use `calibrated_dml_from_nuisances()`.

@@ -1,0 +1,56 @@
+---
+title: "Adaptive binary-treatment workflow"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Adaptive binary-treatment workflow}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+library(calibratedDML)
+source("tutorial_helpers.R")
+binary <- make_binary_fixture()
+```
+
+This advanced vignette documents the binary-treatment adaptive interface. The standard calibrated DML tutorials remain the default place to start.
+
+## Calibrated R-learner mode
+
+```{r}
+fit_rlearner <- adaptive_calibrated_dml(
+  data = binary$data,
+  outcome = "Y",
+  treatment = "A",
+  covariates = c("W1", "W2"),
+  control_level = 0,
+  mu_mat = binary$mu_mat,
+  pi_mat = binary$pi_mat,
+  mode = "calibrated_rlearner",
+  cate_model = "lm",
+  inference = "wald"
+)
+
+summary(fit_rlearner)
+```
+
+## Plug-in mode
+
+```{r}
+fit_plugin <- adaptive_calibrated_dml(
+  data = binary$data,
+  outcome = "Y",
+  treatment = "A",
+  covariates = c("W1", "W2"),
+  control_level = 0,
+  mu_mat = binary$mu_mat,
+  pi_mat = binary$pi_mat,
+  mode = "plugin",
+  inference = "wald"
+)
+
+summary(fit_plugin)
+```
+
+Adaptive DML has its own theory and practical caveats, so it is documented separately from the standard workflow tutorials.

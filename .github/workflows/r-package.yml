@@ -1,0 +1,54 @@
+name: r-package
+
+on:
+  push:
+    paths:
+      - "DESCRIPTION"
+      - "NAMESPACE"
+      - "R/**"
+      - "man/**"
+      - "vignettes/**"
+      - "docs/**"
+      - "tests/testthat/**"
+      - "tests/testthat.R"
+      - ".github/workflows/r-package.yml"
+  pull_request:
+    paths:
+      - "DESCRIPTION"
+      - "NAMESPACE"
+      - "R/**"
+      - "man/**"
+      - "vignettes/**"
+      - "docs/**"
+      - "tests/testthat/**"
+      - "tests/testthat.R"
+      - ".github/workflows/r-package.yml"
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: r-lib/actions/setup-r@v2
+      - uses: r-lib/actions/setup-pandoc@v2
+      - name: Install package dependencies
+        shell: Rscript {0}
+        run: |
+          install.packages(c("remotes", "testthat", "knitr", "rmarkdown"), repos = "https://cloud.r-project.org")
+          remotes::install_deps(dependencies = c("Depends", "Imports"), repos = "https://cloud.r-project.org")
+      - name: Install package
+        shell: Rscript {0}
+        run: |
+          remotes::install_local(".", dependencies = FALSE, upgrade = "never")
+      - name: Run R tests
+        shell: Rscript {0}
+        run: |
+          testthat::test_dir("tests/testthat", reporter = "summary")
+      - name: Render vignettes
+        shell: Rscript {0}
+        run: |
+          output_dir <- tempdir()
+          rmarkdown::render("vignettes/standard-workflows.Rmd", output_dir = output_dir, quiet = TRUE)
+          rmarkdown::render("vignettes/custom-learners.Rmd", output_dir = output_dir, quiet = TRUE)
+          rmarkdown::render("vignettes/supplied-nuisances.Rmd", output_dir = output_dir, quiet = TRUE)
+          rmarkdown::render("vignettes/adaptive-binary-treatment.Rmd", output_dir = output_dir, quiet = TRUE)

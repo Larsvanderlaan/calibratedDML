@@ -1,0 +1,59 @@
+---
+title: "Supplied nuisance matrices"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Supplied nuisance matrices}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+library(calibratedDML)
+source("tutorial_helpers.R")
+```
+
+This vignette shows the supplied-nuisance workflow. Use it when cross-fitted outcome and treatment nuisance estimates already exist and only calibration, debiasing, and inference should be run here.
+
+## Binary treatment from supplied nuisance matrices
+
+```{r}
+binary <- make_binary_fixture()
+
+fit_binary <- calibrated_dml_from_nuisances(
+  A = binary$A,
+  Y = binary$Y,
+  mu_mat = binary$mu_mat,
+  pi_mat = binary$pi_mat,
+  control_level = 0,
+  inference = "bootstrap",
+  bootstrap_reps = 25
+)
+
+summary(fit_binary)
+```
+
+Each nuisance matrix should have one row per observation and one column per treatment level.
+
+## Multi-arm treatment with explicit level alignment
+
+```{r}
+multiarm <- make_multiarm_fixture()
+
+mu_perm <- multiarm$mu_mat[, c("2", "0", "1")]
+pi_perm <- multiarm$pi_mat[, c("2", "0", "1")]
+
+fit_multiarm <- calibrated_dml_from_nuisances(
+  A = multiarm$A,
+  Y = multiarm$Y,
+  mu_mat = mu_perm,
+  pi_mat = pi_perm,
+  control_level = 0,
+  treatment_levels = c(0, 1, 2),
+  inference = "wald"
+)
+
+summary(fit_multiarm)
+```
+
+The explicit `treatment_levels` argument is useful whenever matrices come from an external pipeline and you want to lock the arm ordering down.

@@ -35,15 +35,16 @@
             <p class="eyebrow">Workflows</p>
             <h1>Common calibratedDML workflows.</h1>
             <p class="lede">
-              This page summarizes the standard calibrated DML workflows:
-              fitting from raw data, starting from supplied nuisance
-              estimates, and multi-arm analyses. Adaptive DML for binary
-              treatment is documented separately on the
-              <a href="./adaptive.html">Adaptive</a> tab.
+              This page gives a compact map of the standard calibrated DML
+              workflows: fitting from raw data, starting from supplied
+              nuisance estimates, and multi-arm analyses. For tested
+              end-to-end walkthroughs, use the
+              <a href="./tutorials.html">Tutorials</a> page with Python
+              notebooks, script mirrors, and R vignettes.
             </p>
             <div class="hero-actions">
               <a class="button button-primary" href="#workflows">Browse workflows</a>
-              <a class="button button-secondary" href="./index.html">Overview</a>
+              <a class="button button-secondary" href="./tutorials.html">Full tutorials</a>
             </div>
           </section>
         </div>
@@ -122,15 +123,41 @@
             </article>
 
             <article class="argument-card">
-              <p class="panel-label">Adaptive methods</p>
-              <h3>Adaptive binary-treatment methods</h3>
+              <p class="panel-label">Custom learners</p>
+              <h3>Custom learners and external nuisance pipelines</h3>
               <p>
-                Adaptive DML is documented separately on the Adaptive page.
+                Use when you want to choose the nuisance learners yourself or
+                bring in nuisance estimates from another pipeline.
               </p>
-              <div class="chip-row">
-                <a class="chip-link" href="./adaptive.html">Open Adaptive tab</a>
+              <div class="example-entry-grid">
+                <div class="example-entry">
+                  <p class="example-label">Python</p>
+                  <p>
+                    Pass sklearn-compatible regressors for outcome nuisance
+                    estimation and probabilistic classifiers for treatment
+                    nuisance estimation.
+                  </p>
+                  <p class="example-call"><code>CalibratedDML(outcome_model=..., treatment_model=...).fit(X, A, y)</code></p>
+                </div>
+                <div class="example-entry">
+                  <p class="example-label">R</p>
+                  <p>
+                    Use built-in learner names, a
+                    <code>SuperLearner</code> library, or an
+                    <code>sl3</code> learner.
+                  </p>
+                  <p class="example-call"><code>calibrated_dml(..., outcome_model = ..., treatment_model = ...)</code></p>
+                </div>
               </div>
+              <p>
+                For full control in either interface, use the supplied-nuisance
+                workflow with <code>fit_from_nuisances(...)</code> or
+                <code>calibrated_dml_from_nuisances(...)</code>. R-side learner
+                support is documented on the
+                <a href="./r.html">R package page</a>.
+              </p>
             </article>
+
           </div>
         </section>
 
@@ -141,8 +168,7 @@
               <h2>Two practical things to check</h2>
               <p>
                 Supplied nuisance estimates should usually be cross-fitted.
-                Adaptive DML is documented separately because it has a
-                different inferential story.
+                The inference layer should also be chosen deliberately.
               </p>
             </div>
           </div>
@@ -158,10 +184,34 @@
             <article class="callout">
               <p class="panel-label">Inference choice</p>
               <p>
-                Adaptive DML has a different inferential story, so be deliberate
-                about whether you want Wald, bootstrap, or jackknife intervals.
+                Be deliberate about whether you want Wald, bootstrap, or
+                jackknife intervals.
               </p>
             </article>
+            <article class="callout">
+              <p class="panel-label">Custom learners</p>
+              <p>
+                Custom learners are interface-specific: Python accepts
+                sklearn-compatible estimators, while R accepts built-in model
+                specs plus optional <code>SuperLearner</code> and
+                <code>sl3</code> backends.
+              </p>
+            </article>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Tutorials</p>
+              <h2>Long-form walkthroughs</h2>
+              <p>
+                The <a href="./tutorials.html">Tutorials</a> page collects the
+                tested Python notebooks, script mirrors, and R vignettes for
+                the standard calibrated DML workflows when you want more than
+                the compact workflow summaries on this page.
+              </p>
+            </div>
           </div>
         </section>
       </main>
