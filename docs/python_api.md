@@ -28,10 +28,10 @@ CalibratedDML(
     stratify=("outcome", "treatment"),
     calibration_method="auto",
     calibration_stratify=None,
-    inference="wald",
+    inference="jackknife",
     conf_level=0.95,
     bootstrap_reps=200,
-    jackknife_folds=10,
+    jackknife_folds=100,
     random_state=None,
     n_folds=5,
     fold_ids=None,
@@ -109,11 +109,17 @@ Calibration controls:
 
 Supported inference methods:
 
+- `"jackknife"`
 - `"wald"`
 - `"bootstrap"`
-- `"jackknife"`
 
 For `"bootstrap"` and `"jackknife"`, nuisance matrices are held fixed and only calibration plus debiasing are refit.
+
+Recommended use:
+
+- `"jackknife"` is the default for standard calibrated DML. It gives resampling-based intervals, adapts better to nuisance misspecification, and was the better practical default in the repository's coverage checks.
+- `"wald"` is the lightest option, but it should be used when both nuisance estimators are consistent, even if one converges arbitrarily slowly.
+- `"bootstrap"` is also valid for the standard estimator, but it is more computationally expensive than `"jackknife"` and was not the better practical default in our validation runs.
 
 ## `AdaptiveCalibratedDML`
 

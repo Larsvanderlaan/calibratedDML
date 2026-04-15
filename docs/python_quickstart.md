@@ -13,7 +13,6 @@ fit = CalibratedDML(
     treatment_model="lasso",
     stratify=("outcome", "treatment"),
     calibration_method="auto",
-    inference="wald",
     random_state=123,
 )
 
@@ -54,9 +53,16 @@ Use this path when you already have cross-fitted nuisance predictions.
 - `treatment_model="lasso"`
 - `stratify=("outcome", "treatment")`
 - `calibration_method="auto"`
-- `inference="wald"`
+- `inference="jackknife"`
+- `jackknife_folds=100`
 
 For multi-arm treatment, the default treatment path fits one-vs-rest propensity models and normalizes them to valid multinomial probabilities.
+
+Inference guide:
+
+- Use the default jackknife intervals for standard calibrated DML.
+- Use Wald when both nuisance estimators are consistent, even if one is arbitrarily slow.
+- Use bootstrap when you want another valid resampling interval and can afford the extra computation.
 
 ## Adaptive estimator
 

@@ -184,8 +184,11 @@
             <article class="callout">
               <p class="panel-label">Inference choice</p>
               <p>
-                Be deliberate about whether you want Wald, bootstrap, or
-                jackknife intervals.
+                Standard calibrated DML uses jackknife intervals by default.
+                They adapt to nuisance misspecification, are cheaper than the
+                bootstrap, and worked better in our simulations. Use Wald only
+                when both nuisances are consistent, even if one converges
+                arbitrarily slowly.
               </p>
             </article>
             <article class="callout">

@@ -40,13 +40,13 @@
 #' @param n_folds Number of folds for nuisance fitting when nuisances are not
 #'   supplied.
 #' @param fold_id Optional fold assignment vector.
-#' @param inference Inference mode. One of `"wald"`, `"bootstrap"`, or
-#'   `"jackknife"`.
+#' @param inference Inference mode. One of `"jackknife"`, `"bootstrap"`, or
+#'   `"wald"`. The default is `"jackknife"` for the standard estimator.
 #' @param conf_level Confidence level for reported intervals.
 #' @param bootstrap_reps Number of bootstrap resamples used for interval
 #'   estimation when `inference = "bootstrap"`.
 #' @param jackknife_folds Number of delete-a-group folds used when
-#'   `inference = "jackknife"`.
+#'   `inference = "jackknife"`. The default is `100`.
 #' @param alpha Legacy compatibility alias for `1 - conf_level`.
 #' @param n_boot Legacy compatibility alias for `bootstrap_reps`.
 #' @param seed Optional random seed used for fold creation and bootstrap
@@ -72,10 +72,10 @@ calibrated_dml <- function(
   calibration_stratify = NULL,
   n_folds = 5,
   fold_id = NULL,
-  inference = c("wald", "bootstrap", "jackknife"),
+  inference = c("jackknife", "bootstrap", "wald"),
   conf_level = 0.95,
   bootstrap_reps = 200,
-  jackknife_folds = 10,
+  jackknife_folds = 100,
   alpha = NULL,
   n_boot = NULL,
   seed = NULL
@@ -180,11 +180,11 @@ calibrated_dml <- function(
 #'   contrasts.
 #' @param sample_weight Optional non-negative sample weights.
 #' @param treatment_levels Optional explicit ordering of treatment levels.
-#' @param inference Inference mode. One of `"wald"`, `"bootstrap"`, or
-#'   `"jackknife"`.
+#' @param inference Inference mode. One of `"jackknife"`, `"bootstrap"`, or
+#'   `"wald"`. The default is `"jackknife"` for the standard estimator.
 #' @param conf_level Confidence level for reported intervals.
 #' @param bootstrap_reps Number of bootstrap resamples.
-#' @param jackknife_folds Number of delete-a-group folds.
+#' @param jackknife_folds Number of delete-a-group folds. The default is `100`.
 #' @param calibration_method One of `"auto"`, `"isotonic"`,
 #'   `"smooth_isotonic"`, or `"none"`.
 #' @param calibration_options Optional list of calibration tuning options.
@@ -208,9 +208,9 @@ calibrated_dml_from_nuisances <- function(
   sample_weight = NULL,
   treatment_levels = NULL,
   conf_level = 0.95,
-  inference = c("wald", "bootstrap", "jackknife"),
+  inference = c("jackknife", "bootstrap", "wald"),
   bootstrap_reps = 200,
-  jackknife_folds = 10,
+  jackknife_folds = 100,
   calibration_method = c("auto", "isotonic", "smooth_isotonic", "none"),
   calibration_options = list(),
   calibration_stratify = NULL,

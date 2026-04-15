@@ -63,7 +63,6 @@ fit = CalibratedDML(
     outcome_model="lasso",
     treatment_model="lasso",
     calibration_method="auto",
-    inference="wald",
     random_state=123,
 )
 
@@ -109,8 +108,7 @@ fit <- calibrated_dml(
   control_level = 0,
   outcome_model = "lasso",
   treatment_model = "lasso",
-  calibration_method = "auto",
-  inference = "wald"
+  calibration_method = "auto"
 )
 
 summary(fit)
@@ -147,9 +145,15 @@ Standard calibrated DML supports:
 
 Inference options:
 
+- `inference = "jackknife"` with `jackknife_folds = 100` is the default for standard calibrated DML
 - `inference = "wald"`
 - `inference = "bootstrap"`
-- `inference = "jackknife"`
+
+Practical guidance:
+
+- Use the default jackknife intervals for standard calibrated DML.
+- Use Wald when both nuisance estimators are consistent, even if one converges arbitrarily slowly.
+- Use bootstrap when you want another valid resampling interval and can afford the extra computation.
 
 ## Adaptive binary-treatment methods
 
