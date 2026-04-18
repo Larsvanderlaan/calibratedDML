@@ -6,7 +6,7 @@
     <title>calibratedDML</title>
     <meta
       name="description"
-      content="Calibrated debiased machine learning for causal effect inference with flexible nuisance learning in Python and R."
+      content="Calibrated doubly robust estimators for causal effect inference, with Python and R interfaces."
     />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -50,26 +50,22 @@
             </div>
             <p class="lede">
               <a href="https://arxiv.org/abs/2411.02771"><code>calibratedDML</code></a>
-              calibrates nuisance estimators so doubly robust estimators can
-              retain valid point estimates and confidence intervals when one
-              nuisance estimator is estimated sufficiently well, even if the
-              other is slower or misspecified.
+              implements calibrated doubly robust estimators for mean
+              potential outcomes and treatment-versus-control contrasts. The
+              standard workflow fits or accepts cross-fitted nuisance
+              estimates, calibrates them, and then forms point estimates and
+              confidence intervals.
             </p>
             <div class="hero-actions">
-              <a class="button button-primary" href="#start-here">Get started</a>
+              <a class="button button-primary" href="#start-here">Overview</a>
               <a class="button button-secondary" href="./examples.html">Examples</a>
               <a class="button button-secondary" href="./r.html">R package</a>
             </div>
-            <ul class="hero-pills">
-              <li>Doubly robust confidence intervals</li>
-              <li>Extreme weights can be stabilized</li>
-              <li>Compatible with flexible ML nuisance models</li>
-            </ul>
           </section>
 
           <aside class="hero-panel">
             <div class="panel-card gradient-card">
-              <p class="panel-label">At a glance</p>
+              <p class="panel-label">Summary</p>
               <div class="hero-stat-grid">
                 <div class="hero-stat">
                   <strong>Interfaces</strong>
@@ -87,7 +83,7 @@
             </div>
 
             <div class="panel-card quick-start-card">
-              <p class="panel-label">Quick start</p>
+              <p class="panel-label">Example</p>
               <div class="example-entry-grid quick-start-grid">
                 <div class="example-entry">
                   <p class="example-label">Python</p>
@@ -119,7 +115,7 @@ summary(fit)</code></pre>
           <div class="section-heading split">
             <div>
               <p class="eyebrow">Overview</p>
-              <h2>What can I estimate?</h2>
+              <h2>Supported estimands</h2>
               <p>
                 The standard implementation estimates arm means and
                 treatment-versus-control contrasts. You can run the full
@@ -252,7 +248,7 @@ calibrated_dml(data, outcome, treatment, covariates, ...)</code></pre>
           <div class="section-heading">
             <div>
               <p class="eyebrow">Installation</p>
-              <h2>How do I install it?</h2>
+              <h2>Installation</h2>
               <p>
                 The repository provides both Python and R interfaces for the
                 standard calibrated DML estimator.
@@ -283,7 +279,7 @@ calibrated_dml(data, outcome, treatment, covariates, ...)</code></pre>
           <div class="section-heading">
             <div>
               <p class="eyebrow">Workflows</p>
-              <h2>Which workflow fits my analysis?</h2>
+              <h2>Common workflows</h2>
               <p>
                 The package supports estimation from raw data, estimation from
                 supplied nuisance functions, and multi-arm analyses.
@@ -354,7 +350,7 @@ calibrated_dml(data, outcome, treatment, covariates, ...)</code></pre>
                 Semisupervised mean inference with AIPW, calibration, and
                 uncertainty quantification.
               </p>
-              <span class="companion-card-cta">Open the ppi_aipw website</span>
+              <span class="companion-card-cta">Companion package site</span>
             </div>
           </a>
 
