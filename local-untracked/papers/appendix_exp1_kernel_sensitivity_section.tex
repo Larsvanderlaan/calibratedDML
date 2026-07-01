@@ -1,0 +1,72 @@
+\section{Additional kernel-sensitivity simulations for Experiment 1}
+\label{appendix::exp1_kernel_sensitivity}
+
+We repeated the singly consistent simulations from Experiment 1
+using two alternative misspecified kernel nuisance fits. The first replaces the
+incorrect nuisance by an intentionally oversmoothed Nadaraya-Watson kernel fit
+with bandwidth proportional to \(n^{-0.025}\). The second fits the incorrect
+nuisance using only \(W_1\), omitting the binary covariate \(W_2\). These
+variants preserve the same data-generating distribution, sample splits, seeds,
+and estimators as Experiment~1. We report the complete cells with
+\(n \in \{250,500,750,1000,2000,3000,4000,5000\}\), using 500 Monte Carlo
+replicates per cell; the partially completed \(n=7500\) run is not shown.
+
+Figure~\ref{fig::exp1_slow_kernel_appendix} shows that the slow-kernel
+variant gives the same qualitative message as the main simulation. IC-DML has
+small bias and coverage close to the nominal 95\% level in both singly
+consistent settings, including the setting in which the intentionally slow
+nuisance violates the usual product-rate heuristic. AIPW remains sensitive to
+the misspecified nuisance, especially when the outcome regression is
+misspecified.
+
+\begin{figure}[tbp]
+     \centering
+\includegraphics[width=0.5\linewidth]{newplots/appendix_exp1_kernel_sensitivity_legend.pdf}
+
+    \begin{subfigure}[b]{\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{newplots/appendix_exp1_slow_kernel_misp3.pdf}
+    \subcaption{Only outcome regression is estimated consistently.}
+    \end{subfigure}
+    \begin{subfigure}[b]{\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{newplots/appendix_exp1_slow_kernel_misp2.pdf}
+   \subcaption{Only propensity score is estimated consistently.}
+    \end{subfigure}
+\caption{Experiment~1 sensitivity with an intentionally slow kernel nuisance. Bias, standard error, and 95\% confidence interval coverage are shown for AIPW, DR-TMLE, and IC-DML. IC-DML uses the bootstrap interval; AIPW and DR-TMLE use Wald intervals.}
+       \label{fig::exp1_slow_kernel_appendix}
+\end{figure}
+
+The one-variable kernel variant in
+Figure~\ref{fig::exp1_one_variable_kernel_appendix} is more adversarial. When
+only the propensity score is consistently estimated, IC-DML again has the
+smallest bias and close-to-nominal coverage across most sample sizes. When only
+the outcome regression is consistently estimated, IC-DML reduces bias relative
+to AIPW and DR-TMLE and has the best coverage from \(n=750\) through \(n=4000\),
+but it undercovers at the smallest sample sizes (coverage 0.818 at \(n=250\)
+and 0.876 at \(n=500\)) and is slightly below nominal at \(n=5000\) (coverage
+0.922). We therefore view this variant as a useful stress test rather than the
+main empirical display.
+
+\begin{figure}[tbp]
+     \centering
+\includegraphics[width=0.5\linewidth]{newplots/appendix_exp1_kernel_sensitivity_legend.pdf}
+
+    \begin{subfigure}[b]{\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{newplots/appendix_exp1_one_variable_kernel_misp3.pdf}
+    \subcaption{Only outcome regression is estimated consistently.}
+    \end{subfigure}
+    \begin{subfigure}[b]{\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{newplots/appendix_exp1_one_variable_kernel_misp2.pdf}
+   \subcaption{Only propensity score is estimated consistently.}
+    \end{subfigure}
+\caption{Experiment~1 sensitivity with a misspecified one-variable kernel nuisance that uses \(W_1\) and omits \(W_2\). Bias, standard error, and 95\% confidence interval coverage are shown for AIPW, DR-TMLE, and IC-DML. IC-DML uses the bootstrap interval; AIPW and DR-TMLE use Wald intervals.}
+       \label{fig::exp1_one_variable_kernel_appendix}
+\end{figure}
+
+For readability, a small number of early AIPW points are omitted from the
+plotted bias and standard-error panels in the outcome-misspecified setting,
+where the empirical AIPW standard error is dominated by rare extreme weights.
+These rows are retained in the simulation summary files.
