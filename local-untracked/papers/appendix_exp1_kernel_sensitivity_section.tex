@@ -1,23 +1,26 @@
-\section{Additional kernel-sensitivity simulations for Experiment 1}
+\section{Additional Experiment 1 simulations with kernel nuisance estimators}
 \label{appendix::exp1_kernel_sensitivity}
 
-We repeated the singly consistent simulations from Experiment 1
-using two alternative misspecified kernel nuisance fits. The first replaces the
-incorrect nuisance by an intentionally oversmoothed Nadaraya-Watson kernel fit
-with bandwidth proportional to \(n^{-0.025}\). The second fits the incorrect
-nuisance using only \(W_1\), omitting the binary covariate \(W_2\). These
-variants preserve the same data-generating distribution, sample splits, seeds,
-and estimators as Experiment~1. We report the complete cells with
+We repeated the singly consistent simulations from Experiment~1 with the same
+data-generating distribution, sample-splitting scheme, seed convention,
+estimators, and inferential procedures, changing only the nuisance estimator
+used for the component deliberately set to be misspecified or estimated at a
+slow rate.
+In the first additional run, the misspecified main-term logistic regression used
+in Experiment~1 is replaced by a misspecified Nadaraya-Watson kernel regression
+that uses \(W_1\) and omits the binary covariate \(W_2\). In the second
+additional run, the same stratified Nadaraya-Watson kernel regression is used
+with the suboptimal bandwidth rule \(h_m=m^{-0.025}\), where \(m\) is the
+training-stratum sample size, rather than bandwidth selection by
+cross-validation. We report the complete cells with
 \(n \in \{250,500,750,1000,2000,3000,4000,5000\}\), using 500 Monte Carlo
-replicates per cell; the partially completed \(n=7500\) run is not shown.
+replicates per cell.
 
-Figure~\ref{fig::exp1_slow_kernel_appendix} shows that the slow-kernel
-variant gives the same qualitative message as the main simulation. IC-DML has
-small bias and coverage close to the nominal 95\% level in both singly
-consistent settings, including the setting in which the intentionally slow
-nuisance violates the usual product-rate heuristic. AIPW remains sensitive to
-the misspecified nuisance, especially when the outcome regression is
-misspecified.
+Figure~\ref{fig::exp1_slow_kernel_appendix} gives the results for the
+slow-bandwidth kernel nuisance estimator. The empirical pattern is similar to
+that in Figure~\ref{fig::exp1}: IC-DML has low empirical bias and coverage near
+the nominal 95\% level in both singly consistent settings, while AIPW has larger
+bias or lower coverage when the slow bandwidth rule is used.
 
 \begin{figure}[tbp]
      \centering
@@ -33,20 +36,20 @@ misspecified.
     \includegraphics[width=\linewidth]{newplots/appendix_exp1_slow_kernel_misp2.pdf}
    \subcaption{Only propensity score is estimated consistently.}
     \end{subfigure}
-\caption{Experiment~1 sensitivity with an intentionally slow kernel nuisance. Bias, standard error, and 95\% confidence interval coverage are shown for AIPW, DR-TMLE, and IC-DML. IC-DML uses the bootstrap interval; AIPW and DR-TMLE use Wald intervals.}
+\caption{Additional Experiment~1 results using a slow-bandwidth kernel nuisance estimator with \(h_m=m^{-0.025}\). Bias, standard error, and 95\% confidence interval coverage are shown for AIPW, DR-TMLE, and IC-DML. IC-DML uses the bootstrap interval; AIPW and DR-TMLE use Wald intervals.}
        \label{fig::exp1_slow_kernel_appendix}
 \end{figure}
 
-The one-variable kernel variant in
-Figure~\ref{fig::exp1_one_variable_kernel_appendix} is more adversarial. When
-only the propensity score is consistently estimated, IC-DML again has the
-smallest bias and close-to-nominal coverage across most sample sizes. When only
-the outcome regression is consistently estimated, IC-DML reduces bias relative
-to AIPW and DR-TMLE and has the best coverage from \(n=750\) through \(n=4000\),
-but it undercovers at the smallest sample sizes (coverage 0.818 at \(n=250\)
-and 0.876 at \(n=500\)) and is slightly below nominal at \(n=5000\) (coverage
-0.922). We therefore view this variant as a useful stress test rather than the
-main empirical display.
+Figure~\ref{fig::exp1_one_variable_kernel_appendix} gives the results when the
+misspecified logistic regression is replaced by the one-variable kernel
+regression. When only the propensity score is consistently estimated, IC-DML has
+low empirical bias and coverage close to nominal over the displayed sample
+sizes. When only the outcome regression is consistently estimated, the
+empirical bias of calibrated DML and DR-TMLE is below that of AIPW from
+\(n=1000\) onward; the largest departures from nominal IC-DML coverage occur at
+the two smallest sample sizes. The ordering is similar to
+Figure~\ref{fig::exp1}, apart from lower IC-DML coverage at the two smallest
+sample sizes in the outcome-regression-consistent setting.
 
 \begin{figure}[tbp]
      \centering
@@ -62,11 +65,11 @@ main empirical display.
     \includegraphics[width=\linewidth]{newplots/appendix_exp1_one_variable_kernel_misp2.pdf}
    \subcaption{Only propensity score is estimated consistently.}
     \end{subfigure}
-\caption{Experiment~1 sensitivity with a misspecified one-variable kernel nuisance that uses \(W_1\) and omits \(W_2\). Bias, standard error, and 95\% confidence interval coverage are shown for AIPW, DR-TMLE, and IC-DML. IC-DML uses the bootstrap interval; AIPW and DR-TMLE use Wald intervals.}
+\caption{Additional Experiment~1 results using a misspecified one-variable kernel nuisance estimator that uses \(W_1\) and omits \(W_2\). Bias, standard error, and 95\% confidence interval coverage are shown for AIPW, DR-TMLE, and IC-DML. IC-DML uses the bootstrap interval; AIPW and DR-TMLE use Wald intervals.}
        \label{fig::exp1_one_variable_kernel_appendix}
 \end{figure}
 
-For readability, a small number of early AIPW points are omitted from the
-plotted bias and standard-error panels in the outcome-misspecified setting,
-where the empirical AIPW standard error is dominated by rare extreme weights.
-These rows are retained in the simulation summary files.
+In the outcome-misspecified panels, plotted AIPW points with empirical standard
+error above 0.1 or absolute bias above 0.1 are omitted from the displayed curves
+so that the common axes show the range of the other plotted points. These rows
+are retained in the simulation summary files.
