@@ -10,9 +10,15 @@ In the first additional run, the misspecified main-term logistic regression used
 in Experiment~1 is replaced by a misspecified Nadaraya-Watson kernel regression
 that uses \(W_1\) and omits the binary covariate \(W_2\). In the second
 additional run, the same stratified Nadaraya-Watson kernel regression is used
-with the suboptimal bandwidth rule \(h_m=m^{-0.025}\), where \(m\) is the
-training-stratum sample size, rather than bandwidth selection by
-cross-validation. We report the complete cells with
+with the suboptimal bandwidth rule \(h_m=m^{-0.025}\), where \(m\asymp n\) is
+the training-stratum sample size, rather than bandwidth selection by
+cross-validation. Since \(W_2\) is binary and the kernel estimator is stratified
+by \(W_2\) (and by treatment level for the outcome regression), the
+nonparametric smoothing problem is one-dimensional in \(W_1\); for
+twice-smooth nuisance functions, the consistently estimated nuisance has the
+usual kernel RMSE rate \(m^{-2/5}\), whereas the slow bandwidth rule gives RMSE
+rate \(m^{-0.05}\). The resulting product rate is \(m^{-9/20}\), slower than
+\(m^{-1/2}\). We report the complete cells with
 \(n \in \{250,500,750,1000,2000,3000,4000,5000\}\), using 500 Monte Carlo
 replicates per cell.
 
