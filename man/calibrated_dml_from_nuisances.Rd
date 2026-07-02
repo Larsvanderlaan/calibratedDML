@@ -16,6 +16,9 @@ calibrated_dml_from_nuisances(
   inference = c("jackknife", "bootstrap", "wald"),
   bootstrap_reps = 200,
   jackknife_folds = 100,
+  wald_correction = c("auto", "sieve_riesz", "none"),
+  wald_conservative = FALSE,
+  wald_options = list(),
   calibration_method = c("auto", "isotonic", "smooth_isotonic", "none"),
   calibration_options = list(),
   calibration_stratify = NULL,
@@ -52,6 +55,19 @@ contrasts.}
 \item{bootstrap_reps}{Number of bootstrap resamples.}
 
 \item{jackknife_folds}{Number of delete-a-group folds.}
+
+\item{wald_correction}{Wald standard-error correction. `"auto"` uses the
+sieve-Riesz corrected contrast standard error for binary-treatment Wald
+inference and the standard Wald standard error otherwise. `"sieve_riesz"`
+requires binary-treatment Wald inference. `"none"` uses the standard Wald
+standard error.}
+
+\item{wald_conservative}{If `TRUE`, binary corrected Wald uses the maximum
+of the standard Wald and corrected sieve-Riesz standard errors.}
+
+\item{wald_options}{Optional list controlling sieve-Riesz Wald tuning. Public
+entries include `basis_size_grid`, `lambda_grid`, `cv_folds`,
+`propensity_clip`, and `riesz_bound`.}
 
 \item{calibration_method}{One of `"auto"`, `"isotonic"`,
 `"smooth_isotonic"`, or `"none"`.}

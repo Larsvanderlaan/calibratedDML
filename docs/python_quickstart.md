@@ -61,7 +61,7 @@ For multi-arm treatment, the default treatment path fits one-vs-rest propensity 
 Inference guide:
 
 - Use the default jackknife intervals for standard calibrated DML.
-- Use Wald when both nuisance estimators are consistent, even if one is arbitrarily slow.
+- Use Wald when both nuisance estimators are consistent, even if one is arbitrarily slow. Binary Wald contrasts use corrected sieve-Riesz standard errors by default; set `wald_conservative=True` to report the maximum of the standard and corrected Wald standard errors.
 - Use bootstrap when you want another valid resampling interval and can afford the extra computation.
 
 ## Adaptive estimator

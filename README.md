@@ -163,13 +163,13 @@ Standard calibrated DML supports:
 Inference options:
 
 - `inference = "jackknife"` with `jackknife_folds = 100` is the default for standard calibrated DML
-- `inference = "wald"`
+- `inference = "wald"`; for binary treatment contrasts this uses the corrected sieve-Riesz Wald standard error by default
 - `inference = "bootstrap"`
 
 Practical guidance:
 
 - Use the default jackknife intervals for standard calibrated DML.
-- Use Wald when both nuisance estimators are consistent, even if one converges arbitrarily slowly.
+- Use Wald when both nuisance estimators are consistent, even if one converges arbitrarily slowly. Set `wald_conservative = TRUE` in R or `wald_conservative=True` in Python to use the maximum of the standard and corrected Wald standard errors.
 - Use bootstrap when you want another valid resampling interval and can afford the extra computation.
 
 ## Adaptive binary-treatment methods

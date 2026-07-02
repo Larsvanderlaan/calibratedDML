@@ -103,6 +103,7 @@ Practical guidance:
 - Consult Benkeser and van der Laan, "A Super-Efficient Estimator of the Average Treatment Effect," plus van der Laan, Carone, Luedtke, and van der Laan, "Adaptive debiased machine learning using data-driven model selection techniques," before relying on adaptive confidence intervals.
 
 For the standard estimator, the main methodological reference is van der Laan, Luedtke, and Carone, "Doubly robust inference via calibration."
+For binary `inference="wald"` contrasts, the standard estimator uses corrected sieve-Riesz Wald standard errors by default; set `wald_conservative=True` to use the maximum of the standard and corrected Wald standard errors.
 
 ## 6. Read results
 
@@ -117,4 +118,5 @@ The full fitted object also stores nuisance and calibration artifacts for debugg
 - `mu_mat_`, `pi_mat_`
 - `calibrated_mu_mat_`, `calibrated_pi_mat_`
 - `calibration_`
+- `wald_diagnostics_`
 - `nuisance_source_`

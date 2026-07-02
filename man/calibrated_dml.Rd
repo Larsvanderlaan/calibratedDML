@@ -26,6 +26,9 @@ calibrated_dml(
   conf_level = 0.95,
   bootstrap_reps = 200,
   jackknife_folds = 100,
+  wald_correction = c("auto", "sieve_riesz", "none"),
+  wald_conservative = FALSE,
+  wald_options = list(),
   alpha = NULL,
   n_boot = NULL,
   seed = NULL
@@ -93,6 +96,19 @@ estimation when `inference = "bootstrap"`.}
 
 \item{jackknife_folds}{Number of delete-a-group folds used when
 `inference = "jackknife"`.}
+
+\item{wald_correction}{Wald standard-error correction. `"auto"` uses the
+sieve-Riesz corrected contrast standard error for binary-treatment Wald
+inference and the standard Wald standard error otherwise. `"sieve_riesz"`
+requires binary-treatment Wald inference. `"none"` uses the standard Wald
+standard error.}
+
+\item{wald_conservative}{If `TRUE`, binary corrected Wald uses the maximum
+of the standard Wald and corrected sieve-Riesz standard errors.}
+
+\item{wald_options}{Optional list controlling sieve-Riesz Wald tuning. Public
+entries include `basis_size_grid`, `lambda_grid`, `cv_folds`,
+`propensity_clip`, and `riesz_bound`.}
 
 \item{alpha}{Legacy compatibility alias for `1 - conf_level`.}
 

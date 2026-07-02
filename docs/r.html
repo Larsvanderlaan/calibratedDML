@@ -191,7 +191,10 @@ summary(fit)</code></pre>
                 The standard estimator supports
                 <code>"wald"</code>, <code>"bootstrap"</code>, and
                 <code>"jackknife"</code>. Choose the uncertainty layer
-                explicitly rather than inheriting it by accident.
+                explicitly rather than inheriting it by accident. Binary Wald
+                contrasts use corrected sieve-Riesz standard errors by default;
+                set <code>wald_conservative = TRUE</code> to take the maximum of
+                the standard and corrected standard errors.
               </p>
             </article>
             <article class="argument-card">
