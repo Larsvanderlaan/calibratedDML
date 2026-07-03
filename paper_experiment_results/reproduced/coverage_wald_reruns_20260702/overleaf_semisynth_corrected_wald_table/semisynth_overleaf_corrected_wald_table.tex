@@ -1,0 +1,36 @@
+\begin{table}[tb]
+    \centering
+    \caption{Evaluation of Absolute Bias, Root Mean Square Error (RMSE), and 95\% Confidence Interval coverage on semi-synthetic benchmark datasets. Both outcome regression and propensity scores are estimated using an ensemble of gradient-boosted trees. For comparability across rows, the absolute bias and RMSE are scaled by a constant equal to the average effect size across dataset realizations for that benchmark. For C-DML, coverage is reported for the bootstrap interval and, when available, the corrected Wald interval. Blank corrected-Wald entries indicate that the full corrected-Wald rerun was not yet complete. For clarity, we report only sample size 10000 results for ACIC-2018 and the settings with strong confounding for ACIC-2017. The full results can be found in Appendix \ref{appendix::simRealFull}.}\label{fig::exp2}
+    \begin{subtable}{\textwidth}
+        \centering
+        \scriptsize
+        \begin{tabular}{|c||P{1.2cm}|P{1.2cm}|P{1.35cm}||P{1.2cm}|P{1.2cm}||P{1.2cm}|P{1.2cm}|}
+            \hline
+            \multirow{2}{*}{\textbf{Dataset}} &
+              \multicolumn{3}{c||}{\textbf{Coverage}} &
+              \multicolumn{2}{c||}{\textbf{RMSE}} &
+              \multicolumn{2}{c|}{\textbf{Absolute Bias}} \\
+            \cline{2-8}
+            & AIPW & C-DML Boot. & C-DML Corr. Wald & AIPW & C-DML & AIPW & C-DML \\
+            \hline\hline
+             ACIC-2017 (18) & 0.18 & 0.65 & \textbf{0.70} & 0.885 & \textbf{0.618} & 0.534 & \textbf{0.292} \\
+            \hline
+             ACIC-2017 (20) & 0.50 & 0.85 & \textbf{0.91} & 1.51 & \textbf{1.51} & 1.12 & \textbf{0.451} \\
+            \hline
+             ACIC-2017 (22) & 0.42 & 0.77 & \textbf{0.81} & 0.143 & \textbf{0.108} & 0.0836 & \textbf{0.0418} \\
+            \hline
+             ACIC-2017 (24) & 0.59 & 0.84 & \textbf{0.91} & \textbf{0.266} & 0.271 & 0.201 & \textbf{0.0659} \\
+            \hline
+             ACIC-2018 (10000) & 0.60 & \textbf{0.75} &  & \textbf{714} & 2080 & \textbf{20.2} & 109 \\
+            \hline
+             IHDP & \textbf{0.63} & 0.56 & 0.57 & \textbf{0.466} & 0.47 & \textbf{0.133} & 0.134 \\
+            \hline
+             Lalonde CPS & 0.15 & \textbf{0.65} & 0.60 & \textbf{0.208} & 0.318 & 0.108 & \textbf{0.103} \\
+            \hline
+             Lalonde PSID & 0.47 & \textbf{0.83} & 0.79 & \textbf{0.191} & 0.414 & 0.041 & \textbf{0.023} \\
+            \hline
+             Twins & \textbf{0.96} & \textbf{0.96} &  & 0.112 & \textbf{0.11} & 0.0603 & \textbf{0.0565} \\
+            \hline
+        \end{tabular}
+    \end{subtable}
+\end{table}

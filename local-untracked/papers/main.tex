@@ -2295,7 +2295,7 @@ We compare the calibrated DML estimator to the AIPW estimator, with both defined
  
  
 
- For each collection of $k$ dataset realizations, Table~\ref{fig::exp2} reports empirical absolute bias, root mean square error (RMSE), and nominal 95\% confidence interval coverage. The calibrated DML estimator consistently achieved superior coverage performance.  For instance, in the ACIC-2017 settings, it improved AIPW's coverage rates from 27\% to 64\%, 32\% to 90\%, 56\% to 81\%, and 32\% to 90\%.  In terms of point estimation, calibrated DML also generally exhibited lower or comparable absolute bias across datasets. Notably, in the ACIC-2017 settings 20 and 24, the calibrated DML estimator outperformed the AIPW estimator, achieving bias reductions by factors of approximately 8. In ACIC-2017 settings 24 and 20, the calibrated DML estimator achieved lower RMSEs than AIPW (0.25 vs.\ 0.35 and 1.4 vs.\ 2.0, respectively). While AIPW performs better in terms of RMSE in the Lalonde CPS and Lalonde PSID datasets, this came at the cost of substantially poorer coverage.
+For each collection of $k$ dataset realizations, Table~\ref{fig::exp2} reports empirical absolute bias, root mean square error (RMSE), and nominal 95\% confidence interval coverage. For calibrated DML, we report the bootstrap interval used in the original table and, when the refreshed rerun is complete, a corrected Wald interval based on the sieve-corrected influence function. The corrected Wald interval improves coverage in the hard ACIC-2017 settings. More broadly, calibrated DML generally improves coverage relative to AIPW, while RMSE and absolute-bias differences are setting-dependent.
 
 
 
@@ -2305,42 +2305,42 @@ We compare the calibrated DML estimator to the AIPW estimator, with both defined
 %For each collection of $k$ dataset realizations, Table \ref{fig::exp2} reports empirical absolute bias, scaled root mean square error, and nominal 95\% confidence interval coverage. The calibrated DML estimator generally exhibited lower absolute bias compared to the AIPW estimator across several datasets. Notably, in the ACIC-2017 settings 20 and 24, and the Lalonde CPS dataset, the calibrated DML estimator significantly outperformed the AIPW estimator, achieving bias reductions by factors ranging from approximately 1.5 to 8. The calibrated DML estimator consistently demonstrated superior performance in terms of scaled RMSE, achieving lower values across most datasets. For example, in ACIC-2017 settings 24 and 20, the calibrated DML estimator achieved lower scaled RMSEs than AIPW (0.252 vs.\ 0.345 and 1.39 vs.\ 1.95, respectively), indicating greater accuracy in estimating the treatment effect. The calibrated DML estimator generally maintained better or comparable coverage rates for the 95\% confidence intervals; for instance, in ACIC-2017 settings 18, 20, and 24, and the Lalonde CPS and PSID datasets, it achieved empirical coverage rates of 64.4\%, 90\%, 90\%, 75\%, and 80\%, respectively, compared to substantially lower rates for the AIPW estimator, ranging from 10\% to 50\%.
 
 
-Overall, the calibrated DML estimator outperformed the AIPW estimator in terms of confidence interval coverage, RMSE, and absolute bias across a range of semi-synthetic datasets.% The isotonic calibration step in the calibrated DML estimator improved the accuracy of point estimates, while the bootstrap-assisted confidence intervals provided better coverage properties. 
+Overall, the semi-synthetic benchmarks show the clearest gains in confidence interval coverage, with point-estimation performance depending on the dataset and nuisance-learning difficulty.% The isotonic calibration step in the calibrated DML estimator improved the accuracy of point estimates, while the bootstrap-assisted confidence intervals provided better coverage properties. 
 
 
  
 \begin{table}[tb]
     \centering
-    \caption{Evaluation of Absolute Bias, Root Mean Square Error (RMSE), and 95\% Confidence Interval coverage on semi-synthetic benchmark datasets. Both outcome regression and propensity scores are estimated using an ensemble of gradient-boosted trees. For comparability across rows, the absolute bias and RMSE is scaled by a constant equal to the average effect size across dataset realizations for that benchmark. For clarity, we report only sample size 10000 results for ACIC-2018 and the settings with strong confounding for ACIC-2017. The full results can be found in Appendix \ref{appendix::simRealFull}.}\label{fig::exp2}
+    \caption{Evaluation of Absolute Bias, Root Mean Square Error (RMSE), and 95\% Confidence Interval coverage on semi-synthetic benchmark datasets. Both outcome regression and propensity scores are estimated using an ensemble of gradient-boosted trees. For comparability across rows, the absolute bias and RMSE are scaled by a constant equal to the average effect size across dataset realizations for that benchmark. For C-DML, coverage is reported for the bootstrap interval and, when available, the corrected Wald interval. Blank corrected-Wald entries indicate that the full corrected-Wald rerun was not yet complete. For clarity, we report only sample size 10000 results for ACIC-2018 and the settings with strong confounding for ACIC-2017. The full results can be found in Appendix \ref{appendix::simRealFull}.}\label{fig::exp2}
     \begin{subtable}{\textwidth}
         \centering
-        \footnotesize
-        \begin{tabular}{|c||P{1.5cm}|P{1.5cm}||P{1.5cm}|P{1.5cm}||P{1.5cm}|P{1.5cm}|}
+        \scriptsize
+        \begin{tabular}{|c||P{1.2cm}|P{1.2cm}|P{1.35cm}||P{1.2cm}|P{1.2cm}||P{1.2cm}|P{1.2cm}|}
             \hline
             \multirow{2}{*}{\textbf{Dataset}} &
-              \multicolumn{2}{c||}{\textbf{Coverage}} &
+              \multicolumn{3}{c||}{\textbf{Coverage}} &
               \multicolumn{2}{c||}{\textbf{RMSE}} &
               \multicolumn{2}{c|}{\textbf{Absolute Bias}} \\
-            \cline{2-7}
-            & AIPW & C-DML & AIPW & C-DML & AIPW & C-DML \\
+            \cline{2-8}
+            & AIPW & C-DML Boot. & C-DML Corr. Wald & AIPW & C-DML & AIPW & C-DML \\
             \hline\hline
-             ACIC-2017 (18) & 0.27 & \textbf{0.64} & 0.70 & \textbf{0.58} & \textbf{0.21} & 0.28 \\
+             ACIC-2017 (18) & 0.18 & 0.65 & \textbf{0.70} & 0.885 & \textbf{0.618} & 0.534 & \textbf{0.292} \\
             \hline
-             ACIC-2017 (20) & 0.32 & \textbf{0.90} & 2.00 & \textbf{1.40} & 1.60 & \textbf{0.20} \\
+             ACIC-2017 (20) & 0.50 & 0.85 & \textbf{0.91} & 1.51 & \textbf{1.51} & 1.12 & \textbf{0.451} \\
             \hline
-             ACIC-2017 (22) & 0.56 & \textbf{0.81} & 0.11 & \textbf{0.10} & \textbf{0.004} & 0.035 \\
+             ACIC-2017 (22) & 0.42 & 0.77 & \textbf{0.81} & 0.143 & \textbf{0.108} & 0.0836 & \textbf{0.0418} \\
             \hline
-             ACIC-2017 (24) & 0.32 & \textbf{0.90} & 0.34 & \textbf{0.25} & 0.30 & \textbf{0.04} \\
+             ACIC-2017 (24) & 0.59 & 0.84 & \textbf{0.91} & \textbf{0.266} & 0.271 & 0.201 & \textbf{0.0659} \\
             \hline
-             ACIC-2018 (10000) & 0.55 & \textbf{0.68} & 690 & \textbf{680} & 17 & \textbf{13} \\
+             ACIC-2018 (10000) & 0.60 & \textbf{0.75} &  & \textbf{714} & 2080 & \textbf{20.2} & 109 \\
             \hline
-             IHDP & \textbf{0.57} & \textbf{0.57} & \textbf{0.46} & \textbf{0.46} & \textbf{0.13} & \textbf{0.13} \\
+             IHDP & \textbf{0.63} & 0.56 & 0.57 & \textbf{0.466} & 0.47 & \textbf{0.133} & 0.134 \\
             \hline
-             Lalonde CPS & 0.16 & \textbf{0.75} & \textbf{0.22} & 0.34 & 0.14 & \textbf{0.084} \\
+             Lalonde CPS & 0.15 & \textbf{0.65} & 0.60 & \textbf{0.208} & 0.318 & 0.108 & \textbf{0.103} \\
             \hline
-             Lalonde PSID & 0.46 & \textbf{0.84} & \textbf{0.19} & 0.44 & \textbf{0.04} & \textbf{0.04} \\
+             Lalonde PSID & 0.47 & \textbf{0.83} & 0.79 & \textbf{0.191} & 0.414 & 0.041 & \textbf{0.023} \\
             \hline
-             Twins & 0.51 & \textbf{0.54} & 0.24 & \textbf{0.23} & 0.22 & \textbf{0.21} \\
+             Twins & \textbf{0.96} & \textbf{0.96} &  & 0.112 & \textbf{0.11} & 0.0603 & \textbf{0.0565} \\
             \hline
         \end{tabular}
     \end{subtable}
