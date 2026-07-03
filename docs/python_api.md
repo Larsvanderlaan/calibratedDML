@@ -30,7 +30,6 @@ CalibratedDML(
     jackknife_folds=100,
     wald_correction="auto",
     wald_conservative=False,
-    wald_options=None,
     random_state=None,
     n_folds=5,
     fold_ids=None,
@@ -118,7 +117,7 @@ For `"bootstrap"` and `"jackknife"`, nuisance matrices are held fixed and only c
 Recommended use:
 
 - `"jackknife"` is the default for standard calibrated DML. It gives resampling-based intervals, adapts better to nuisance misspecification, and was the better practical default in the repository's coverage checks.
-- `"wald"` is the lightest option, but it should be used when both nuisance estimators are consistent, even if one converges arbitrarily slowly. For binary treatment contrasts, `wald_correction="auto"` uses the corrected sieve-Riesz Wald standard error by default. Set `wald_conservative=True` to use the maximum of the standard and corrected Wald standard errors.
+- `"wald"` is the lightest option, but it should be used when both nuisance estimators are consistent, even if one converges arbitrarily slowly. For binary treatment contrasts, `wald_correction="auto"` uses an unconstrained empirical level-set Riesz correction. Set `wald_correction="none"` to recover the standard Wald standard error. Set `wald_conservative=True` to use the maximum of the standard Wald and corrected Wald standard errors.
 - `"bootstrap"` is also valid for the standard estimator, but it is more computationally expensive than `"jackknife"` and was not the better practical default in our validation runs.
 
 ## `AdaptiveCalibratedDML`

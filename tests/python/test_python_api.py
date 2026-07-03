@@ -353,21 +353,14 @@ def test_bootstrap_and_jackknife_run_with_fixed_nuisances():
     assert np.isfinite(fit_jack.estimates_["std_error"]).all()
 
 
-def test_binary_wald_uses_sieve_riesz_correction_by_default():
+def test_binary_wald_uses_levelset_correction_by_default():
     _, a, y, mu_mat, pi_mat, _ = make_binary_oracle_data(n=180, seed=21)
-    options = {
-        "basis_size_grid": [4, 8],
-        "lambda_grid": [1e-4, 1e-2],
-        "cv_folds": 3,
-        "min_rows": 5,
-    }
 
     corrected = CalibratedDML(
         control_level=0,
         inference="wald",
         calibration_method="none",
         random_state=31,
-        wald_options=options,
     ).fit_from_nuisances(A=a, y=y, mu_mat=mu_mat, pi_mat=pi_mat)
     standard = CalibratedDML(
         control_level=0,
@@ -375,26 +368,44 @@ def test_binary_wald_uses_sieve_riesz_correction_by_default():
         calibration_method="none",
         wald_correction="none",
         random_state=31,
-        wald_options=options,
     ).fit_from_nuisances(A=a, y=y, mu_mat=mu_mat, pi_mat=pi_mat)
 
     diagnostics = corrected.wald_diagnostics_
     assert diagnostics["applied"] is True
-    assert diagnostics["wald_aux_method"] == "sieve_riesz"
+    assert diagnostics["wald_aux_method"] == "levelset_riesz"
+    assert diagnostics["basis_type"] == "calibrated_levelset"
     assert diagnostics["std_error_mode"] == "corrected_if"
+    assert diagnostics["h_treated"]["basis_size"] is None
     assert np.isfinite(corrected.contrasts_.loc[0, "std_error"])
     assert np.isclose(standard.contrasts_.loc[0, "std_error"], diagnostics["simple_wald_std_error"])
     assert standard.wald_diagnostics_["applied"] is False
 
 
+def test_levelset_wald_handles_repeated_scores():
+    _, a, y, mu_mat, pi_mat, _ = make_binary_oracle_data(n=180, seed=121)
+    mu_level = np.round(mu_mat, 1)
+    pi1_level = np.clip(np.round(pi_mat[:, 1], 1), 0.05, 0.95)
+    pi_level = np.column_stack([1.0 - pi1_level, pi1_level])
+
+    fit = CalibratedDML(
+        control_level=0,
+        inference="wald",
+        calibration_method="none",
+        random_state=131,
+    ).fit_from_nuisances(A=a, y=y, mu_mat=mu_level, pi_mat=pi_level)
+
+    diagnostics = fit.wald_diagnostics_
+    assert diagnostics["applied"] is True
+    assert diagnostics["wald_aux_method"] == "levelset_riesz"
+    assert diagnostics["basis_type"] == "calibrated_levelset"
+    assert diagnostics["h_treated"]["selected_method"] == "levelset_objective"
+    assert diagnostics["h_treated"]["num_levelsets"] > 1
+    assert diagnostics["h_treated"]["basis_size"] is None
+    assert np.isfinite(fit.contrasts_.loc[0, "std_error"])
+
+
 def test_binary_wald_conservative_uses_max_of_standard_and_corrected_se():
     _, a, y, mu_mat, pi_mat, _ = make_binary_oracle_data(n=180, seed=22)
-    options = {
-        "basis_size_grid": [4, 8],
-        "lambda_grid": [1e-4, 1e-2],
-        "cv_folds": 3,
-        "min_rows": 5,
-    }
 
     fit = CalibratedDML(
         control_level=0,
@@ -402,7 +413,6 @@ def test_binary_wald_conservative_uses_max_of_standard_and_corrected_se():
         calibration_method="none",
         random_state=32,
         wald_conservative=True,
-        wald_options=options,
     ).fit_from_nuisances(A=a, y=y, mu_mat=mu_mat, pi_mat=pi_mat)
 
     diagnostics = fit.wald_diagnostics_
@@ -412,7 +422,7 @@ def test_binary_wald_conservative_uses_max_of_standard_and_corrected_se():
     assert np.isclose(diagnostics["selected_std_error"], expected)
 
 
-def test_sieve_riesz_wald_supports_explicit_binary_labels():
+def test_corrected_wald_supports_explicit_binary_labels():
     _, a, y, mu_mat, pi_mat, _ = make_binary_oracle_data(n=160, seed=23)
     labels = np.where(a == 1, "treated", "control")
     mu_frame = pd.DataFrame({"treated": mu_mat[:, 1], "control": mu_mat[:, 0]})
@@ -423,7 +433,6 @@ def test_sieve_riesz_wald_supports_explicit_binary_labels():
         inference="wald",
         calibration_method="none",
         random_state=33,
-        wald_options={"basis_size_grid": [4], "lambda_grid": [1e-3], "cv_folds": 3, "min_rows": 5},
     ).fit_from_nuisances(
         A=labels,
         y=y,
@@ -440,12 +449,13 @@ def test_sieve_riesz_wald_supports_explicit_binary_labels():
 
 def test_wald_correction_validation_and_multiarm_auto_fallback():
     _, a, y, mu_mat, pi_mat, _ = make_binary_oracle_data(n=100, seed=24)
-    with pytest.raises(ValueError, match="inference='wald'"):
-        CalibratedDML(control_level=0, inference="bootstrap", wald_correction="sieve_riesz").fit_from_nuisances(
-            A=a,
-            y=y,
-            mu_mat=mu_mat,
-            pi_mat=pi_mat,
+    with pytest.raises(ValueError, match="wald_correction"):
+        CalibratedDML(control_level=0, inference="wald", wald_correction="sieve_riesz").fit_from_nuisances(
+            A=a, y=y, mu_mat=mu_mat, pi_mat=pi_mat
+        )
+    with pytest.raises(ValueError, match="wald_correction"):
+        CalibratedDML(control_level=0, inference="wald", wald_correction="levelset_riesz").fit_from_nuisances(
+            A=a, y=y, mu_mat=mu_mat, pi_mat=pi_mat
         )
 
     _, a3, y3, mu3, pi3, _ = make_multiarm_oracle_data(n=150, seed=25)
@@ -457,34 +467,9 @@ def test_wald_correction_validation_and_multiarm_auto_fallback():
     )
     assert auto.wald_diagnostics_["fallback_reason"] == "non_binary_treatment"
 
-    with pytest.raises(ValueError, match="binary treatment"):
-        CalibratedDML(
-            control_level=0,
-            inference="wald",
-            calibration_method="none",
-            wald_correction="sieve_riesz",
-        ).fit_from_nuisances(A=a3, y=y3, mu_mat=mu3, pi_mat=pi3)
 
-
-def test_sieve_riesz_wald_fallbacks_and_boundary_propensities_are_finite():
+def test_levelset_wald_boundary_propensities_are_finite():
     _, a, y, mu_mat, pi_mat, _ = make_binary_oracle_data(n=140, seed=26)
-    fallback_fit = CalibratedDML(
-        control_level=0,
-        inference="wald",
-        calibration_method="none",
-        random_state=34,
-        wald_options={
-            "basis_size_grid": [4],
-            "lambda_grid": [1e-3],
-            "cv_folds": 2,
-            "min_rows": 5,
-            "min_unique_scores": 10_000,
-        },
-    ).fit_from_nuisances(A=a, y=y, mu_mat=mu_mat, pi_mat=pi_mat)
-    assert fallback_fit.wald_diagnostics_["h_treated"]["fallback"] is True
-    assert fallback_fit.wald_diagnostics_["q_control"]["fallback"] is True
-    assert np.isfinite(fallback_fit.contrasts_.loc[0, "std_error"])
-
     boundary_pi = np.column_stack([
         np.where(a == 0, 0.998, 0.002),
         np.where(a == 1, 0.998, 0.002),
@@ -494,13 +479,34 @@ def test_sieve_riesz_wald_fallbacks_and_boundary_propensities_are_finite():
         inference="wald",
         calibration_method="none",
         random_state=35,
-        wald_options={"basis_size_grid": [4], "lambda_grid": [1e-3], "cv_folds": 2, "min_rows": 5},
     ).fit_from_nuisances(A=a, y=y, mu_mat=mu_mat, pi_mat=boundary_pi)
     assert np.isfinite(boundary_fit.contrasts_.loc[0, "std_error"])
-    assert boundary_fit.wald_diagnostics_["h_treated"]["bound_upper"] == pytest.approx(40.0)
+    assert boundary_fit.wald_diagnostics_["wald_aux_method"] == "levelset_riesz"
+    assert boundary_fit.wald_diagnostics_["riesz_bound"] is None
+    assert boundary_fit.wald_diagnostics_["h_treated"]["bound_upper"] is None
 
 
-def test_sieve_riesz_wald_matches_r_reference_fixture():
+def test_levelset_wald_reports_weighted_arm_fallback():
+    _, a, y, mu_mat, pi_mat, _ = make_binary_oracle_data(n=140, seed=126)
+    weights = np.where(a == 0, 1.0, 0.0)
+
+    fit = CalibratedDML(control_level=0, inference="wald", calibration_method="none").fit_from_nuisances(
+        A=a,
+        y=y,
+        mu_mat=mu_mat,
+        pi_mat=pi_mat,
+        sample_weight=weights,
+    )
+
+    diagnostics = fit.wald_diagnostics_
+    assert diagnostics["h_treated"]["fallback"] is True
+    assert diagnostics["h_treated"]["fallback_reason"] == "too_few_positive_weight_arm_rows"
+    assert diagnostics["q_treated"]["fallback"] is True
+    assert diagnostics["q_treated"]["fallback_reason"] == "zero_positive_weight"
+    assert np.isfinite(fit.contrasts_.loc[0, "std_error"])
+
+
+def test_levelset_wald_matches_r_reference_fixture():
     n = 80
     w = np.linspace(-1.0, 1.0, n)
     pi1 = 1.0 / (1.0 + np.exp(-(0.15 + 0.75 * w)))
@@ -514,7 +520,6 @@ def test_sieve_riesz_wald_matches_r_reference_fixture():
         inference="wald",
         calibration_method="none",
         random_state=101,
-        wald_options={"basis_size_grid": [4, 6], "lambda_grid": [1e-4, 1e-2], "cv_folds": 4, "min_rows": 5},
     ).fit_from_nuisances(
         A=a,
         y=y,
@@ -523,11 +528,11 @@ def test_sieve_riesz_wald_matches_r_reference_fixture():
     )
 
     assert fit.contrasts_.loc[0, "estimate"] == pytest.approx(0.5948840416978424)
-    assert fit.contrasts_.loc[0, "std_error"] == pytest.approx(0.031816138714923135)
-    assert fit.contrasts_.loc[0, "lower"] == pytest.approx(0.5325255556894626)
-    assert fit.contrasts_.loc[0, "upper"] == pytest.approx(0.6572425277062222)
-    assert fit.wald_diagnostics_["h_treated"]["basis_size"] == 4
-    assert fit.wald_diagnostics_["q_treated"]["lambda"] == pytest.approx(0.01)
+    assert fit.contrasts_.loc[0, "std_error"] == pytest.approx(0.013955770607441227)
+    assert fit.contrasts_.loc[0, "lower"] == pytest.approx(0.5675312339307549)
+    assert fit.contrasts_.loc[0, "upper"] == pytest.approx(0.6222368494649299)
+    assert fit.wald_diagnostics_["wald_aux_method"] == "levelset_riesz"
+    assert fit.wald_diagnostics_["h_treated"]["basis_size"] is None
 
 
 def test_calibration_auto_uses_smooth_isotonic_for_small_samples():

@@ -32,7 +32,7 @@ from .models import (
     resolve_classifier,
     resolve_regressor,
 )
-from .wald import compute_sieve_riesz_wald_correction
+from .wald import compute_levelset_riesz_wald_correction
 
 
 class ResultMixin:
@@ -61,7 +61,9 @@ class CalibratedDML(BaseEstimator, ResultMixin):
     The primary Python interface is `calibrateddml.CalibratedDML`. It supports
     either internal cross-fitted nuisance estimation from `(X, A, y)` or direct
     estimation from supplied nuisance matrices via `fit_from_nuisances(...)`.
-    Binary Wald contrasts use a corrected sieve-Riesz standard error by default.
+    Binary Wald contrasts use the corrected level-set Riesz standard error by
+    default. Set `wald_conservative=True` to report the maximum of the standard
+    Wald and corrected standard errors.
     """
 
     def __init__(
@@ -78,7 +80,6 @@ class CalibratedDML(BaseEstimator, ResultMixin):
         jackknife_folds=100,
         wald_correction="auto",
         wald_conservative=False,
-        wald_options=None,
         random_state=None,
         n_folds=5,
         fold_ids=None,
@@ -95,7 +96,6 @@ class CalibratedDML(BaseEstimator, ResultMixin):
         self.jackknife_folds = jackknife_folds
         self.wald_correction = wald_correction
         self.wald_conservative = wald_conservative
-        self.wald_options = wald_options
         self.random_state = random_state
         self.n_folds = n_folds
         self.fold_ids = fold_ids
@@ -180,7 +180,6 @@ class CalibratedDML(BaseEstimator, ResultMixin):
             jackknife_folds=self.jackknife_folds,
             wald_correction=self.wald_correction,
             wald_conservative=self.wald_conservative,
-            wald_options=self.wald_options,
             calibration_method=self.calibration_method,
             calibration_stratify=self.calibration_stratify,
             fold_ids=self.fold_ids_,
@@ -209,14 +208,10 @@ class CalibratedDML(BaseEstimator, ResultMixin):
 def _validate_common_configuration(estimator: CalibratedDML) -> None:
     if estimator.inference not in {"wald", "bootstrap", "jackknife"}:
         raise ValueError("`inference` must be one of {'wald', 'bootstrap', 'jackknife'}.")
-    if estimator.wald_correction not in {"auto", "sieve_riesz", "none"}:
-        raise ValueError("`wald_correction` must be one of {'auto', 'sieve_riesz', 'none'}.")
-    if estimator.inference != "wald" and estimator.wald_correction == "sieve_riesz":
-        raise ValueError("`wald_correction='sieve_riesz'` can only be used with `inference='wald'`.")
+    if not isinstance(estimator.wald_correction, str) or estimator.wald_correction not in {"auto", "none"}:
+        raise ValueError("`wald_correction` must be one of {'auto', 'none'}.")
     if not isinstance(estimator.wald_conservative, (bool, np.bool_)):
         raise ValueError("`wald_conservative` must be True or False.")
-    if estimator.wald_options is not None and not isinstance(estimator.wald_options, dict):
-        raise ValueError("`wald_options` must be a dictionary or None.")
     if estimator.calibration_method not in {"auto", "isotonic", "smooth_isotonic", "none"}:
         raise ValueError("Unsupported `calibration_method`.")
     if not (0 < float(estimator.conf_level) < 1):
@@ -392,7 +387,6 @@ def _compute_interval_tables(
     jackknife_folds,
     wald_correction,
     wald_conservative,
-    wald_options,
     calibration_method,
     calibration_stratify,
     fold_ids,
@@ -435,9 +429,9 @@ def _compute_interval_tables(
         "fallback_reason": None,
     }
 
-    if inference == "wald" and wald_correction in {"auto", "sieve_riesz"}:
+    if inference == "wald" and wald_correction == "auto":
         if len(levels) == 2:
-            correction = compute_sieve_riesz_wald_correction(
+            correction = compute_levelset_riesz_wald_correction(
                 a_encoded=a_encoded,
                 y=y,
                 weights=weights,
@@ -449,7 +443,6 @@ def _compute_interval_tables(
                 simple_wald_std_error=contrast_se[0],
                 conf_level=conf_level,
                 random_state=random_state,
-                wald_options=wald_options,
                 conservative=bool(wald_conservative),
             )
             contrasts.loc[0, "std_error"] = correction["std_error"]
@@ -457,8 +450,6 @@ def _compute_interval_tables(
             contrasts.loc[0, "upper"] = correction["upper"]
             wald_diagnostics = correction["diagnostics"]
             wald_diagnostics["applied"] = True
-        elif wald_correction == "sieve_riesz":
-            raise ValueError("`wald_correction='sieve_riesz'` currently requires a binary treatment.")
         else:
             wald_diagnostics = {
                 "wald_correction": "standard",

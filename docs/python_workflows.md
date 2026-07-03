@@ -103,7 +103,7 @@ Practical guidance:
 - Consult Benkeser and van der Laan, "A Super-Efficient Estimator of the Average Treatment Effect," plus van der Laan, Carone, Luedtke, and van der Laan, "Adaptive debiased machine learning using data-driven model selection techniques," before relying on adaptive confidence intervals.
 
 For the standard estimator, the main methodological reference is van der Laan, Luedtke, and Carone, "Doubly robust inference via calibration."
-For binary `inference="wald"` contrasts, the standard estimator uses corrected sieve-Riesz Wald standard errors by default; set `wald_conservative=True` to use the maximum of the standard and corrected Wald standard errors.
+For binary `inference="wald"` contrasts, the standard estimator uses `wald_correction="auto"` by default. This applies an unconstrained empirical level-set Riesz correction to the contrast standard error. Set `wald_correction="none"` to recover the standard Wald standard error. Set `wald_conservative=True` to use the maximum of the standard Wald and corrected Wald standard errors.
 
 ## 6. Read results
 

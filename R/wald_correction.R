@@ -46,6 +46,10 @@ resolve_sieve_riesz_wald_options <- function(wald_options, n) {
   )
 }
 
+compute_levelset_riesz_wald_correction <- function(...) {
+  compute_sieve_riesz_wald_correction(..., wald_aux_method = "levelset_riesz")
+}
+
 compute_sieve_riesz_wald_correction <- function(A_index,
                                                 Y,
                                                 weights,
@@ -58,9 +62,11 @@ compute_sieve_riesz_wald_correction <- function(A_index,
                                                 conf_level,
                                                 seed = NULL,
                                                 wald_options = list(),
-                                                wald_conservative = FALSE) {
+                                                wald_conservative = FALSE,
+                                                wald_aux_method = c("sieve_riesz", "levelset_riesz")) {
+  wald_aux_method <- match.arg(wald_aux_method)
   if (length(levels) != 2L) {
-    stop("Sieve-Riesz Wald correction currently requires a binary treatment.", call. = FALSE)
+    stop("Riesz Wald correction currently requires a binary treatment.", call. = FALSE)
   }
   settings <- resolve_sieve_riesz_wald_options(wald_options, length(Y))
   active_index <- setdiff(seq_along(levels), control_index)[[1L]]
@@ -75,40 +81,71 @@ compute_sieve_riesz_wald_correction <- function(A_index,
   pi_control <- wald_clip_probability(calibrated_pi_mat[, control_index], eps = 1e-8)
   alpha_active <- 1 / pi_active
   alpha_control <- 1 / pi_control
+  alpha_active_score <- 1 / wald_clip_probability(pi_active, eps = settings$propensity_clip)
+  alpha_control_score <- 1 / wald_clip_probability(pi_control, eps = settings$propensity_clip)
   seed <- wald_normalize_seed(seed)
 
-  h_active <- fit_sieve_riesz_arm(
-    score = mu_active,
-    arm_indicator = a_active,
-    alpha_star = alpha_active,
-    weights = weights,
-    seed = seed + 110L,
-    settings = settings
-  )
-  h_control <- fit_sieve_riesz_arm(
-    score = mu_control,
-    arm_indicator = a_control,
-    alpha_star = alpha_control,
-    weights = weights,
-    seed = seed + 120L,
-    settings = settings
-  )
-  q_active <- fit_sieve_residual_arm(
-    score = 1 / wald_clip_probability(pi_active, eps = settings$propensity_clip),
-    residual = Y - mu_active,
-    arm_indicator = a_active,
-    weights = weights,
-    seed = seed + 130L,
-    settings = settings
-  )
-  q_control <- fit_sieve_residual_arm(
-    score = 1 / wald_clip_probability(pi_control, eps = settings$propensity_clip),
-    residual = Y - mu_control,
-    arm_indicator = a_control,
-    weights = weights,
-    seed = seed + 140L,
-    settings = settings
-  )
+  if (identical(wald_aux_method, "sieve_riesz")) {
+    h_active <- fit_sieve_riesz_arm(
+      score = mu_active,
+      arm_indicator = a_active,
+      alpha_star = alpha_active,
+      weights = weights,
+      seed = seed + 110L,
+      settings = settings
+    )
+    h_control <- fit_sieve_riesz_arm(
+      score = mu_control,
+      arm_indicator = a_control,
+      alpha_star = alpha_control,
+      weights = weights,
+      seed = seed + 120L,
+      settings = settings
+    )
+    q_active <- fit_sieve_residual_arm(
+      score = alpha_active_score,
+      residual = Y - mu_active,
+      arm_indicator = a_active,
+      weights = weights,
+      seed = seed + 130L,
+      settings = settings
+    )
+    q_control <- fit_sieve_residual_arm(
+      score = alpha_control_score,
+      residual = Y - mu_control,
+      arm_indicator = a_control,
+      weights = weights,
+      seed = seed + 140L,
+      settings = settings
+    )
+    basis_type <- "cosine"
+  } else {
+    h_active <- fit_levelset_riesz_arm(
+      score = mu_active,
+      arm_indicator = a_active,
+      alpha_star = alpha_active,
+      weights = weights
+    )
+    h_control <- fit_levelset_riesz_arm(
+      score = mu_control,
+      arm_indicator = a_control,
+      alpha_star = alpha_control,
+      weights = weights
+    )
+    q_active <- fit_levelset_residual_arm(
+      score = alpha_active_score,
+      residual = Y - mu_active,
+      arm_indicator = a_active,
+      weights = weights
+    )
+    q_control <- fit_levelset_residual_arm(
+      score = alpha_control_score,
+      residual = Y - mu_control,
+      arm_indicator = a_control,
+      weights = weights
+    )
+    basis_type <- "calibrated_levelset"
+  }
 
   active_score <- mu_active +
     a_active * (alpha_active + h_active$predictions) * (Y - mu_active) -
@@ -129,16 +166,16 @@ compute_sieve_riesz_wald_correction <- function(A_index,
     lower = contrast_estimate - z_value * selected_std_error,
     upper = contrast_estimate + z_value * selected_std_error,
     diagnostics = list(
-      wald_correction = "sieve_riesz",
-      wald_aux_method = "sieve_riesz",
+      wald_correction = wald_aux_method,
+      wald_aux_method = wald_aux_method,
       std_error_mode = if (isTRUE(wald_conservative)) "conservative" else "corrected_if",
       simple_wald_std_error = simple_wald_std_error,
       corrected_if_std_error = corrected_std_error,
       conservative_std_error = conservative_std_error,
       selected_std_error = selected_std_error,
       propensity_clip = settings$propensity_clip,
-      riesz_bound = settings$riesz_bound,
-      basis_type = "cosine",
+      riesz_bound = if (identical(wald_aux_method, "sieve_riesz")) settings$riesz_bound else NA_real_,
+      basis_type = basis_type,
       h_treated = wald_fit_metadata(h_active),
       h_control = wald_fit_metadata(h_control),
       q_treated = wald_fit_metadata(q_active),
@@ -288,6 +325,234 @@ fit_sieve_residual_arm <- function(score, residual, arm_indicator, weights, seed
     target_sd = target_sd,
     bound_lower = residual_range[[1L]],
     bound_upper = residual_range[[2L]]
+  )
+}
+
+fit_levelset_riesz_arm <- function(score, arm_indicator, alpha_star, weights) {
+  score <- as.numeric(score)
+  arm_indicator <- as.numeric(arm_indicator)
+  alpha_star <- as.numeric(alpha_star)
+  weights <- as.numeric(weights)
+  ok <- is.finite(score) & is.finite(arm_indicator) & is.finite(alpha_star) & is.finite(weights) & weights >= 0
+  train_score <- score[ok]
+  train_arm <- as.numeric(arm_indicator[ok] > 0)
+  train_alpha <- alpha_star[ok]
+  train_weights <- weights[ok]
+  constant_fit <- wald_riesz_constant_unbounded(train_arm, train_alpha, train_weights)
+
+  if (!length(train_score)) {
+    return(wald_levelset_fit(
+      predictions = rep(constant_fit, length(score)),
+      requested_method = "levelset_riesz",
+      selected_method = "constant",
+      fallback = TRUE,
+      fallback_reason = "empty_training_set",
+      train_n = 0L,
+      arm_n = 0,
+      unique_score_count = 0L,
+      target_sd = NA_real_,
+      selected_risk = NA_real_,
+      num_levelsets = 0L,
+      unidentified_level_count = 0L,
+      fallback_prediction_count = length(score)
+    ))
+  }
+
+  train_keys <- wald_levelset_keys(train_score)
+  level_keys <- sort(unique(train_keys))
+  group_id <- match(train_keys, level_keys)
+  arm_n <- sum(train_weights * train_arm)
+  target_sd <- wald_weighted_sd(1 - train_arm * train_alpha, train_weights)
+  unique_score_count <- wald_unique_score_count(train_score)
+  if (!is.finite(arm_n) || arm_n <= 0) {
+    return(wald_levelset_fit(
+      predictions = rep(constant_fit, length(score)),
+      requested_method = "levelset_riesz",
+      selected_method = "constant",
+      fallback = TRUE,
+      fallback_reason = "too_few_positive_weight_arm_rows",
+      train_n = length(train_score),
+      arm_n = arm_n,
+      unique_score_count = unique_score_count,
+      target_sd = target_sd,
+      selected_risk = NA_real_,
+      num_levelsets = length(level_keys),
+      unidentified_level_count = length(level_keys),
+      fallback_prediction_count = length(score)
+    ))
+  }
+
+  numerator <- wald_group_sum(train_weights * (1 - train_arm * train_alpha), group_id)
+  denominator <- wald_group_sum(train_weights * train_arm, group_id)
+  level_values <- rep(constant_fit, length(level_keys))
+  identified_positions <- which(is.finite(denominator) & denominator > 0)
+  valid_positions <- integer()
+  if (length(identified_positions)) {
+    candidate_values <- numerator[identified_positions] / denominator[identified_positions]
+    finite_candidate <- is.finite(candidate_values)
+    valid_positions <- identified_positions[finite_candidate]
+    level_values[valid_positions] <- candidate_values[finite_candidate]
+  }
+  unidentified_level_count <- length(level_keys) - length(valid_positions)
+
+  predicted <- wald_predict_levelset_values(score, level_keys, level_values, constant_fit)
+  train_predictions <- level_values[group_id]
+  train_loss <- train_arm * train_predictions^2 + 2 * train_arm * train_alpha * train_predictions - 2 * train_predictions
+  selected_risk <- sum(wald_normalize_weights(train_weights) * train_loss)
+  wald_levelset_fit(
+    predictions = predicted$predictions,
+    requested_method = "levelset_riesz",
+    selected_method = "levelset_objective",
+    fallback = FALSE,
+    fallback_reason = NA_character_,
+    train_n = length(train_score),
+    arm_n = arm_n,
+    unique_score_count = unique_score_count,
+    target_sd = target_sd,
+    selected_risk = selected_risk,
+    num_levelsets = length(level_keys),
+    unidentified_level_count = unidentified_level_count,
+    fallback_prediction_count = predicted$fallback_prediction_count
+  )
+}
+
+fit_levelset_residual_arm <- function(score, residual, arm_indicator, weights) {
+  score <- as.numeric(score)
+  residual <- as.numeric(residual)
+  arm_indicator <- as.numeric(arm_indicator)
+  weights <- as.numeric(weights)
+  ok <- is.finite(score) & is.finite(residual) & is.finite(arm_indicator) &
+    arm_indicator > 0 & is.finite(weights) & weights >= 0
+  train_score <- score[ok]
+  train_residual <- residual[ok]
+  train_weights <- weights[ok]
+  constant_fit <- wald_weighted_mean_or_zero(train_residual, train_weights)
+
+  if (!length(train_score)) {
+    return(wald_levelset_fit(
+      predictions = rep(constant_fit, length(score)),
+      requested_method = "levelset_residual",
+      selected_method = "constant",
+      fallback = TRUE,
+      fallback_reason = "empty_training_set",
+      train_n = 0L,
+      arm_n = 0,
+      unique_score_count = 0L,
+      target_sd = NA_real_,
+      selected_risk = NA_real_,
+      num_levelsets = 0L,
+      unidentified_level_count = 0L,
+      fallback_prediction_count = length(score)
+    ))
+  }
+
+  train_keys <- wald_levelset_keys(train_score)
+  level_keys <- sort(unique(train_keys))
+  group_id <- match(train_keys, level_keys)
+  arm_n <- sum(train_weights)
+  target_sd <- wald_weighted_sd(train_residual, train_weights)
+  unique_score_count <- wald_unique_score_count(train_score)
+  if (!is.finite(arm_n) || arm_n <= 0) {
+    return(wald_levelset_fit(
+      predictions = rep(constant_fit, length(score)),
+      requested_method = "levelset_residual",
+      selected_method = "constant",
+      fallback = TRUE,
+      fallback_reason = "zero_positive_weight",
+      train_n = length(train_residual),
+      arm_n = arm_n,
+      unique_score_count = unique_score_count,
+      target_sd = target_sd,
+      selected_risk = NA_real_,
+      num_levelsets = length(level_keys),
+      unidentified_level_count = length(level_keys),
+      fallback_prediction_count = length(score)
+    ))
+  }
+
+  numerator <- wald_group_sum(train_weights * train_residual, group_id)
+  denominator <- wald_group_sum(train_weights, group_id)
+  level_values <- rep(constant_fit, length(level_keys))
+  identified_positions <- which(is.finite(denominator) & denominator > 0)
+  if (length(identified_positions)) {
+    candidate_values <- numerator[identified_positions] / denominator[identified_positions]
+    finite_candidate <- is.finite(candidate_values)
+    valid_positions <- identified_positions[finite_candidate]
+    level_values[valid_positions] <- candidate_values[finite_candidate]
+  }
+
+  predicted <- wald_predict_levelset_values(score, level_keys, level_values, constant_fit)
+  train_predictions <- level_values[group_id]
+  selected_risk <- sum(wald_normalize_weights(train_weights) * (train_predictions - train_residual)^2)
+  wald_levelset_fit(
+    predictions = predicted$predictions,
+    requested_method = "levelset_residual",
+    selected_method = "levelset_objective",
+    fallback = FALSE,
+    fallback_reason = NA_character_,
+    train_n = length(train_residual),
+    arm_n = arm_n,
+    unique_score_count = unique_score_count,
+    target_sd = target_sd,
+    selected_risk = selected_risk,
+    num_levelsets = length(level_keys),
+    unidentified_level_count = 0L,
+    fallback_prediction_count = predicted$fallback_prediction_count
+  )
+}
+
+wald_levelset_keys <- function(score) {
+  round(as.numeric(score), 12L)
+}
+
+wald_group_sum <- function(values, group_id) {
+  as.numeric(rowsum(matrix(as.numeric(values), ncol = 1L), group = group_id, reorder = TRUE)[, 1L])
+}
+
+wald_predict_levelset_values <- function(score, level_keys, level_values, fallback_value) {
+  keys <- wald_levelset_keys(score)
+  predictions <- rep(as.numeric(fallback_value), length(keys))
+  matched <- match(keys, level_keys)
+  candidate_values <- rep(NA_real_, length(keys))
+  has_match <- !is.na(matched)
+  candidate_values[has_match] <- level_values[matched[has_match]]
+  assigned <- has_match & is.finite(candidate_values)
+  predictions[assigned] <- candidate_values[assigned]
+  list(predictions = predictions, fallback_prediction_count = sum(!assigned))
+}
+
+wald_levelset_fit <- function(predictions,
+                              requested_method,
+                              selected_method,
+                              fallback,
+                              fallback_reason,
+                              train_n,
+                              arm_n,
+                              unique_score_count,
+                              target_sd,
+                              selected_risk,
+                              num_levelsets,
+                              unidentified_level_count,
+                              fallback_prediction_count) {
+  list(
+    predictions = as.numeric(predictions),
+    requested_method = requested_method,
+    selected_method = selected_method,
+    fallback = isTRUE(fallback),
+    fallback_reason = fallback_reason,
+    basis_size = NA_integer_,
+    lambda = NA_real_,
+    cv_folds = NA_integer_,
+    selected_risk = if (is.finite(selected_risk)) selected_risk else NA_real_,
+    train_n = as.integer(train_n),
+    arm_n = as.numeric(arm_n),
+    unique_score_count = as.integer(unique_score_count),
+    target_sd = if (is.finite(target_sd)) target_sd else NA_real_,
+    bound_lower = NA_real_,
+    bound_upper = NA_real_,
+    num_levelsets = as.integer(num_levelsets),
+    unidentified_level_count = as.integer(unidentified_level_count),
+    fallback_prediction_count = as.integer(fallback_prediction_count)
   )
 }
 
@@ -474,6 +739,15 @@ wald_riesz_constant <- function(arm_indicator, alpha_star, weights, bound) {
     return(0)
   }
   max(-bound, min(bound, value))
+}
+
+wald_riesz_constant_unbounded <- function(arm_indicator, alpha_star, weights) {
+  denom <- sum(weights * arm_indicator)
+  if (!is.finite(denom) || denom <= 0) {
+    return(0)
+  }
+  value <- sum(weights * (1 - arm_indicator * alpha_star)) / denom
+  if (is.finite(value)) value else 0
 }
 
 wald_clip_probability <- function(probability, eps) {

@@ -68,8 +68,21 @@ def resolve_sieve_riesz_options(options, n: int) -> SieveRieszSettings:
     )
 
 
-def compute_sieve_riesz_wald_correction(
+def compute_sieve_riesz_wald_correction(**kwargs):
+    """Compute the binary sieve-Riesz corrected Wald interval."""
+
+    return _compute_riesz_wald_correction(aux_method="sieve_riesz", **kwargs)
+
+
+def compute_levelset_riesz_wald_correction(**kwargs):
+    """Compute the binary level-set Riesz corrected Wald interval."""
+
+    return _compute_riesz_wald_correction(aux_method="levelset_riesz", **kwargs)
+
+
+def _compute_riesz_wald_correction(
     *,
+    aux_method,
     a_encoded,
     y,
     weights,
@@ -84,10 +97,10 @@ def compute_sieve_riesz_wald_correction(
     wald_options=None,
     conservative=False,
 ):
-    """Compute the binary sieve-Riesz corrected Wald interval."""
-
     if len(levels) != 2:
-        raise ValueError("Sieve-Riesz Wald correction currently requires a binary treatment.")
+        raise ValueError("Riesz Wald correction currently requires a binary treatment.")
+    if aux_method not in {"sieve_riesz", "levelset_riesz"}:
+        raise ValueError(f"Unknown Riesz Wald auxiliary method: {aux_method}.")
 
     settings = resolve_sieve_riesz_options(wald_options, len(y))
     active_index = [idx for idx in range(len(levels)) if idx != control_index][0]
@@ -103,38 +116,68 @@ def compute_sieve_riesz_wald_correction(
     alpha_control = 1.0 / pi_control
     seed = _normalize_seed(random_state)
 
-    h_active = _fit_sieve_riesz_arm(
-        score=mu_active,
-        arm_indicator=a_active,
-        alpha_star=alpha_active,
-        weights=weights,
-        seed=seed + 110,
-        settings=settings,
-    )
-    h_control = _fit_sieve_riesz_arm(
-        score=mu_control,
-        arm_indicator=a_control,
-        alpha_star=alpha_control,
-        weights=weights,
-        seed=seed + 120,
-        settings=settings,
-    )
-    q_active = _fit_sieve_residual_arm(
-        score=1.0 / _clip_probability(pi_active, eps=settings.propensity_clip),
-        residual=y - mu_active,
-        arm_indicator=a_active,
-        weights=weights,
-        seed=seed + 130,
-        settings=settings,
-    )
-    q_control = _fit_sieve_residual_arm(
-        score=1.0 / _clip_probability(pi_control, eps=settings.propensity_clip),
-        residual=y - mu_control,
-        arm_indicator=a_control,
-        weights=weights,
-        seed=seed + 140,
-        settings=settings,
-    )
+    alpha_active_score = 1.0 / _clip_probability(pi_active, eps=settings.propensity_clip)
+    alpha_control_score = 1.0 / _clip_probability(pi_control, eps=settings.propensity_clip)
+    if aux_method == "sieve_riesz":
+        h_active = _fit_sieve_riesz_arm(
+            score=mu_active,
+            arm_indicator=a_active,
+            alpha_star=alpha_active,
+            weights=weights,
+            seed=seed + 110,
+            settings=settings,
+        )
+        h_control = _fit_sieve_riesz_arm(
+            score=mu_control,
+            arm_indicator=a_control,
+            alpha_star=alpha_control,
+            weights=weights,
+            seed=seed + 120,
+            settings=settings,
+        )
+        q_active = _fit_sieve_residual_arm(
+            score=alpha_active_score,
+            residual=y - mu_active,
+            arm_indicator=a_active,
+            weights=weights,
+            seed=seed + 130,
+            settings=settings,
+        )
+        q_control = _fit_sieve_residual_arm(
+            score=alpha_control_score,
+            residual=y - mu_control,
+            arm_indicator=a_control,
+            weights=weights,
+            seed=seed + 140,
+            settings=settings,
+        )
+        basis_type = "cosine"
+    else:
+        h_active = _fit_levelset_riesz_arm(
+            score=mu_active,
+            arm_indicator=a_active,
+            alpha_star=alpha_active,
+            weights=weights,
+        )
+        h_control = _fit_levelset_riesz_arm(
+            score=mu_control,
+            arm_indicator=a_control,
+            alpha_star=alpha_control,
+            weights=weights,
+        )
+        q_active = _fit_levelset_residual_arm(
+            score=alpha_active_score,
+            residual=y - mu_active,
+            arm_indicator=a_active,
+            weights=weights,
+        )
+        q_control = _fit_levelset_residual_arm(
+            score=alpha_control_score,
+            residual=y - mu_control,
+            arm_indicator=a_control,
+            weights=weights,
+        )
+        basis_type = "calibrated_levelset"
 
     active_score = (
         mu_active
@@ -155,16 +198,16 @@ def compute_sieve_riesz_wald_correction(
     z_value = _normal_quantile(1.0 - alpha / 2.0)
 
     diagnostics = {
-        "wald_correction": "sieve_riesz",
-        "wald_aux_method": "sieve_riesz",
+        "wald_correction": aux_method,
+        "wald_aux_method": aux_method,
         "std_error_mode": "conservative" if conservative else "corrected_if",
         "simple_wald_std_error": float(simple_wald_std_error),
         "corrected_if_std_error": float(corrected_std_error),
         "conservative_std_error": float(conservative_std_error),
         "selected_std_error": float(std_error),
         "propensity_clip": settings.propensity_clip,
-        "riesz_bound": settings.riesz_bound,
-        "basis_type": "cosine",
+        "riesz_bound": settings.riesz_bound if aux_method == "sieve_riesz" else None,
+        "basis_type": basis_type,
         "h_treated": _fit_metadata(h_active),
         "h_control": _fit_metadata(h_control),
         "q_treated": _fit_metadata(q_active),
@@ -346,6 +389,256 @@ def _fit_sieve_residual_arm(score, residual, arm_indicator, weights, seed: int, 
         bound_lower=residual_range[0],
         bound_upper=residual_range[1],
     )
+
+
+def _fit_levelset_riesz_arm(score, arm_indicator, alpha_star, weights):
+    score = np.asarray(score, dtype=float)
+    arm_indicator = np.asarray(arm_indicator, dtype=float)
+    alpha_star = np.asarray(alpha_star, dtype=float)
+    weights = np.asarray(weights, dtype=float)
+    ok = np.isfinite(score) & np.isfinite(arm_indicator) & np.isfinite(alpha_star) & np.isfinite(weights) & (weights >= 0.0)
+    train_score = score[ok]
+    train_arm = (arm_indicator[ok] > 0.0).astype(float)
+    train_alpha = alpha_star[ok]
+    train_weights = weights[ok]
+    constant_fit = _riesz_constant_unbounded(train_arm, train_alpha, train_weights)
+
+    if len(train_score) == 0:
+        return _levelset_fit(
+            predictions=np.repeat(constant_fit, len(score)),
+            requested_method="levelset_riesz",
+            selected_method="constant",
+            fallback=True,
+            fallback_reason="empty_training_set",
+            train_n=0,
+            arm_n=0.0,
+            unique_score_count=0,
+            target_sd=np.nan,
+            selected_risk=np.nan,
+            num_levelsets=0,
+            unidentified_level_count=0,
+            fallback_prediction_count=len(score),
+        )
+
+    train_keys = _levelset_keys(train_score)
+    level_keys, group_index = np.unique(train_keys, return_inverse=True)
+    arm_n = float(np.sum(train_weights * train_arm))
+    target_sd = _weighted_sd(1.0 - train_arm * train_alpha, train_weights)
+    unique_score_count = _unique_score_count(train_score)
+    if not np.isfinite(arm_n) or arm_n <= 0.0:
+        return _levelset_fit(
+            predictions=np.repeat(constant_fit, len(score)),
+            requested_method="levelset_riesz",
+            selected_method="constant",
+            fallback=True,
+            fallback_reason="too_few_positive_weight_arm_rows",
+            train_n=len(train_score),
+            arm_n=arm_n,
+            unique_score_count=unique_score_count,
+            target_sd=target_sd,
+            selected_risk=np.nan,
+            num_levelsets=len(level_keys),
+            unidentified_level_count=len(level_keys),
+            fallback_prediction_count=len(score),
+        )
+
+    numerator = np.bincount(
+        group_index,
+        weights=train_weights * (1.0 - train_arm * train_alpha),
+        minlength=len(level_keys),
+    )
+    denominator = np.bincount(
+        group_index,
+        weights=train_weights * train_arm,
+        minlength=len(level_keys),
+    )
+    level_values = np.repeat(constant_fit, len(level_keys))
+    identified_positions = np.flatnonzero(np.isfinite(denominator) & (denominator > 0.0))
+    valid_positions = np.array([], dtype=int)
+    if len(identified_positions):
+        candidate_values = numerator[identified_positions] / denominator[identified_positions]
+        finite_candidate = np.isfinite(candidate_values)
+        valid_positions = identified_positions[finite_candidate]
+        level_values[valid_positions] = candidate_values[finite_candidate]
+    unidentified_level_count = int(len(level_keys) - len(valid_positions))
+
+    predictions, fallback_prediction_count = _predict_levelset_values(score, level_keys, level_values, constant_fit)
+    train_predictions = level_values[group_index]
+    train_loss = train_arm * train_predictions**2 + 2.0 * train_arm * train_alpha * train_predictions - 2.0 * train_predictions
+    selected_risk = float(np.sum(_normalize_weights(train_weights) * train_loss))
+    return _levelset_fit(
+        predictions=predictions,
+        requested_method="levelset_riesz",
+        selected_method="levelset_objective",
+        fallback=False,
+        fallback_reason=None,
+        train_n=len(train_score),
+        arm_n=arm_n,
+        unique_score_count=unique_score_count,
+        target_sd=target_sd,
+        selected_risk=selected_risk,
+        num_levelsets=len(level_keys),
+        unidentified_level_count=unidentified_level_count,
+        fallback_prediction_count=fallback_prediction_count,
+    )
+
+
+def _fit_levelset_residual_arm(score, residual, arm_indicator, weights):
+    score = np.asarray(score, dtype=float)
+    residual = np.asarray(residual, dtype=float)
+    arm_indicator = np.asarray(arm_indicator, dtype=float)
+    weights = np.asarray(weights, dtype=float)
+    ok = (
+        np.isfinite(score)
+        & np.isfinite(residual)
+        & np.isfinite(arm_indicator)
+        & (arm_indicator > 0.0)
+        & np.isfinite(weights)
+        & (weights >= 0.0)
+    )
+    train_score = score[ok]
+    train_residual = residual[ok]
+    train_weights = weights[ok]
+    constant_fit = _weighted_mean_or_zero(train_residual, train_weights)
+
+    if len(train_score) == 0:
+        return _levelset_fit(
+            predictions=np.repeat(constant_fit, len(score)),
+            requested_method="levelset_residual",
+            selected_method="constant",
+            fallback=True,
+            fallback_reason="empty_training_set",
+            train_n=0,
+            arm_n=0.0,
+            unique_score_count=0,
+            target_sd=np.nan,
+            selected_risk=np.nan,
+            num_levelsets=0,
+            unidentified_level_count=0,
+            fallback_prediction_count=len(score),
+        )
+
+    train_keys = _levelset_keys(train_score)
+    level_keys, group_index = np.unique(train_keys, return_inverse=True)
+    arm_n = float(np.sum(train_weights))
+    target_sd = _weighted_sd(train_residual, train_weights)
+    unique_score_count = _unique_score_count(train_score)
+    if not np.isfinite(arm_n) or arm_n <= 0.0:
+        return _levelset_fit(
+            predictions=np.repeat(constant_fit, len(score)),
+            requested_method="levelset_residual",
+            selected_method="constant",
+            fallback=True,
+            fallback_reason="zero_positive_weight",
+            train_n=len(train_residual),
+            arm_n=arm_n,
+            unique_score_count=unique_score_count,
+            target_sd=target_sd,
+            selected_risk=np.nan,
+            num_levelsets=len(level_keys),
+            unidentified_level_count=len(level_keys),
+            fallback_prediction_count=len(score),
+        )
+
+    numerator = np.bincount(
+        group_index,
+        weights=train_weights * train_residual,
+        minlength=len(level_keys),
+    )
+    denominator = np.bincount(group_index, weights=train_weights, minlength=len(level_keys))
+    level_values = np.repeat(constant_fit, len(level_keys))
+    identified_positions = np.flatnonzero(np.isfinite(denominator) & (denominator > 0.0))
+    if len(identified_positions):
+        candidate_values = numerator[identified_positions] / denominator[identified_positions]
+        finite_candidate = np.isfinite(candidate_values)
+        valid_positions = identified_positions[finite_candidate]
+        level_values[valid_positions] = candidate_values[finite_candidate]
+
+    predictions, fallback_prediction_count = _predict_levelset_values(score, level_keys, level_values, constant_fit)
+    train_predictions = level_values[group_index]
+    selected_risk = float(np.sum(_normalize_weights(train_weights) * (train_predictions - train_residual) ** 2))
+    return _levelset_fit(
+        predictions=predictions,
+        requested_method="levelset_residual",
+        selected_method="levelset_objective",
+        fallback=False,
+        fallback_reason=None,
+        train_n=len(train_residual),
+        arm_n=arm_n,
+        unique_score_count=unique_score_count,
+        target_sd=target_sd,
+        selected_risk=selected_risk,
+        num_levelsets=len(level_keys),
+        unidentified_level_count=0,
+        fallback_prediction_count=fallback_prediction_count,
+    )
+
+
+def _levelset_keys(score):
+    return np.round(np.asarray(score, dtype=float), 12)
+
+
+def _predict_levelset_values(score, level_keys, level_values, fallback_value):
+    score = np.asarray(score, dtype=float)
+    predictions = np.repeat(float(fallback_value), len(score))
+    keys = _levelset_keys(score)
+    level_keys = np.asarray(level_keys, dtype=float)
+    level_values = np.asarray(level_values, dtype=float)
+    assigned = np.zeros(len(score), dtype=bool)
+    finite_idx = np.flatnonzero(np.isfinite(keys))
+
+    if len(level_keys) and len(finite_idx):
+        positions = np.searchsorted(level_keys, keys[finite_idx])
+        in_bounds = positions < len(level_keys)
+        matched = np.zeros(len(finite_idx), dtype=bool)
+        matched[in_bounds] = level_keys[positions[in_bounds]] == keys[finite_idx[in_bounds]]
+        if np.any(matched):
+            matched_idx = finite_idx[matched]
+            matched_positions = positions[matched]
+            finite_values = np.isfinite(level_values[matched_positions])
+            if np.any(finite_values):
+                assigned_idx = matched_idx[finite_values]
+                predictions[assigned_idx] = level_values[matched_positions[finite_values]]
+                assigned[assigned_idx] = True
+
+    return predictions, int(len(score) - np.count_nonzero(assigned))
+
+
+def _levelset_fit(
+    predictions,
+    requested_method,
+    selected_method,
+    fallback,
+    fallback_reason,
+    train_n,
+    arm_n,
+    unique_score_count,
+    target_sd,
+    selected_risk,
+    num_levelsets,
+    unidentified_level_count,
+    fallback_prediction_count,
+):
+    return {
+        "predictions": np.asarray(predictions, dtype=float),
+        "requested_method": requested_method,
+        "selected_method": selected_method,
+        "fallback": bool(fallback),
+        "fallback_reason": fallback_reason,
+        "basis_size": None,
+        "lambda": None,
+        "cv_folds": None,
+        "selected_risk": None if not np.isfinite(selected_risk) else float(selected_risk),
+        "train_n": int(train_n),
+        "arm_n": float(arm_n),
+        "unique_score_count": int(unique_score_count),
+        "target_sd": None if not np.isfinite(target_sd) else float(target_sd),
+        "bound_lower": None,
+        "bound_upper": None,
+        "num_levelsets": int(num_levelsets),
+        "unidentified_level_count": int(unidentified_level_count),
+        "fallback_prediction_count": int(fallback_prediction_count),
+    }
 
 
 def _select_sieve_ridge(score, target, weights, arm_weights, loss_kind: str, seed: int, settings: SieveRieszSettings):
@@ -546,6 +839,14 @@ def _riesz_constant(arm_indicator, alpha_star, weights, bound):
     if not np.isfinite(value):
         return 0.0
     return float(np.clip(value, -bound, bound))
+
+
+def _riesz_constant_unbounded(arm_indicator, alpha_star, weights):
+    denom = float(np.sum(weights * arm_indicator))
+    if not np.isfinite(denom) or denom <= 0.0:
+        return 0.0
+    value = float(np.sum(weights * (1.0 - arm_indicator * alpha_star)) / denom)
+    return value if np.isfinite(value) else 0.0
 
 
 def _clip_probability(probability, eps):

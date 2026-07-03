@@ -192,9 +192,11 @@ summary(fit)</code></pre>
                 <code>"wald"</code>, <code>"bootstrap"</code>, and
                 <code>"jackknife"</code>. Choose the uncertainty layer
                 explicitly rather than inheriting it by accident. Binary Wald
-                contrasts use corrected sieve-Riesz standard errors by default;
-                set <code>wald_conservative = TRUE</code> to take the maximum of
-                the standard and corrected standard errors.
+                contrasts use the corrected level-set standard error by default.
+                Set <code>wald_correction = "none"</code> to recover the
+                standard Wald standard error. Set
+                <code>wald_conservative = TRUE</code> to take the maximum of the
+                standard Wald and corrected Wald standard errors.
               </p>
             </article>
             <article class="argument-card">

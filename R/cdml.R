@@ -48,15 +48,11 @@
 #' @param jackknife_folds Number of delete-a-group folds used when
 #'   `inference = "jackknife"`. The default is `100`.
 #' @param wald_correction Wald standard-error correction. `"auto"` uses the
-#'   sieve-Riesz corrected contrast standard error for binary-treatment Wald
-#'   inference and the standard Wald standard error otherwise. `"sieve_riesz"`
-#'   requires binary-treatment Wald inference. `"none"` uses the standard Wald
-#'   standard error.
+#'   corrected level-set Riesz standard error for binary-treatment Wald
+#'   contrasts and the standard Wald standard error otherwise. `"none"` uses
+#'   the standard Wald standard error.
 #' @param wald_conservative If `TRUE`, binary corrected Wald uses the maximum
-#'   of the standard Wald and corrected sieve-Riesz standard errors.
-#' @param wald_options Optional list controlling sieve-Riesz Wald tuning. Public
-#'   entries include `basis_size_grid`, `lambda_grid`, `cv_folds`,
-#'   `propensity_clip`, and `riesz_bound`.
+#'   of the standard Wald and corrected Wald standard errors.
 #' @param alpha Legacy compatibility alias for `1 - conf_level`.
 #' @param n_boot Legacy compatibility alias for `bootstrap_reps`.
 #' @param seed Optional random seed used for fold creation and bootstrap
@@ -86,19 +82,15 @@ calibrated_dml <- function(
   conf_level = 0.95,
   bootstrap_reps = 200,
   jackknife_folds = 100,
-  wald_correction = c("auto", "sieve_riesz", "none"),
+  wald_correction = c("auto", "none"),
   wald_conservative = FALSE,
-  wald_options = list(),
   alpha = NULL,
   n_boot = NULL,
   seed = NULL
 ) {
   inference <- match.arg(inference)
-  wald_correction <- match.arg(wald_correction)
+  wald_correction <- validate_wald_correction(wald_correction)
   wald_conservative <- validate_wald_conservative(wald_conservative)
-  if (!identical(inference, "wald") && identical(wald_correction, "sieve_riesz")) {
-    stop("`wald_correction = \"sieve_riesz\"` can only be used with `inference = \"wald\"`.", call. = FALSE)
-  }
   calibration_method <- match.arg(calibration_method)
   if (!is.data.frame(data)) {
     stop("`data` must be a data.frame.", call. = FALSE)
@@ -140,7 +132,6 @@ calibrated_dml <- function(
       jackknife_folds = inference_options$jackknife_folds,
       wald_correction = wald_correction,
       wald_conservative = wald_conservative,
-      wald_options = wald_options,
       calibration_method = calibration_method,
       calibration_options = calibration_options,
       calibration_stratify = calibration_stratify,
@@ -179,7 +170,6 @@ calibrated_dml <- function(
     jackknife_folds = inference_options$jackknife_folds,
     wald_correction = wald_correction,
     wald_conservative = wald_conservative,
-    wald_options = wald_options,
     calibration_method = calibration_method,
     calibration_options = calibration_options,
     calibration_stratify = calibration_stratify,
@@ -210,15 +200,11 @@ calibrated_dml <- function(
 #' @param bootstrap_reps Number of bootstrap resamples.
 #' @param jackknife_folds Number of delete-a-group folds. The default is `100`.
 #' @param wald_correction Wald standard-error correction. `"auto"` uses the
-#'   sieve-Riesz corrected contrast standard error for binary-treatment Wald
-#'   inference and the standard Wald standard error otherwise. `"sieve_riesz"`
-#'   requires binary-treatment Wald inference. `"none"` uses the standard Wald
-#'   standard error.
+#'   corrected level-set Riesz standard error for binary-treatment Wald
+#'   contrasts and the standard Wald standard error otherwise. `"none"` uses
+#'   the standard Wald standard error.
 #' @param wald_conservative If `TRUE`, binary corrected Wald uses the maximum
-#'   of the standard Wald and corrected sieve-Riesz standard errors.
-#' @param wald_options Optional list controlling sieve-Riesz Wald tuning. Public
-#'   entries include `basis_size_grid`, `lambda_grid`, `cv_folds`,
-#'   `propensity_clip`, and `riesz_bound`.
+#'   of the standard Wald and corrected Wald standard errors.
 #' @param calibration_method One of `"auto"`, `"isotonic"`,
 #'   `"smooth_isotonic"`, or `"none"`.
 #' @param calibration_options Optional list of calibration tuning options.
@@ -245,9 +231,8 @@ calibrated_dml_from_nuisances <- function(
   inference = c("jackknife", "bootstrap", "wald"),
   bootstrap_reps = 200,
   jackknife_folds = 100,
-  wald_correction = c("auto", "sieve_riesz", "none"),
+  wald_correction = c("auto", "none"),
   wald_conservative = FALSE,
-  wald_options = list(),
   calibration_method = c("auto", "isotonic", "smooth_isotonic", "none"),
   calibration_options = list(),
   calibration_stratify = NULL,
@@ -258,11 +243,8 @@ calibrated_dml_from_nuisances <- function(
   nuisance_source = "supplied"
 ) {
   inference <- match.arg(inference)
-  wald_correction <- match.arg(wald_correction)
+  wald_correction <- validate_wald_correction(wald_correction)
   wald_conservative <- validate_wald_conservative(wald_conservative)
-  if (!identical(inference, "wald") && identical(wald_correction, "sieve_riesz")) {
-    stop("`wald_correction = \"sieve_riesz\"` can only be used with `inference = \"wald\"`.", call. = FALSE)
-  }
   calibration_method <- match.arg(calibration_method)
   inference_options <- resolve_inference_options(
     conf_level = conf_level,
@@ -309,7 +291,6 @@ calibrated_dml_from_nuisances <- function(
     jackknife_folds = inference_options$jackknife_folds,
     wald_correction = wald_correction,
     wald_conservative = wald_conservative,
-    wald_options = wald_options,
     calibration_method = calibration_method,
     calibration_options = calibration_options,
     calibration_stratify = calibration_stratify,
@@ -328,7 +309,6 @@ calibrated_dml_from_nuisances <- function(
     jackknife_folds = inference_options$jackknife_folds,
     wald_correction = wald_correction,
     wald_conservative = isTRUE(wald_conservative),
-    wald_options = wald_options,
     calibration_method = calibration_method,
     calibration_stratify = normalize_calibration_stratify(calibration_stratify),
     fold_id = fold_id,
@@ -495,7 +475,6 @@ compute_cdml_intervals <- function(
   jackknife_folds,
   wald_correction,
   wald_conservative,
-  wald_options,
   calibration_method,
   calibration_options,
   calibration_stratify,
@@ -535,9 +514,9 @@ compute_cdml_intervals <- function(
     fallback_reason = NA_character_
   )
 
-  if (identical(inference, "wald") && wald_correction %in% c("auto", "sieve_riesz")) {
+  if (identical(inference, "wald") && identical(wald_correction, "auto")) {
     if (length(levels) == 2L) {
-      corrected <- compute_sieve_riesz_wald_correction(
+      corrected <- compute_levelset_riesz_wald_correction(
         A_index = A_index,
         Y = Y,
         weights = weights,
@@ -549,7 +528,6 @@ compute_cdml_intervals <- function(
         simple_wald_std_error = unname(base_fit$contrast_standard_error[[1L]]),
         conf_level = conf_level,
         seed = seed,
-        wald_options = wald_options,
         wald_conservative = wald_conservative
       )
       contrasts$std_error[[1L]] <- corrected$std_error
@@ -557,8 +535,6 @@ compute_cdml_intervals <- function(
       contrasts$upper[[1L]] <- corrected$upper
       wald_diagnostics <- corrected$diagnostics
       wald_diagnostics$applied <- TRUE
-    } else if (identical(wald_correction, "sieve_riesz")) {
-      stop("`wald_correction = \"sieve_riesz\"` currently requires a binary treatment.", call. = FALSE)
     } else {
       wald_diagnostics <- list(
         wald_correction = "standard",
@@ -1353,6 +1329,18 @@ validate_wald_conservative <- function(wald_conservative) {
     stop("`wald_conservative` must be TRUE or FALSE.", call. = FALSE)
   }
   wald_conservative
+}
+
+validate_wald_correction <- function(wald_correction) {
+  choices <- c("auto", "none")
+  if (length(wald_correction) > 1L) {
+    wald_correction <- wald_correction[[1L]]
+  }
+  if (!is.character(wald_correction) || length(wald_correction) != 1L ||
+      is.na(wald_correction) || !wald_correction %in% choices) {
+    stop("`wald_correction` must be one of \"auto\" or \"none\".", call. = FALSE)
+  }
+  wald_correction
 }
 
 resolve_inference_options <- function(conf_level, alpha, bootstrap_reps, n_boot, jackknife_folds) {
