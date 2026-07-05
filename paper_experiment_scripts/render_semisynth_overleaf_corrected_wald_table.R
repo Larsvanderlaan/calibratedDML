@@ -23,6 +23,7 @@ semisynth_overleaf_source_plan <- function() {
   current_ihdp <- file.path(root, "realdata_ihdp_table_wald_sieve_20260702")
   current_cps <- file.path(root, "realdata_lalonde_cps_table_wald_sieve_20260702")
   current_psid <- file.path(root, "realdata_lalonde_psid_table_wald_sieve_20260702")
+  current_twins <- file.path(root, "realdata_twins_table_wald_sieve_20260702")
 
   data.table(
     dataset = c(
@@ -42,7 +43,7 @@ semisynth_overleaf_source_plan <- function() {
       current_ihdp,
       current_cps,
       current_psid,
-      april
+      current_twins
     ),
     corrected_root = c(
       rep(current_acic2017, 4L),
@@ -50,7 +51,7 @@ semisynth_overleaf_source_plan <- function() {
       current_ihdp,
       current_cps,
       current_psid,
-      NA_character_
+      current_twins
     ),
     source_note = c(
       rep("current ACIC-2017 250-rep rerun", 4L),
@@ -58,7 +59,7 @@ semisynth_overleaf_source_plan <- function() {
       "current complete rerun",
       "current complete rerun",
       "current complete rerun",
-      "April fallback; current corrected Twins rerun pending"
+      "current complete rerun"
     )
   )
 }
