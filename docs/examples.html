@@ -1,222 +1,110 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>calibratedDML examples</title>
-    <meta
-      name="description"
-      content="Standard calibratedDML workflows for raw-data fitting, supplied nuisance estimates, and multi-arm treatment analyses in Python and R."
-    />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="./site.css" />
-  </head>
-  <body>
-    <div class="page-shell">
-      <header class="hero">
-        <nav class="topbar">
-          <div class="brand"><a href="./index.html">calibratedDML</a></div>
-          <div class="toplinks">
-            <a href="./index.html">Overview</a>
-            <a href="./examples.html">Examples</a>
-            <a href="./r.html">R Package</a>
-            <a href="./adaptive.html">Adaptive</a>
-            <a href="https://github.com/Larsvanderlaan/calibratedDML">GitHub</a>
-          </div>
-        </nav>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Examples · calibratedDML</title>
+  <meta name="description" content="Fit calibrated DML from raw data, supplied nuisance estimates, custom learners, or multi-arm treatments.">
+  <meta name="theme-color" content="#f5efe4">
+  <link rel="icon" href="assets/calibrateddml-badge-mark.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@400;500;600&amp;family=Space+Grotesk:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="site.css">
+  <script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']]}};</script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+  <script defer src="site.js"></script>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="topbar">
+    <a class="brand" href="index.html"><img class="brand-mark" src="assets/calibrateddml-badge-mark.svg" width="33" height="33" alt=""><span>calibrated<span class="brand-suffix">DML</span></span></a>
+    <nav aria-label="Main navigation"><a href="index.html">Overview</a><a href="getting-started.html">Get started</a><a href="examples.html" aria-current="page">Examples</a><a href="causal-setup.html">Causal setup</a><a href="api.html">API</a></nav>
+    <a class="download-top" href="https://github.com/Larsvanderlaan/calibratedDML">GitHub <span aria-hidden="true">↗</span></a>
+  </header>
+  <main id="main"><div class="docs-layout"><aside class="sidebar" aria-label="Documentation"><p class="eyebrow">Documentation</p><a href="getting-started.html">Get started</a><a href="examples.html" aria-current="page">Examples</a><a href="causal-setup.html">Causal setup</a><a href="api.html">API</a><a href="python.html">Python package</a><a href="r.html">R package</a><a href="adaptive.html">Adaptive DML</a><a href="tutorials.html">Tutorials</a><a href="references.html">References</a></aside><article class="prose"><h1>Examples</h1>
+<p>Use raw data to fit the full estimator, or supply cross-fitted nuisance predictions from your own models. Both R and Python return arm means, treatment contrasts, and confidence intervals.</p>
+<h2 id="raw-data">Fit from raw data</h2><span id="workflows"></span>
+<p>The package fits outcome regressions and treatment probabilities on training folds, predicts on held-out observations, and calibrates the pooled predictions.</p>
+<div class="code-tabs code-example" data-code-tabs>
+  <div class="code-title"><span>Estimate a treatment effect</span><div role="tablist" aria-label="Code language">
+    <button type="button" role="tab" aria-selected="true" data-language="python">Python</button>
+    <button type="button" role="tab" aria-selected="false" tabindex="-1" data-language="r">R</button>
+  </div></div>
+  <div data-code-panel="python" role="tabpanel"><pre><code class="language-python">from calibrateddml import CalibratedDML
 
-        <div class="hero-grid">
-          <section class="hero-copy">
-            <p class="eyebrow">Workflows</p>
-            <h1>Standard calibratedDML workflows</h1>
-            <p class="lede">
-              This page summarizes the standard calibrated DML workflows:
-              fitting from raw data, starting from supplied nuisance
-              estimates, and multi-arm analyses. For runnable examples, use the
-              <a href="./tutorials.html">Tutorials</a> page, which links to
-              Python notebooks, script mirrors, and R vignettes.
-            </p>
-            <div class="hero-actions">
-              <a class="button button-primary" href="#workflows">Workflows</a>
-              <a class="button button-secondary" href="./tutorials.html">Tutorials</a>
-            </div>
-          </section>
-        </div>
-      </header>
+fit = CalibratedDML(
+    control_level=0,
+    outcome_model=&quot;lasso&quot;,
+    treatment_model=&quot;lasso&quot;,
+    random_state=123,
+).fit(X, A, y)
 
-      <main>
-        <section class="section" id="workflows">
-          <div class="section-heading split">
-            <div>
-              <p class="eyebrow">Workflows</p>
-              <h2>Common workflows</h2>
-              <p>
-                Each card gives when to use it and the corresponding Python and
-                R entry points.
-              </p>
-            </div>
-          </div>
+fit.summary()
+fit.confint()</code></pre></div>
+  <div data-code-panel="r" role="tabpanel" hidden><pre><code class="language-r">library(calibratedDML)
 
-          <div class="examples-grid">
-            <article class="argument-card">
-              <p class="panel-label">Standard workflow</p>
-              <h3>Standard estimator from raw data</h3>
-              <p>
-                Use when the package should fit nuisance models, calibrate them,
-                and report inference from raw data.
-              </p>
-              <div class="example-entry-grid">
-                <div class="example-entry">
-                  <p class="example-label">Python</p>
-                  <p class="example-call"><code>CalibratedDML(...).fit(X, A, y)</code></p>
-                </div>
-                <div class="example-entry">
-                  <p class="example-label">R</p>
-                  <p class="example-call"><code>calibrated_dml(data, outcome, treatment, covariates, ...)</code></p>
-                </div>
-              </div>
-            </article>
+fit &lt;- calibrated_dml(
+  data = df,
+  outcome = &quot;Y&quot;,
+  treatment = &quot;A&quot;,
+  covariates = c(&quot;W1&quot;, &quot;W2&quot;, &quot;W3&quot;),
+  control_level = 0,
+  outcome_model = &quot;lasso&quot;,
+  treatment_model = &quot;lasso&quot;,
+  seed = 123
+)
 
-            <article class="argument-card">
-              <p class="panel-label">Supplied nuisances</p>
-              <h3>Estimator from supplied nuisance matrices</h3>
-              <p>
-                Use when cross-fitted nuisance estimates are already available
-                and only calibration, debiasing, and inference should be run
-                here.
-              </p>
-              <div class="example-entry-grid">
-                <div class="example-entry">
-                  <p class="example-label">Python</p>
-                  <p class="example-call"><code>CalibratedDML(...).fit_from_nuisances(A, y, mu_mat, pi_mat, ...)</code></p>
-                </div>
-                <div class="example-entry">
-                  <p class="example-label">R</p>
-                  <p class="example-call"><code>calibrated_dml_from_nuisances(A, Y, mu_mat, pi_mat, ...)</code></p>
-                </div>
-              </div>
-            </article>
+summary(fit)
+confint(fit)</code></pre></div>
+</div>
+<h2 id="supplied-nuisances">Supply nuisance predictions</h2>
+<p>Use <code>fit_from_nuisances()</code> in Python or <code>calibrated_dml_from_nuisances()</code> in R when you already have cross-fitted predictions. Both matrices have one row per observation and one column per treatment level.</p>
+<div class="table-scroll"><table><thead><tr><th scope="col">Input</th><th scope="col">Column for treatment level a</th></tr></thead><tbody><tr><td>mu_mat</td><td>Predicted conditional mean E[Y | A = a, W].</td></tr><tr><td>pi_mat</td><td>Predicted treatment probability P(A = a | W).</td></tr></tbody></table></div>
+<div class="code-tabs code-example" data-code-tabs>
+  <div class="code-title"><span>Calibrate supplied predictions</span><div role="tablist" aria-label="Code language">
+    <button type="button" role="tab" aria-selected="true" data-language="python">Python</button>
+    <button type="button" role="tab" aria-selected="false" tabindex="-1" data-language="r">R</button>
+  </div></div>
+  <div data-code-panel="python" role="tabpanel"><pre><code class="language-python">fit = CalibratedDML(control_level=0).fit_from_nuisances(
+    A=A,
+    y=y,
+    mu_mat=mu_mat,
+    pi_mat=pi_mat,
+    treatment_levels=[0, 1],
+)
+fit.summary()</code></pre></div>
+  <div data-code-panel="r" role="tabpanel" hidden><pre><code class="language-r">fit &lt;- calibrated_dml_from_nuisances(
+  A = A,
+  Y = Y,
+  mu_mat = mu_mat,
+  pi_mat = pi_mat,
+  treatment_levels = c(0, 1),
+  control_level = 0
+)
+summary(fit)</code></pre></div>
+</div>
+<p>Align the columns with <code>treatment_levels</code>. Keep observations in the same row order in the outcome, treatment, and nuisance arrays.</p>
+<h2 id="multi-arm">Compare more than two treatments</h2>
+<p>The standard estimator accepts categorical treatments. Set <code>control_level</code> to choose the comparison arm; the summary reports each arm's mean potential outcome and its contrast with that control. For supplied predictions, include a column for every treatment level.</p>
+<h2 id="custom-learners">Choose your learners</h2>
+<p>Python accepts scikit-learn regressors and classifiers. Treatment classifiers must implement <code>predict_proba()</code>. For example:</p>
+<pre><code class="language-python">from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 
-            <article class="argument-card">
-              <p class="panel-label">Multi-arm treatment</p>
-              <h3>Multi-arm treatment with control contrasts</h3>
-              <p>
-                Use when treatment has more than two levels and the estimand is
-                arm means plus treatment-versus-control contrasts.
-              </p>
-              <div class="example-entry-grid">
-                <div class="example-entry">
-                  <p class="example-label">Python</p>
-                  <p class="example-call"><code>CalibratedDML(control_level=0, ...)</code></p>
-                </div>
-                <div class="example-entry">
-                  <p class="example-label">R</p>
-                  <p class="example-call"><code>calibrated_dml(..., control_level = 0)</code></p>
-                </div>
-              </div>
-            </article>
-
-            <article class="argument-card">
-              <p class="panel-label">Custom learners</p>
-              <h3>Custom learners and external nuisance pipelines</h3>
-              <p>
-                Use when you want to choose the nuisance learners yourself or
-                bring in nuisance estimates from another pipeline.
-              </p>
-              <div class="example-entry-grid">
-                <div class="example-entry">
-                  <p class="example-label">Python</p>
-                  <p>
-                    Pass sklearn-compatible regressors for outcome nuisance
-                    estimation and probabilistic classifiers for treatment
-                    nuisance estimation.
-                  </p>
-                  <p class="example-call"><code>CalibratedDML(outcome_model=..., treatment_model=...).fit(X, A, y)</code></p>
-                </div>
-                <div class="example-entry">
-                  <p class="example-label">R</p>
-                  <p>
-                    Use built-in learner names, a
-                    <code>SuperLearner</code> library, or an
-                    <code>sl3</code> learner.
-                  </p>
-                  <p class="example-call"><code>calibrated_dml(..., outcome_model = ..., treatment_model = ...)</code></p>
-                </div>
-              </div>
-              <p>
-                For full control in either interface, use the supplied-nuisance
-                workflow with <code>fit_from_nuisances(...)</code> or
-                <code>calibrated_dml_from_nuisances(...)</code>. R-side learner
-                support is documented on the
-                <a href="./r.html">R package page</a>.
-              </p>
-            </article>
-
-          </div>
-        </section>
-
-        <section class="section">
-          <div class="section-heading">
-            <div>
-              <p class="eyebrow">Practical Notes</p>
-              <h2>Three practical things to check</h2>
-              <p>
-                Supplied nuisance estimates should usually be cross-fitted.
-                The inference layer should also be chosen deliberately.
-              </p>
-            </div>
-          </div>
-
-          <div class="two-col-grid">
-            <article class="callout">
-              <p class="panel-label">Supplied nuisances</p>
-              <p>
-                When you use the direct nuisance path, the expected input is a
-                set of cross-fitted nuisance estimates rather than in-sample fits.
-              </p>
-            </article>
-            <article class="callout">
-              <p class="panel-label">Inference choice</p>
-              <p>
-                Standard calibrated DML uses jackknife intervals by default.
-                They adapt to nuisance misspecification, are cheaper than the
-                bootstrap, and worked better in our simulations. Use Wald only
-                when both nuisances are consistent, even if one converges
-                arbitrarily slowly.
-              </p>
-            </article>
-            <article class="callout">
-              <p class="panel-label">Custom learners</p>
-              <p>
-                Custom learners are interface-specific: Python accepts
-                sklearn-compatible estimators, while R accepts built-in model
-                specs plus optional <code>SuperLearner</code> and
-                <code>sl3</code> backends.
-              </p>
-            </article>
-          </div>
-        </section>
-
-        <section class="section">
-          <div class="section-heading">
-            <div>
-              <p class="eyebrow">Tutorials</p>
-              <h2>Tutorials</h2>
-              <p>
-                The <a href="./tutorials.html">Tutorials</a> page collects the
-                tested Python notebooks, script mirrors, and R vignettes for
-                the standard calibrated DML workflows when you want more than
-                the concise workflow summaries on this page.
-              </p>
-            </div>
-          </div>
-        </section>
-      </main>
-    </div>
-  </body>
+fit = CalibratedDML(
+    outcome_model=RandomForestRegressor(n_estimators=200, random_state=123),
+    treatment_model=RandomForestClassifier(n_estimators=200, random_state=123),
+    random_state=123,
+).fit(X, A, y)</code></pre>
+<p>R accepts built-in model names, custom model lists, and optional <code>SuperLearner</code> and <code>sl3</code> learners. See the <a href="https://github.com/Larsvanderlaan/calibratedDML/blob/main/vignettes/custom-learners.Rmd">custom-learner vignette</a> for examples.</p>
+<h2 id="intervals">Read the results</h2>
+<p>Use <code>fit.summary()</code> in Python or <code>summary(fit)</code> in R for the estimates and standard errors, and <code>confint()</code> for intervals. Jackknife intervals are the default; <a href="causal-setup.html#inference">the inference guide</a> explains the alternatives.</p>
+<p><a href="tutorials.html">Runnable notebooks, scripts, and R vignettes</a></p>
+</article></div></main>
+  <footer>
+    <a class="footer-brand" href="index.html">calibratedDML</a>
+    <p>A companion to <a href="https://arxiv.org/abs/2411.02771"><em>Doubly robust inference via calibration</em></a><br>Lars van der Laan · Alex Luedtke · Marco Carone</p>
+    <div><a href="references.html">References</a><a href="https://github.com/Larsvanderlaan/calibratedDML">Source</a><a href="https://github.com/Larsvanderlaan/calibratedDML/blob/main/LICENSE">GPL-3.0</a></div>
+  </footer>
+</body>
 </html>

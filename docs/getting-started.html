@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Get started · calibratedDML</title>
+  <meta name="description" content="Install calibratedDML and estimate a treatment effect in R or Python.">
+  <meta name="theme-color" content="#f5efe4">
+  <link rel="icon" href="assets/calibrateddml-badge-mark.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@400;500;600&amp;family=Space+Grotesk:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="site.css">
+  <script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']]}};</script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+  <script defer src="site.js"></script>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="topbar">
+    <a class="brand" href="index.html"><img class="brand-mark" src="assets/calibrateddml-badge-mark.svg" width="33" height="33" alt=""><span>calibrated<span class="brand-suffix">DML</span></span></a>
+    <nav aria-label="Main navigation"><a href="index.html">Overview</a><a href="getting-started.html" aria-current="page">Get started</a><a href="examples.html">Examples</a><a href="causal-setup.html">Causal setup</a><a href="api.html">API</a></nav>
+    <a class="download-top" href="https://github.com/Larsvanderlaan/calibratedDML">GitHub <span aria-hidden="true">↗</span></a>
+  </header>
+  <main id="main"><div class="docs-layout"><aside class="sidebar" aria-label="Documentation"><p class="eyebrow">Documentation</p><a href="getting-started.html" aria-current="page">Get started</a><a href="examples.html">Examples</a><a href="causal-setup.html">Causal setup</a><a href="api.html">API</a><a href="python.html">Python package</a><a href="r.html">R package</a><a href="adaptive.html">Adaptive DML</a><a href="tutorials.html">Tutorials</a><a href="references.html">References</a></aside><article class="prose"><h1>Get started</h1>
+<p>Install the package, choose your outcome and treatment columns, and fit the estimator. The default uses lasso nuisance models, automatic calibration, and jackknife confidence intervals.</p>
+<h2 id="install">Install</h2>
+<div class="code-tabs code-example" data-code-tabs>
+  <div class="code-title"><span>Install</span><div role="tablist" aria-label="Code language">
+    <button type="button" role="tab" aria-selected="true" data-language="python">Python</button>
+    <button type="button" role="tab" aria-selected="false" tabindex="-1" data-language="r">R</button>
+  </div></div>
+  <div data-code-panel="python" role="tabpanel"><pre><code class="language-python">python -m pip install calibratedDML</code></pre></div>
+  <div data-code-panel="r" role="tabpanel" hidden><pre><code class="language-r">remotes::install_github(&quot;Larsvanderlaan/calibratedDML&quot;)</code></pre></div>
+</div>
+<p>Python requires version 3.10 or later. To install Python from the current GitHub source:</p>
+<pre><code class="language-bash">python -m pip install git+https://github.com/Larsvanderlaan/calibratedDML.git</code></pre>
+<h2 id="first-fit">Estimate a treatment effect</h2>
+<p>In Python, supply a covariate matrix <code>X</code> and treatment and outcome vectors <code>A</code> and <code>y</code>. In R, name the columns in your data frame.</p>
+<div class="code-tabs code-example" data-code-tabs>
+  <div class="code-title"><span>Estimate a treatment effect</span><div role="tablist" aria-label="Code language">
+    <button type="button" role="tab" aria-selected="true" data-language="python">Python</button>
+    <button type="button" role="tab" aria-selected="false" tabindex="-1" data-language="r">R</button>
+  </div></div>
+  <div data-code-panel="python" role="tabpanel"><pre><code class="language-python">from calibrateddml import CalibratedDML
+
+fit = CalibratedDML(
+    control_level=0,
+    outcome_model=&quot;lasso&quot;,
+    treatment_model=&quot;lasso&quot;,
+    random_state=123,
+).fit(X, A, y)
+
+fit.summary()
+fit.confint()</code></pre></div>
+  <div data-code-panel="r" role="tabpanel" hidden><pre><code class="language-r">library(calibratedDML)
+
+fit &lt;- calibrated_dml(
+  data = df,
+  outcome = &quot;Y&quot;,
+  treatment = &quot;A&quot;,
+  covariates = c(&quot;W1&quot;, &quot;W2&quot;, &quot;W3&quot;),
+  control_level = 0,
+  outcome_model = &quot;lasso&quot;,
+  treatment_model = &quot;lasso&quot;,
+  seed = 123
+)
+
+summary(fit)
+confint(fit)</code></pre></div>
+</div>
+<p>The summary contains mean potential outcomes for each treatment arm and differences from <code>control_level</code>. Use <code>confint()</code> to extract confidence intervals.</p>
+<h2 id="models">Choose nuisance models</h2>
+<p>Set <code>outcome_model</code> and <code>treatment_model</code> to <code>"lasso"</code>, <code>"linear"</code>, or <code>"random_forest"</code>. You can also use custom learners or supply predictions from models fitted elsewhere.</p>
+<p><a href="examples.html#custom-learners">Custom learners</a> · <a href="examples.html#supplied-nuisances">Supplied predictions</a> · <a href="tutorials.html">Runnable tutorials</a></p>
+</article></div></main>
+  <footer>
+    <a class="footer-brand" href="index.html">calibratedDML</a>
+    <p>A companion to <a href="https://arxiv.org/abs/2411.02771"><em>Doubly robust inference via calibration</em></a><br>Lars van der Laan · Alex Luedtke · Marco Carone</p>
+    <div><a href="references.html">References</a><a href="https://github.com/Larsvanderlaan/calibratedDML">Source</a><a href="https://github.com/Larsvanderlaan/calibratedDML/blob/main/LICENSE">GPL-3.0</a></div>
+  </footer>
+</body>
+</html>

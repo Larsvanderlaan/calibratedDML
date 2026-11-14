@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Causal setup and inference · calibratedDML</title>
+  <meta name="description" content="What calibratedDML estimates, why calibration helps, and how to choose confidence intervals.">
+  <meta name="theme-color" content="#f5efe4">
+  <link rel="icon" href="assets/calibrateddml-badge-mark.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@400;500;600&amp;family=Space+Grotesk:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="site.css">
+  <script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']]}};</script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+  <script defer src="site.js"></script>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="topbar">
+    <a class="brand" href="index.html"><img class="brand-mark" src="assets/calibrateddml-badge-mark.svg" width="33" height="33" alt=""><span>calibrated<span class="brand-suffix">DML</span></span></a>
+    <nav aria-label="Main navigation"><a href="index.html">Overview</a><a href="getting-started.html">Get started</a><a href="examples.html">Examples</a><a href="causal-setup.html" aria-current="page">Causal setup</a><a href="api.html">API</a></nav>
+    <a class="download-top" href="https://github.com/Larsvanderlaan/calibratedDML">GitHub <span aria-hidden="true">↗</span></a>
+  </header>
+  <main id="main"><div class="docs-layout"><aside class="sidebar" aria-label="Documentation"><p class="eyebrow">Documentation</p><a href="getting-started.html">Get started</a><a href="examples.html">Examples</a><a href="causal-setup.html" aria-current="page">Causal setup</a><a href="api.html">API</a><a href="python.html">Python package</a><a href="r.html">R package</a><a href="adaptive.html">Adaptive DML</a><a href="tutorials.html">Tutorials</a><a href="references.html">References</a></aside><article class="prose"><h1>Causal setup and inference</h1>
+<p>The package estimates mean potential outcomes and average treatment effects for categorical treatments. Calibration adjusts the nuisance estimates before they enter a doubly robust estimator.</p>
+<h2 id="targets">Data and targets</h2>
+<p>Let \(W\) denote baseline covariates, \(A\) treatment, and \(Y\) the outcome. For treatment level \(a\), write</p>
+<div class="equation">\[\mu_a(W)=\mathbb{E}[Y\mid A=a,W],\qquad \pi_a(W)=\Pr(A=a\mid W).\]</div>
+<p>Under consistency, conditional exchangeability, and positivity, the mean potential outcome is \(\psi_a=\mathbb{E}[Y(a)]=\mathbb{E}[\mu_a(W)]\). The treatment-versus-control contrast is \(\psi_a-\psi_c\), where \(c\) is the control level. For binary treatment, this is the ATE.</p>
+<h2 id="estimator">The calibrated estimator</h2>
+<p>First estimate the outcome regressions and treatment probabilities with cross-fitting. The package then calibrates the outcome predictions and inverse probability weights and computes</p>
+<div class="equation">\[\widehat\psi_a=\frac{1}{n}\sum_{i=1}^n\left[\widetilde\mu_a(W_i)+\mathbf{1}\{A_i=a\}\widetilde\alpha_a(W_i)\{Y_i-\widetilde\mu_a(W_i)\}\right].\]</div>
+<p>Here \(\widetilde\mu_a\) is the calibrated outcome regression and \(\widetilde\alpha_a\) is the calibrated estimate of \(1/\pi_a\). Subtracting the two arm estimates gives the treatment contrast.</p>
+<h2 id="calibration">Why calibration helps</h2>
+<p>Consistency of a standard doubly robust estimator requires only one of the two nuisance estimators to be consistent. Its usual asymptotic normality result requires both to converge sufficiently quickly. Calibration weakens this requirement: under the paper's conditions, one nuisance estimator can converge slowly or inconsistently if the other is estimated sufficiently well.</p>
+<p>Outcome calibration fits a one-dimensional adjustment to the outcome predictions. Inverse-weight calibration fits a monotone transformation of the propensity predictions using a loss for inverse probability weights. You can add these adjustments to existing cross-fitted predictions without retraining the original models.</p>
+<h2 id="inference">Confidence intervals</h2>
+<p>Jackknife intervals are the default. The resampling procedure accounts for calibration and supports inference when one nuisance estimator is misspecified. The package also offers bootstrap and Wald intervals.</p>
+<div class="table-scroll"><table><thead><tr><th scope="col">Method</th><th scope="col">Option</th><th scope="col">Use</th></tr></thead><tbody><tr><td>Jackknife</td><td><code>inference="jackknife"</code></td><td>Default; uses 100 jackknife groups.</td></tr><tr><td>Bootstrap</td><td><code>inference="bootstrap"</code></td><td>Resamples observations and refits calibration; uses 200 replicates by default.</td></tr><tr><td>Wald</td><td><code>inference="wald"</code></td><td>Computes intervals from estimated influence values; use when both nuisance estimators are consistent.</td></tr></tbody></table></div>
+<p>For jackknife and bootstrap intervals, the initial nuisance predictions stay fixed; calibration and the final estimate are recomputed. Set <code>conf_level</code> to change the confidence level from its default of 0.95.</p>
+<p><a href="https://arxiv.org/abs/2411.02771">Doubly robust inference via calibration</a> gives the assumptions and asymptotic results. <a href="references.html">Related work</a> includes isotonic calibration of inverse probability weights and earlier methods for doubly robust inference.</p>
+</article></div></main>
+  <footer>
+    <a class="footer-brand" href="index.html">calibratedDML</a>
+    <p>A companion to <a href="https://arxiv.org/abs/2411.02771"><em>Doubly robust inference via calibration</em></a><br>Lars van der Laan · Alex Luedtke · Marco Carone</p>
+    <div><a href="references.html">References</a><a href="https://github.com/Larsvanderlaan/calibratedDML">Source</a><a href="https://github.com/Larsvanderlaan/calibratedDML/blob/main/LICENSE">GPL-3.0</a></div>
+  </footer>
+</body>
+</html>

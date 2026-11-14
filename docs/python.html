@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Python package · calibratedDML</title>
+  <meta name="description" content="Install calibratedDML, fit treatment effects, supply predictions, and inspect results in Python.">
+  <meta name="theme-color" content="#f5efe4">
+  <link rel="icon" href="assets/calibrateddml-badge-mark.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@400;500;600&amp;family=Space+Grotesk:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="site.css">
+  <script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']]}};</script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+  <script defer src="site.js"></script>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="topbar">
+    <a class="brand" href="index.html"><img class="brand-mark" src="assets/calibrateddml-badge-mark.svg" width="33" height="33" alt=""><span>calibrated<span class="brand-suffix">DML</span></span></a>
+    <nav aria-label="Main navigation"><a href="index.html">Overview</a><a href="getting-started.html">Get started</a><a href="examples.html">Examples</a><a href="causal-setup.html">Causal setup</a><a href="api.html">API</a></nav>
+    <a class="download-top" href="https://github.com/Larsvanderlaan/calibratedDML">GitHub <span aria-hidden="true">↗</span></a>
+  </header>
+  <main id="main"><div class="docs-layout"><aside class="sidebar" aria-label="Documentation"><p class="eyebrow">Documentation</p><a href="getting-started.html">Get started</a><a href="examples.html">Examples</a><a href="causal-setup.html">Causal setup</a><a href="api.html">API</a><a href="python.html" aria-current="page">Python package</a><a href="r.html">R package</a><a href="adaptive.html">Adaptive DML</a><a href="tutorials.html">Tutorials</a><a href="references.html">References</a></aside><article class="prose"><h1>Python package</h1>
+<p>Install <code>calibratedDML</code> and import from <code>calibrateddml</code>. The estimator follows the scikit-learn convention: create an object, call <code>fit()</code>, then inspect the results.</p>
+<h2 id="install">Install</h2><pre><code class="language-bash">python -m pip install calibratedDML</code></pre>
+<h2 id="fit">Fit and summarize</h2><pre><code class="language-python">from calibrateddml import CalibratedDML
+
+fit = CalibratedDML(
+    control_level=0,
+    outcome_model=&quot;lasso&quot;,
+    treatment_model=&quot;lasso&quot;,
+    random_state=123,
+).fit(X, A, y)
+
+fit.summary()
+fit.confint()</code></pre>
+<p><code>X</code> is a two-dimensional covariate array or data frame. <code>A</code> and <code>y</code> are treatment and outcome vectors. Set <code>control_level</code> to choose the arm used in contrasts.</p>
+<h2 id="supplied-nuisances">Use existing predictions</h2><pre><code class="language-python">fit = CalibratedDML(control_level=0).fit_from_nuisances(
+    A=A,
+    y=y,
+    mu_mat=mu_mat,
+    pi_mat=pi_mat,
+    treatment_levels=[0, 1],
+)
+fit.summary()</code></pre>
+<p><code>mu_mat</code> and <code>pi_mat</code> contain cross-fitted outcome and propensity predictions, with a column for each treatment level. See <a href="examples.html#supplied-nuisances">supplied nuisance predictions</a> for their definitions.</p>
+<h2 id="learners">Nuisance learners</h2>
+<p>The core installation includes <code>"mean"</code>, <code>"linear"</code>, <code>"lasso"</code>, and <code>"random_forest"</code>. You can also pass scikit-learn estimators directly.</p>
+<div class="table-scroll"><table><thead><tr><th scope="col">Model</th><th scope="col">Extra dependency</th><th scope="col">Installation</th></tr></thead><tbody><tr><td><code>"gam"</code></td><td><code>pygam</code></td><td><code>pip install "calibratedDML[gam]"</code></td></tr><tr><td><code>"boosted_trees"</code></td><td><code>lightgbm</code></td><td><code>pip install "calibratedDML[boosted]"</code></td></tr></tbody></table></div>
+<h2 id="results">Results</h2>
+<p><code>summary()</code> and <code>to_frame()</code> return result tables; <code>confint()</code> returns confidence intervals. The fitted object also stores the original predictions in <code>mu_mat_</code> and <code>pi_mat_</code>, and the calibrated predictions in <code>calibrated_mu_mat_</code> and <code>calibrated_pi_mat_</code>.</p>
+<p><a href="api.html">Options and defaults</a> · <a href="https://github.com/Larsvanderlaan/calibratedDML/blob/main/docs/python_api.md">Full Python API</a> · <a href="tutorials.html">Tutorials</a></p>
+</article></div></main>
+  <footer>
+    <a class="footer-brand" href="index.html">calibratedDML</a>
+    <p>A companion to <a href="https://arxiv.org/abs/2411.02771"><em>Doubly robust inference via calibration</em></a><br>Lars van der Laan · Alex Luedtke · Marco Carone</p>
+    <div><a href="references.html">References</a><a href="https://github.com/Larsvanderlaan/calibratedDML">Source</a><a href="https://github.com/Larsvanderlaan/calibratedDML/blob/main/LICENSE">GPL-3.0</a></div>
+  </footer>
+</body>
+</html>

@@ -6,12 +6,6 @@
 from calibrateddml import CalibratedDML, AdaptiveCalibratedDML
 ```
 
-Primary import path:
-
-- `calibrateddml`
-
-For installed packages, prefer `calibrateddml`.
-
 ## `CalibratedDML`
 
 Main constructor:
@@ -111,11 +105,7 @@ Supported inference methods:
 
 For `"bootstrap"` and `"jackknife"`, nuisance matrices are held fixed and only calibration plus debiasing are refit.
 
-Recommended use:
-
-- `"jackknife"` is the default for standard calibrated DML. It gives resampling-based intervals, adapts better to nuisance misspecification, and was the better practical default in the repository's coverage checks.
-- `"wald"` is the lightest option, but it should be used when both nuisance estimators are consistent, even if one converges arbitrarily slowly.
-- `"bootstrap"` is also valid for the standard estimator, but it is more computationally expensive than `"jackknife"` and was not the better practical default in our validation runs.
+`"jackknife"` is the default, with 100 groups. Jackknife and bootstrap intervals account for the calibration step and support inference when one nuisance estimator is misspecified. Use `"wald"` when both nuisance estimators are consistent, even if one converges slowly. See [confidence intervals](https://larsvanderlaan.github.io/calibratedDML/causal-setup.html#inference) for details.
 
 ## `AdaptiveCalibratedDML`
 
@@ -140,24 +130,9 @@ AdaptiveCalibratedDML(
 )
 ```
 
-Current status:
+This experimental estimator supports binary treatment with `"plugin"` and `"calibrated_rlearner"` modes. Both use isotonic calibration; there is no adaptive `calibration_method` parameter.
 
-- experimental
-- binary-treatment only
-- modes limited to `"plugin"` and `"calibrated_rlearner"`
-- isotonic calibration only
-- no adaptive `calibration_method` parameter
-
-Adaptive methods are intentionally documented separately from the standard estimator because they are super-efficient procedures. In this context, super-efficient means they can achieve lower mean-squared error and smaller realized variance than regular calibrated DML at favorable data-generating distributions. The tradeoff is that standard-error estimation is harder, so interval coverage can be less stable in practice.
-
-Recommended usage:
-
-- `CalibratedDML` is the recommended default for general use
-- `AdaptiveCalibratedDML` is an advanced option
-- `calibrated_rlearner` is especially appealing when the truth may be close to homogeneous but some heterogeneity is possible
-- consult Benkeser and van der Laan, "A Super-Efficient Estimator of the Average Treatment Effect," and van der Laan, Carone, Luedtke, and van der Laan, "Adaptive debiased machine learning using data-driven model selection techniques," before relying on adaptive confidence intervals
-
-For the standard estimator, see van der Laan, Luedtke, and Carone, "Doubly robust inference via calibration."
+The calibrated R-learner estimates the CATE, calibrates its predictions, and averages the calibrated effects. It can reduce variance when treatment-effect heterogeneity is well described by the learned summary. See the [adaptive guide](https://larsvanderlaan.github.io/calibratedDML/adaptive.html) for the working model and [Adaptive debiased machine learning](https://arxiv.org/abs/2307.12544) for the theory.
 
 ## Legacy wrappers
 

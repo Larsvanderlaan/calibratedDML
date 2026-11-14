@@ -1,210 +1,66 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>calibratedDML R package</title>
-    <meta
-      name="description"
-      content="R package overview for calibratedDML, including standard categorical-treatment estimation and adaptive binary-treatment methods."
-    />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="./site.css" />
-  </head>
-  <body>
-    <div class="page-shell">
-      <header class="hero">
-        <nav class="topbar">
-          <div class="brand"><a href="./index.html">calibratedDML</a></div>
-          <div class="toplinks">
-            <a href="./index.html">Overview</a>
-            <a href="./examples.html">Examples</a>
-            <a href="./r.html">R Package</a>
-            <a href="./adaptive.html">Adaptive</a>
-            <a href="https://github.com/Larsvanderlaan/calibratedDML">GitHub</a>
-          </div>
-        </nav>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>R package · calibratedDML</title>
+  <meta name="description" content="Install calibratedDML and estimate mean potential outcomes and treatment effects in R.">
+  <meta name="theme-color" content="#f5efe4">
+  <link rel="icon" href="assets/calibrateddml-badge-mark.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@400;500;600&amp;family=Space+Grotesk:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="site.css">
+  <script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']]}};</script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+  <script defer src="site.js"></script>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="topbar">
+    <a class="brand" href="index.html"><img class="brand-mark" src="assets/calibrateddml-badge-mark.svg" width="33" height="33" alt=""><span>calibrated<span class="brand-suffix">DML</span></span></a>
+    <nav aria-label="Main navigation"><a href="index.html">Overview</a><a href="getting-started.html">Get started</a><a href="examples.html">Examples</a><a href="causal-setup.html">Causal setup</a><a href="api.html">API</a></nav>
+    <a class="download-top" href="https://github.com/Larsvanderlaan/calibratedDML">GitHub <span aria-hidden="true">↗</span></a>
+  </header>
+  <main id="main"><div class="docs-layout"><aside class="sidebar" aria-label="Documentation"><p class="eyebrow">Documentation</p><a href="getting-started.html">Get started</a><a href="examples.html">Examples</a><a href="causal-setup.html">Causal setup</a><a href="api.html">API</a><a href="python.html">Python package</a><a href="r.html" aria-current="page">R package</a><a href="adaptive.html">Adaptive DML</a><a href="tutorials.html">Tutorials</a><a href="references.html">References</a></aside><article class="prose"><h1>R package</h1>
+<p>Use <code>calibrated_dml()</code> to fit from a data frame, or <code>calibrated_dml_from_nuisances()</code> to calibrate predictions from existing models.</p>
+<h2 id="install">Install from GitHub</h2><pre><code class="language-r">remotes::install_github(&quot;Larsvanderlaan/calibratedDML&quot;)</code></pre>
+<h2 id="entry-points">Fit from a data frame</h2><pre><code class="language-r">library(calibratedDML)
 
-        <div class="hero-grid">
-          <section class="hero-copy">
-            <p class="eyebrow">R Package</p>
-            <h1>calibratedDML in R</h1>
-            <p class="lede">
-              This page documents the standard R interface, supplied-nuisance
-              entry points, and available inference modes. Adaptive DML is
-              documented separately on the
-              <a href="./adaptive.html">Adaptive</a> page. For longer
-              runnable walkthroughs, see the
-              <a href="./tutorials.html">Tutorials</a> page.
-            </p>
-            <div class="hero-actions">
-              <a class="button button-primary" href="#install">Install</a>
-              <a class="button button-secondary" href="./tutorials.html">Tutorials</a>
-            </div>
-          </section>
-
-          <aside class="hero-panel">
-            <div class="panel-card gradient-card">
-              <p class="panel-label">Summary</p>
-              <div class="hero-stat-grid">
-                <div class="hero-stat">
-                  <strong>Main function</strong>
-                  <span><code>calibrated_dml()</code> fits the standard calibrated DML estimator in R.</span>
-                </div>
-                <div class="hero-stat">
-                  <strong>Supplied nuisances</strong>
-                  <span><code>calibrated_dml_from_nuisances()</code> is available for cross-fitted nuisance inputs.</span>
-                </div>
-                <div class="hero-stat">
-                  <strong>Adaptive DML</strong>
-                  <span>Documented separately on the <a href="./adaptive.html">Adaptive</a> page.</span>
-                </div>
-              </div>
-            </div>
-            <div class="panel-card">
-              <p class="panel-label">Example</p>
-              <pre class="code-block"><code>library(calibratedDML)
-
-fit <- calibrated_dml(
+fit &lt;- calibrated_dml(
   data = df,
-  outcome = "Y",
-  treatment = "A",
-  covariates = c("W1", "W2", "W3"),
+  outcome = &quot;Y&quot;,
+  treatment = &quot;A&quot;,
+  covariates = c(&quot;W1&quot;, &quot;W2&quot;, &quot;W3&quot;),
   control_level = 0,
-  outcome_model = "lasso",
-  treatment_model = "lasso",
-  calibration_method = "auto",
-  inference = "wald"
+  outcome_model = &quot;lasso&quot;,
+  treatment_model = &quot;lasso&quot;,
+  seed = 123
 )
 
+summary(fit)
+confint(fit)</code></pre>
+<p>Name the outcome, treatment, and covariate columns, and specify <code>control_level</code>. The package cross-fits the nuisance models and returns arm means and treatment-versus-control contrasts.</p>
+<h2 id="supplied-nuisances">Supply nuisance predictions</h2><pre><code class="language-r">fit &lt;- calibrated_dml_from_nuisances(
+  A = A,
+  Y = Y,
+  mu_mat = mu_mat,
+  pi_mat = pi_mat,
+  treatment_levels = c(0, 1),
+  control_level = 0
+)
 summary(fit)</code></pre>
-            </div>
-          </aside>
-        </div>
-      </header>
-
-      <main>
-        <section class="section" id="install">
-          <div class="section-heading split">
-            <div>
-              <p class="eyebrow">Install</p>
-              <h2>Install the R package from GitHub</h2>
-              <p>
-                The repository contains the R package alongside the Python
-                package. GitHub is the current public install path from this
-                repository, with built-in nuisance model choices plus optional
-                <code>sl3</code> and <code>SuperLearner</code> integration.
-              </p>
-            </div>
-          </div>
-
-          <div class="argument-grid">
-            <article class="argument-card">
-              <p class="mini-label">Install</p>
-              <h3>GitHub</h3>
-              <pre class="inline-code"><code>remotes::install_github("Larsvanderlaan/calibratedDML")</code></pre>
-            </article>
-            <article class="argument-card">
-              <p class="mini-label">Optional</p>
-              <h3>Nuisance learners</h3>
-              <p>
-                The package can integrate with <code>sl3</code> and
-                <code>SuperLearner</code> when those ecosystems are available.
-              </p>
-            </article>
-            <article class="argument-card">
-              <p class="mini-label">Output</p>
-              <h3>Printed summaries</h3>
-              <p>
-                Standard fitted objects support <code>summary()</code> for a
-                quick table of arm means and treatment-vs-control contrasts.
-              </p>
-            </article>
-          </div>
-        </section>
-
-        <section class="section" id="entry-points">
-          <div class="section-heading split">
-            <div>
-              <p class="eyebrow">Entry Points</p>
-              <h2>Main R entry points</h2>
-              <p>
-                Fit the standard estimator from raw data or start from
-                supplied cross-fitted nuisance estimates.
-              </p>
-            </div>
-          </div>
-
-          <div class="comparison-grid">
-            <article class="comparison-card">
-              <p class="panel-label">Main R entry point</p>
-              <h3><code>calibrated_dml()</code></h3>
-              <ul>
-                <li>Categorical treatment support in the standard estimator</li>
-                <li>Fits nuisances internally when <code>mu_mat</code> and <code>pi_mat</code> are omitted</li>
-                <li>Returns fitted objects with printed summaries</li>
-                <li>Supports <code>wald</code>, <code>bootstrap</code>, and <code>jackknife</code></li>
-              </ul>
-            </article>
-            <article class="comparison-card">
-              <p class="panel-label">Supplied nuisance estimates</p>
-              <h3><code>calibrated_dml_from_nuisances()</code></h3>
-              <ul>
-                <li>Supply cross-fitted <code>mu_mat</code> and <code>pi_mat</code> directly</li>
-                <li>Useful for custom nuisance pipelines and reproducibility checks</li>
-                <li>Still runs the calibration, debiasing, and inference layers</li>
-                <li>Works with explicit treatment-level alignment</li>
-              </ul>
-            </article>
-          </div>
-        </section>
-
-        <section class="section">
-          <div class="section-heading">
-            <div>
-              <p class="eyebrow">Inference</p>
-              <h2>Inference choices and package scope</h2>
-              <p>
-                Choose the inference mode explicitly. The standard estimator
-                and the adaptive page document different estimator families
-                with different guarantees.
-              </p>
-            </div>
-          </div>
-
-          <div class="argument-grid">
-            <article class="argument-card">
-              <h3>Standard estimator</h3>
-              <p>
-                <code>calibrated_dml()</code> is the main entry point for
-                calibrated DML with categorical treatment.
-              </p>
-            </article>
-            <article class="argument-card">
-              <h3>Inference modes</h3>
-              <p>
-                The standard estimator supports
-                <code>"wald"</code>, <code>"bootstrap"</code>, and
-                <code>"jackknife"</code>. Choose the uncertainty layer
-                explicitly rather than inheriting it by accident.
-              </p>
-            </article>
-            <article class="argument-card">
-              <h3>Adaptive DML</h3>
-              <p>
-                The separate <a href="./adaptive.html">Adaptive</a> page
-                documents the binary-treatment adaptive estimator family.
-              </p>
-              <p>It has different guarantees and its own inferential scope.</p>
-            </article>
-          </div>
-        </section>
-      </main>
-    </div>
-  </body>
+<p>Supply one row per observation and one column per treatment level in each matrix. <code>mu_mat</code> contains cross-fitted outcome means; <code>pi_mat</code> contains treatment probabilities. Use column names matching the treatment levels or set <code>treatment_levels</code> explicitly.</p>
+<h2 id="learners">Choose nuisance learners</h2>
+<p>Built-in choices include lasso, linear models, random forests, GAMs, and boosted trees. You can also supply a custom model list, a <code>SuperLearner</code> library, or an <code>sl3</code> learner. The <a href="https://github.com/Larsvanderlaan/calibratedDML/blob/main/vignettes/custom-learners.Rmd">custom-learner vignette</a> gives examples.</p>
+<h2 id="inference">Confidence intervals</h2>
+<p>The default is <code>inference = "jackknife"</code> with 100 groups. Use <code>"bootstrap"</code> for bootstrap intervals or <code>"wald"</code> for intervals based on estimated influence values. See <a href="causal-setup.html#inference">the inference guide</a> for when to use each method.</p>
+<p><a href="api.html">Options and defaults</a> · <a href="tutorials.html">R vignettes</a> · <a href="adaptive.html">Adaptive DML</a></p>
+</article></div></main>
+  <footer>
+    <a class="footer-brand" href="index.html">calibratedDML</a>
+    <p>A companion to <a href="https://arxiv.org/abs/2411.02771"><em>Doubly robust inference via calibration</em></a><br>Lars van der Laan · Alex Luedtke · Marco Carone</p>
+    <div><a href="references.html">References</a><a href="https://github.com/Larsvanderlaan/calibratedDML">Source</a><a href="https://github.com/Larsvanderlaan/calibratedDML/blob/main/LICENSE">GPL-3.0</a></div>
+  </footer>
+</body>
 </html>

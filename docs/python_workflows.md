@@ -1,8 +1,8 @@
-# Python Common Workflows
+# Python examples
 
 ## 1. Fit nuisances internally
 
-Use this when you want the package to manage cross-fitting and nuisance estimation:
+Fit the outcome and treatment models with cross-fitting:
 
 ```python
 from calibrateddml import CalibratedDML
@@ -16,11 +16,9 @@ fit = CalibratedDML(
 fit.fit(X, A, y)
 ```
 
-This is the simplest user-facing workflow.
-
 ## 2. Supply nuisance matrices directly
 
-Use this when nuisance estimation already happens elsewhere:
+Supply cross-fitted predictions from your own models:
 
 ```python
 fit = CalibratedDML(
@@ -37,7 +35,7 @@ fit = CalibratedDML(
 )
 ```
 
-This is the preferred path for parity checks, reproducibility, and paper-style experiments.
+Use one column per treatment level in each matrix and align the columns with `treatment_levels`.
 
 ## 3. Use sklearn-compatible custom models
 
@@ -68,7 +66,7 @@ fit = CalibratedDML(
 )
 ```
 
-Use explicit calibration settings when you want to avoid the default `"auto"` behavior.
+Set `calibration_method` to choose isotonic or smooth isotonic calibration, or `"none"` to omit calibration.
 
 ## 5. Use adaptive binary-treatment methods
 
@@ -86,23 +84,7 @@ fit = AdaptiveCalibratedDML(
 fit.fit(X, A, y)
 ```
 
-Current adaptive Python scope:
-
-- binary treatment only
-- experimental
-- `plugin` and `calibrated_rlearner` only
-- isotonic calibration only, with no adaptive calibration switch
-
-Practical guidance:
-
-- Adaptive methods are super-efficient: they can deliver lower variance and lower mean-squared error than standard calibrated DML in favorable settings.
-- That same nonregular behavior makes standard errors harder to estimate, so interval coverage can be poorer.
-- `CalibratedDML` is the recommended default for general use.
-- `AdaptiveCalibratedDML` is an advanced option.
-- `calibrated_rlearner` is especially appealing when the truth may be close to homogeneous but some heterogeneity is possible.
-- Consult Benkeser and van der Laan, "A Super-Efficient Estimator of the Average Treatment Effect," plus van der Laan, Carone, Luedtke, and van der Laan, "Adaptive debiased machine learning using data-driven model selection techniques," before relying on adaptive confidence intervals.
-
-For the standard estimator, the main methodological reference is van der Laan, Luedtke, and Carone, "Doubly robust inference via calibration."
+The experimental adaptive estimator supports binary treatment, with `plugin` and `calibrated_rlearner` modes. Both use isotonic calibration. The calibrated R-learner can reduce variance when treatment effects are nearly constant or well described by a learned summary; see the [adaptive guide](https://larsvanderlaan.github.io/calibratedDML/adaptive.html).
 
 ## 6. Read results
 
@@ -112,7 +94,7 @@ The main result tables are:
 - `fit.to_frame()`
 - `fit.confint()`
 
-The full fitted object also stores nuisance and calibration artifacts for debugging and reproducibility:
+The fitted object also stores the original and calibrated nuisance predictions:
 
 - `mu_mat_`, `pi_mat_`
 - `calibrated_mu_mat_`, `calibrated_pi_mat_`

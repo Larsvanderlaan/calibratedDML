@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>References · calibratedDML</title>
+  <meta name="description" content="Papers on calibrated DML, inverse probability weight calibration, doubly robust inference, and adaptive estimation.">
+  <meta name="theme-color" content="#f5efe4">
+  <link rel="icon" href="assets/calibrateddml-badge-mark.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@400;500;600&amp;family=Space+Grotesk:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="site.css">
+  <script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']]}};</script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+  <script defer src="site.js"></script>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="topbar">
+    <a class="brand" href="index.html"><img class="brand-mark" src="assets/calibrateddml-badge-mark.svg" width="33" height="33" alt=""><span>calibrated<span class="brand-suffix">DML</span></span></a>
+    <nav aria-label="Main navigation"><a href="index.html">Overview</a><a href="getting-started.html">Get started</a><a href="examples.html">Examples</a><a href="causal-setup.html">Causal setup</a><a href="api.html">API</a></nav>
+    <a class="download-top" href="https://github.com/Larsvanderlaan/calibratedDML">GitHub <span aria-hidden="true">↗</span></a>
+  </header>
+  <main id="main"><div class="docs-layout"><aside class="sidebar" aria-label="Documentation"><p class="eyebrow">Documentation</p><a href="getting-started.html">Get started</a><a href="examples.html">Examples</a><a href="causal-setup.html">Causal setup</a><a href="api.html">API</a><a href="python.html">Python package</a><a href="r.html">R package</a><a href="adaptive.html">Adaptive DML</a><a href="tutorials.html">Tutorials</a><a href="references.html" aria-current="page">References</a></aside><article class="prose"><h1>References</h1>
+<h2 id="calibrated-dml">Calibrated DML</h2>
+<p>Lars van der Laan, Alex Luedtke, and Marco Carone. <a href="https://arxiv.org/abs/2411.02771"><em>Doubly robust inference via calibration.</em></a> The main reference for the estimator and its inferential guarantees.</p>
+<p>Lars van der Laan, Ziming Lin, Marco Carone, and Alex Luedtke. <a href="https://proceedings.mlr.press/v275/laan25a.html"><em>Stabilized Inverse Probability Weighting via Isotonic Calibration.</em></a> CLeaR, 2025. Isotonic calibration of inverse probability weights.</p>
+<h2 id="doubly-robust-inference">Related work on doubly robust inference</h2>
+<ul>
+  <li><a href="https://academic.oup.com/biomet/article/104/4/863/4554445">Benkeser et al. (2017)</a></li>
+  <li><a href="https://pubmed.ncbi.nlm.nih.gov/28744883/">Díaz and van der Laan (2017)</a></li>
+  <li><a href="https://www.jmlr.org/papers/v25/22-1233.html">Dukes, Vansteelandt, and Whitney (2024)</a></li>
+  <li><a href="https://arxiv.org/abs/2405.08525">Bonvini et al. (2024)</a></li>
+</ul>
+<h2 id="adaptive">Adaptive estimation</h2>
+<p>Lars van der Laan, Marco Carone, Alex Luedtke, and Mark van der Laan. <a href="https://arxiv.org/abs/2307.12544"><em>Adaptive debiased machine learning using data-driven model selection techniques.</em></a></p>
+<p>David Benkeser and Mark van der Laan. <a href="https://projecteuclid.org/journals/statistical-science/volume-34/issue-1/A-Super-Efficient-Estimator-of-the-Average-Treatment-Effect/10.1214/18-STS690.full"><em>A Super-Efficient Estimator of the Average Treatment Effect.</em></a> Statistical Science, 2019.</p>
+<p><a href="https://www.jstor.org/stable/1912705">Robinson (1988)</a> develops partially linear regression. <a href="https://doi.org/10.1093/biomet/asn055">Crump et al. (2009)</a> and <a href="https://doi.org/10.1093/aje/kwy201">Li, Thomas, and Li (2019)</a> study estimation with limited treatment overlap.</p>
+<h2 id="software">Related software</h2>
+<p><a href="https://larsvanderlaan.github.io/ppi-aipw/">ppi_aipw</a> provides calibrated estimators for semisupervised mean inference.</p>
+</article></div></main>
+  <footer>
+    <a class="footer-brand" href="index.html">calibratedDML</a>
+    <p>A companion to <a href="https://arxiv.org/abs/2411.02771"><em>Doubly robust inference via calibration</em></a><br>Lars van der Laan · Alex Luedtke · Marco Carone</p>
+    <div><a href="references.html">References</a><a href="https://github.com/Larsvanderlaan/calibratedDML">Source</a><a href="https://github.com/Larsvanderlaan/calibratedDML/blob/main/LICENSE">GPL-3.0</a></div>
+  </footer>
+</body>
+</html>

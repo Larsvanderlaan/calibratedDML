@@ -21,7 +21,7 @@ results = fit.summary()
 intervals = fit.confint()
 ```
 
-Use this path when you want the package to fit cross-fitted nuisance models for you.
+The package cross-fits the outcome and treatment models, calibrates their predictions, and estimates arm means and treatment contrasts.
 
 ## Estimator from supplied nuisances
 
@@ -42,7 +42,7 @@ fit = CalibratedDML(
 )
 ```
 
-Use this path when you already have cross-fitted nuisance predictions.
+Supply cross-fitted nuisance predictions from models you have already trained.
 
 `mu_mat` should contain one column per treatment level for `E[Y | A=a, W]`.
 `pi_mat` should contain one column per treatment level for `P(A=a | W)`.
@@ -61,8 +61,8 @@ For multi-arm treatment, the default treatment path fits one-vs-rest propensity 
 Inference guide:
 
 - Use the default jackknife intervals for standard calibrated DML.
-- Use Wald when both nuisance estimators are consistent, even if one is arbitrarily slow.
-- Use bootstrap when you want another valid resampling interval and can afford the extra computation.
+- Use Wald when both nuisance estimators are consistent, even if one converges slowly.
+- Use `inference="bootstrap"` for bootstrap intervals.
 
 ## Adaptive estimator
 
@@ -80,6 +80,6 @@ fit = AdaptiveCalibratedDML(
 fit.fit(X, A, y)
 ```
 
-The adaptive Python API is binary-treatment only, experimental, limited to `mode="plugin"` and `mode="calibrated_rlearner"`, and uses isotonic calibration internally with no separate calibration option.
+`AdaptiveCalibratedDML` estimates binary-treatment effects with `mode="plugin"` or `mode="calibrated_rlearner"`. Both use isotonic calibration. These methods are experimental.
 
-`CalibratedDML` is the recommended default for general use. `AdaptiveCalibratedDML` is an advanced option. In particular, `calibrated_rlearner` is especially appealing when the truth may be close to homogeneous but some heterogeneity is possible. These adaptive estimators are super-efficient methods, so they can have lower realized variance and lower MSE than standard calibrated DML in favorable settings, but inference is harder and interval coverage can be less stable. For adaptive inference details, see Benkeser and van der Laan, "A Super-Efficient Estimator of the Average Treatment Effect," and van der Laan, Carone, Luedtke, and van der Laan, "Adaptive debiased machine learning using data-driven model selection techniques." For standard calibrated DML, see van der Laan, Luedtke, and Carone, "Doubly robust inference via calibration."
+The calibrated R-learner can reduce variance when treatment effects are nearly constant or well described by a learned summary. See the [adaptive guide](https://larsvanderlaan.github.io/calibratedDML/adaptive.html) for the model and the role of treatment overlap. For the standard estimator and doubly robust confidence intervals, see [Doubly robust inference via calibration](https://arxiv.org/abs/2411.02771).
