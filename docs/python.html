@@ -30,6 +30,7 @@
 <p><a href="getting-started.html#first-fit">Run the complete example</a> to see the fit and its output.</p>
 <h2 id="supplied-nuisances">Use existing predictions</h2>
 <p><code>mu_mat</code> and <code>pi_mat</code> contain cross-fitted outcome and propensity predictions, with a column for each treatment level. See <a href="examples.html#supplied-nuisances">supplied nuisance predictions</a> for their definitions.</p>
+<p>For other regression targets, use <a href="api.html#linear-functionals"><code>calibrated_linear_functional()</code></a> with cross-fitted regression and Riesz estimates and a specified linear functional.</p>
 <h2 id="learners">Nuisance learners</h2>
 <p>The core installation includes <code>"mean"</code>, <code>"linear"</code>, <code>"lasso"</code>, and <code>"random_forest"</code>. You can also pass scikit-learn estimators directly.</p>
 <div class="table-scroll"><table><thead><tr><th scope="col">Model</th><th scope="col">Extra dependency</th><th scope="col">Installation</th></tr></thead><tbody><tr><td><code>"gam"</code></td><td><code>pygam</code></td><td><code>pip install "calibratedDML[gam]"</code></td></tr><tr><td><code>"boosted_trees"</code></td><td><code>lightgbm</code></td><td><code>pip install "calibratedDML[boosted]"</code></td></tr></tbody></table></div>

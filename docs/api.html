@@ -33,6 +33,13 @@
 <p><code>inference</code> accepts <code>"jackknife"</code>, <code>"bootstrap"</code>, or <code>"wald"</code>. See <a href="causal-setup.html#inference">confidence intervals</a> for the role of each method.</p>
 <h2 id="interfaces">Language guides</h2>
 <p><a href="python.html">Python</a> · <a href="r.html">R</a> · <a href="adaptive.html">Adaptive binary-treatment estimators</a></p>
+<h2 id="linear-functionals">General linear functionals</h2>
+<p><code>calibrated_linear_functional()</code> in R and Python estimates targets of the form</p>
+<div class="equation">\[\psi=\mathbb{E}\left[\sum_{j=1}^k c_j(O)\mu(T_j(O))\right].\]</div>
+<p>Specify the coefficients directly or provide a row-wise linear function of prediction columns. For example, subtracting two columns defines a treatment contrast; a weighted sum defines a treatment-policy value.</p>
+<div class="table-scroll"><table><thead><tr><th scope="col">Input</th><th scope="col">Contents</th></tr></thead><tbody><tr><td><code>regression</code>, <code>riesz</code></td><td>Cross-fitted predictions at the observed inputs; vectors of length n.</td></tr><tr><td><code>regression_evaluations</code></td><td>Regression predictions at each input used by the functional; an n-by-k matrix.</td></tr><tr><td><code>riesz_evaluations</code></td><td>Riesz predictions at those same inputs, in the same column order.</td></tr><tr><td><code>functional</code></td><td>A function mapping an n-by-k prediction matrix to n contributions, a length-k coefficient vector, or an n-by-k coefficient matrix.</td></tr></tbody></table></div>
+<p>The evaluation matrices default to the observed predictions as one column. Isotonic calibration uses PAVA for both squared-error and quadratic Riesz losses, including signed representers. Set <code>calibration_method="none"</code> for the uncalibrated one-step estimator. Inference defaults to the V-fold jackknife with V = 10.</p>
+<p><a href="examples.html#linear-functional">ATE example</a> · <a href="https://arxiv.org/abs/2411.02771">Method and theory</a></p>
 </article></div></main>
   <footer>
     <a class="footer-brand" href="index.html">calibratedDML</a>

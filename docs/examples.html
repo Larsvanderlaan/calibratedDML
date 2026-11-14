@@ -65,6 +65,46 @@ fit = CalibratedDML(
     random_state=123,
 ).fit(X, A, y)</code></pre>
 <p>R accepts built-in model names, custom model lists, and optional <code>SuperLearner</code> and <code>sl3</code> learners. See the <a href="https://github.com/Larsvanderlaan/calibratedDML/blob/main/vignettes/custom-learners.Rmd">custom-learner vignette</a> for examples.</p>
+<h2 id="linear-functional">Specify a linear functional</h2>
+<p><code>calibrated_linear_functional()</code> accepts a linear map and cross-fitted regression and Riesz predictions. This example estimates the binary-treatment ATE. The two columns of <code>mu_mat</code> and <code>pi_mat</code> correspond to treatment levels 0 and 1.</p>
+<div class="code-tabs code-example" data-code-tabs>
+  <div class="code-title"><span>ATE from regression and Riesz estimates</span><div role="tablist" aria-label="Code language">
+    <button type="button" role="tab" aria-selected="true" data-language="python">Python</button>
+    <button type="button" role="tab" aria-selected="false" tabindex="-1" data-language="r">R</button>
+  </div></div>
+  <div data-code-panel="python" role="tabpanel"><pre><code class="language-python">import numpy as np
+from calibrateddml import calibrated_linear_functional
+
+alpha_mat = np.column_stack([-1 / pi_mat[:, 0], 1 / pi_mat[:, 1]])
+rows = np.arange(len(A))
+fit = calibrated_linear_functional(
+    y=y,
+    regression=mu_mat[rows, A],
+    riesz=alpha_mat[rows, A],
+    functional=lambda values: values[:, 1] - values[:, 0],
+    regression_evaluations=mu_mat,
+    riesz_evaluations=alpha_mat,
+    name=&quot;ATE&quot;,
+)
+fit.summary()</code></pre></div>
+  <div data-code-panel="r" role="tabpanel" hidden><pre><code class="language-r">library(calibratedDML)
+
+alpha_mat &lt;- cbind(-1 / pi_mat[, 1], 1 / pi_mat[, 2])
+observed &lt;- cbind(seq_along(A), A + 1)
+fit &lt;- calibrated_linear_functional(
+  Y = Y,
+  regression = mu_mat[observed],
+  riesz = alpha_mat[observed],
+  functional = function(values) values[, 2] - values[, 1],
+  regression_evaluations = mu_mat,
+  riesz_evaluations = alpha_mat,
+  name = &quot;ATE&quot;
+)
+summary(fit)</code></pre></div>
+</div>
+<p>The observed-input vectors are used to calibrate and debias. The evaluation matrices contain predictions at every input used by the functional. For each row, use models trained without that row's cross-fitting fold, including for counterfactual predictions. Here, the functional subtracts the control prediction from the treatment prediction.</p>
+<p>PAVA calibrates the regression and the signed Riesz representer. The default 10-fold jackknife refits only calibration and final means, holding the initial predictions fixed.</p>
+<p><a href="https://github.com/Larsvanderlaan/calibratedDML/blob/main/examples/python_linear_functional.py">Runnable Python example</a> · <a href="https://github.com/Larsvanderlaan/calibratedDML/blob/main/examples/r_linear_functional.R">Runnable R example</a> · <a href="api.html#linear-functionals">Function inputs</a></p>
 <h2 id="intervals">Read the results</h2>
 <p>See <a href="getting-started.html#first-fit">the example output</a> for the result columns and <a href="causal-setup.html#inference">the inference guide</a> for confidence interval options.</p>
 <p><a href="tutorials.html">Runnable notebooks, scripts, and R vignettes</a></p>

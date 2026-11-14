@@ -30,6 +30,7 @@
 <p><a href="getting-started.html#first-fit">Run the complete example</a> to see the fit and its output.</p>
 <h2 id="supplied-nuisances">Supply nuisance predictions</h2>
 <p>Use column names matching the treatment levels or set <code>treatment_levels</code> explicitly. See <a href="examples.html#supplied-nuisances">supplied nuisance predictions</a> for the matrix definitions and the call in R.</p>
+<p>For other regression targets, use <a href="api.html#linear-functionals"><code>calibrated_linear_functional()</code></a> with cross-fitted regression and Riesz estimates and a specified linear functional.</p>
 <h2 id="learners">Choose nuisance learners</h2>
 <p>Built-in choices include lasso, linear models, random forests, GAMs, and boosted trees. You can also supply a custom model list, a <code>SuperLearner</code> library, or an <code>sl3</code> learner. The <a href="https://github.com/Larsvanderlaan/calibratedDML/blob/main/vignettes/custom-learners.Rmd">custom-learner vignette</a> gives examples.</p>
 <h2 id="inference">Confidence intervals</h2>

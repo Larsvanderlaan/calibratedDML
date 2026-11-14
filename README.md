@@ -151,6 +151,34 @@ Both interfaces support direct nuisance input.
 - `pi_mat` should contain one column per treatment level for `P(A = a | W)`
 - nuisance estimates should usually be cross-fitted
 
+## General linear functionals
+
+`calibrated_linear_functional()` in R and Python accepts a specified linear
+functional and supplied cross-fitted regression and Riesz predictions. Supply
+predictions at the observed inputs and at every input used by the functional.
+For example, an ATE uses prediction columns under control and treatment:
+
+```python
+from calibrateddml import calibrated_linear_functional
+
+fit = calibrated_linear_functional(
+    y=y,
+    regression=mu_observed,
+    riesz=alpha_observed,
+    functional=lambda values: values[:, 1] - values[:, 0],
+    regression_evaluations=mu_mat,
+    riesz_evaluations=alpha_mat,
+    name="ATE",
+)
+fit.summary()
+```
+
+The functional can also be a coefficient vector or an observation-specific
+coefficient matrix. PAVA fits monotone calibrators using the regression
+squared-error loss and the quadratic Riesz loss, allowing signed representers.
+The default 10-fold jackknife holds initial predictions fixed and refits only
+calibration and final means. See the [linear-functional examples](https://larsvanderlaan.github.io/calibratedDML/examples.html#linear-functional).
+
 ## Calibration and inference
 
 Calibration sits between nuisance estimation and debiasing.

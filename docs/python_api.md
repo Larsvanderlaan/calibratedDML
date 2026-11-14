@@ -134,6 +134,35 @@ This experimental estimator supports binary treatment with `"plugin"` and `"cali
 
 The calibrated R-learner estimates the CATE, calibrates its predictions, and averages the calibrated effects. It can reduce variance when treatment-effect heterogeneity is well described by the learned summary. See the [adaptive guide](https://larsvanderlaan.github.io/calibratedDML/adaptive.html) for the working model and [Adaptive debiased machine learning](https://arxiv.org/abs/2307.12544) for the theory.
 
+## General linear functionals
+
+```python
+calibrated_linear_functional(
+    y, regression, riesz, functional,
+    regression_evaluations=None, riesz_evaluations=None,
+    sample_weight=None, calibration_method="isotonic",
+    inference="jackknife", jackknife_folds=10,
+    bootstrap_reps=200, conf_level=0.95, random_state=None,
+    name="linear_functional",
+)
+```
+
+Import `calibrated_linear_functional` from `calibrateddml`. The observed-input
+regression and Riesz predictions are vectors of length n. Evaluation matrices
+have n rows and one column for each input used by the functional. Use the same
+column order for both nuisances and the same cross-fitting model for every
+evaluation in a row.
+
+`functional` is a row-wise linear callable, such as
+`lambda values: values[:, 1] - values[:, 0]`, or a coefficient vector or
+matrix. PAVA minimizes the regression squared-error loss and the quadratic
+Riesz loss. The one-step estimator uses the calibrated regression at the
+functional inputs and the calibrated Riesz at the observed inputs.
+
+The returned object supports `summary()`, `to_frame()`, and `confint()` and
+stores calibrated predictions and calibration maps. Its default 10-fold
+jackknife holds the initial predictions fixed. See the [ATE example](https://larsvanderlaan.github.io/calibratedDML/examples.html#linear-functional).
+
 ## Legacy wrappers
 
 Legacy wrappers remain available for compatibility:

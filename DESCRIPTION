@@ -6,7 +6,8 @@ Author: Lars van der Laan
 Maintainer: Lars van der Laan <lvdlaan@uw.edu>
 Description: Implements calibrated debiased machine learning estimators for
     categorical treatments, including mean potential outcomes, treatment-vs-control
-    contrasts, and adaptive binary-treatment extensions based on plug-in and
+    contrasts, general linear functionals from supplied regression and Riesz
+    predictions, and adaptive binary-treatment extensions based on plug-in and
     R-learner calibration. The package supports direct nuisance-matrix input,
     lightweight built-in models, and optional integration with sl3 and
     SuperLearner.

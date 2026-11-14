@@ -13,6 +13,7 @@ from .calibration import (
 )
 from .core import CalibratedDML, calibrated_dml, calibrated_dml_from_nuisances
 from .legacy import calibratedDML, calibratedDML_bootstrap
+from .linear_functional import calibrated_linear_functional, LinearFunctionalFit
 
 try:
     __version__ = version("calibratedDML")
@@ -24,6 +25,8 @@ __all__ = [
     "CalibratedDML",
     "calibrated_dml",
     "calibrated_dml_from_nuisances",
+    "calibrated_linear_functional",
+    "LinearFunctionalFit",
     "calibratedDML",
     "calibratedDML_bootstrap",
     "calibrate_outcome_regression",
