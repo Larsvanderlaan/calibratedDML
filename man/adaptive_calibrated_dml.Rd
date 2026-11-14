@@ -26,7 +26,7 @@ adaptive_calibrated_dml(
   inference = c("jackknife", "wald", "bootstrap"),
   conf_level = 0.95,
   bootstrap_reps = 200,
-  jackknife_folds = 20,
+  jackknife_folds = 10,
   alpha = NULL,
   n_boot = NULL,
   n_folds = 5,
@@ -80,8 +80,9 @@ levels.}
 \item{bootstrap_reps}{Number of bootstrap resamples when
 `inference = "bootstrap"`.}
 
-\item{jackknife_folds}{Number of delete-a-group folds when
-`inference = "jackknife"`.}
+\item{jackknife_folds}{Number of V-fold jackknife deletion groups, default 10.
+Initial nuisance predictions stay fixed; calibration and means are refit.
+Intervals use Student-t critical values with V - 1 degrees of freedom.}
 
 \item{alpha}{Legacy compatibility alias for `1 - conf_level`.}
 

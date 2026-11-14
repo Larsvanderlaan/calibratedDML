@@ -15,7 +15,7 @@ calibrated_dml_from_nuisances(
   conf_level = 0.95,
   inference = c("jackknife", "bootstrap", "wald"),
   bootstrap_reps = 200,
-  jackknife_folds = 100,
+  jackknife_folds = 10,
   calibration_method = c("auto", "isotonic", "smooth_isotonic", "none"),
   calibration_options = list(),
   calibration_stratify = NULL,
@@ -51,7 +51,9 @@ contrasts.}
 
 \item{bootstrap_reps}{Number of bootstrap resamples.}
 
-\item{jackknife_folds}{Number of delete-a-group folds.}
+\item{jackknife_folds}{Number of V-fold jackknife deletion groups, default 10.
+Supplied nuisance predictions stay fixed; calibration and means are refit.
+Intervals use Student-t critical values with V - 1 degrees of freedom.}
 
 \item{calibration_method}{One of `"auto"`, `"isotonic"`,
 `"smooth_isotonic"`, or `"none"`.}

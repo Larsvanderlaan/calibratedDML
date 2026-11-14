@@ -25,7 +25,7 @@ calibrated_dml(
   inference = c("jackknife", "bootstrap", "wald"),
   conf_level = 0.95,
   bootstrap_reps = 200,
-  jackknife_folds = 100,
+  jackknife_folds = 10,
   alpha = NULL,
   n_boot = NULL,
   seed = NULL
@@ -91,8 +91,10 @@ supplied.}
 \item{bootstrap_reps}{Number of bootstrap resamples used for interval
 estimation when `inference = "bootstrap"`.}
 
-\item{jackknife_folds}{Number of delete-a-group folds used when
-`inference = "jackknife"`.}
+\item{jackknife_folds}{Number of V-fold jackknife deletion groups, default 10,
+independent of nuisance cross-fitting. Initial nuisance predictions stay fixed;
+calibration and means are refit. Intervals use Student-t critical values with
+V - 1 degrees of freedom.}
 
 \item{alpha}{Legacy compatibility alias for `1 - conf_level`.}
 

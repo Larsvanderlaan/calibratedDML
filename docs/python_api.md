@@ -21,7 +21,7 @@ CalibratedDML(
     inference="jackknife",
     conf_level=0.95,
     bootstrap_reps=200,
-    jackknife_folds=100,
+    jackknife_folds=10,
     random_state=None,
     n_folds=5,
     fold_ids=None,
@@ -105,7 +105,7 @@ Supported inference methods:
 
 For `"bootstrap"` and `"jackknife"`, nuisance matrices are held fixed and only calibration plus debiasing are refit.
 
-`"jackknife"` is the default, with 100 groups. Jackknife and bootstrap intervals account for the calibration step and support inference when one nuisance estimator is misspecified. Use `"wald"` when both nuisance estimators are consistent, even if one converges slowly. See [confidence intervals](https://larsvanderlaan.github.io/calibratedDML/causal-setup.html#inference) for details.
+`"jackknife"` is the default, with 10 groups and Student-t critical values with 9 degrees of freedom. Jackknife and bootstrap intervals account for the calibration step and support inference when one nuisance estimator is misspecified. Use `"wald"` when both nuisance estimators are consistent, even if one converges slowly. See [confidence intervals](https://larsvanderlaan.github.io/calibratedDML/causal-setup.html#inference) for details.
 
 ## `AdaptiveCalibratedDML`
 
@@ -123,7 +123,7 @@ AdaptiveCalibratedDML(
     inference="jackknife",
     conf_level=0.95,
     bootstrap_reps=200,
-    jackknife_folds=20,
+    jackknife_folds=10,
     random_state=None,
     n_folds=5,
     fold_ids=None,

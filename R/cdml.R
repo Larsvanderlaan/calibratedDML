@@ -45,8 +45,10 @@
 #' @param conf_level Confidence level for reported intervals.
 #' @param bootstrap_reps Number of bootstrap resamples used for interval
 #'   estimation when `inference = "bootstrap"`.
-#' @param jackknife_folds Number of delete-a-group folds used when
-#'   `inference = "jackknife"`. The default is `100`.
+#' @param jackknife_folds Number of V-fold jackknife deletion groups, independent
+#'   of nuisance cross-fitting. The default is `10`. Initial nuisance estimates
+#'   stay fixed; calibration and means are refit. Intervals use Student-t
+#'   critical values with V - 1 degrees of freedom.
 #' @param alpha Legacy compatibility alias for `1 - conf_level`.
 #' @param n_boot Legacy compatibility alias for `bootstrap_reps`.
 #' @param seed Optional random seed used for fold creation and bootstrap
@@ -75,7 +77,7 @@ calibrated_dml <- function(
   inference = c("jackknife", "bootstrap", "wald"),
   conf_level = 0.95,
   bootstrap_reps = 200,
-  jackknife_folds = 100,
+  jackknife_folds = 10,
   alpha = NULL,
   n_boot = NULL,
   seed = NULL
@@ -184,7 +186,9 @@ calibrated_dml <- function(
 #'   `"wald"`. The default is `"jackknife"` for the standard estimator.
 #' @param conf_level Confidence level for reported intervals.
 #' @param bootstrap_reps Number of bootstrap resamples.
-#' @param jackknife_folds Number of delete-a-group folds. The default is `100`.
+#' @param jackknife_folds Number of V-fold jackknife deletion groups. The default
+#'   is `10`. Calibration and means are refit with supplied nuisances fixed;
+#'   intervals use Student-t critical values with V - 1 degrees of freedom.
 #' @param calibration_method One of `"auto"`, `"isotonic"`,
 #'   `"smooth_isotonic"`, or `"none"`.
 #' @param calibration_options Optional list of calibration tuning options.
@@ -210,7 +214,7 @@ calibrated_dml_from_nuisances <- function(
   conf_level = 0.95,
   inference = c("jackknife", "bootstrap", "wald"),
   bootstrap_reps = 200,
-  jackknife_folds = 100,
+  jackknife_folds = 10,
   calibration_method = c("auto", "isotonic", "smooth_isotonic", "none"),
   calibration_options = list(),
   calibration_stratify = NULL,
@@ -295,6 +299,7 @@ calibrated_dml_from_nuisances <- function(
     estimates = interval_table$estimates
   )
   class(result) <- "calibrated_dml_fit"
+  result$jackknife <- interval_table$jackknife
   result
 }
 
@@ -452,6 +457,7 @@ compute_cdml_intervals <- function(
 ) {
   alpha <- 1 - conf_level
   z_value <- stats::qnorm(1 - alpha / 2)
+  jackknife <- NULL
 
   potential_outcomes <- data.frame(
     estimand_type = "potential_outcome",
@@ -524,15 +530,17 @@ compute_cdml_intervals <- function(
       calibration_method = calibration_method,
       calibration_options = calibration_options,
       calibration_stratify = calibration_stratify,
-      fold_id = fold_id
+      fold_id = fold_id,
+      seed = seed
     )
+    critical_value <- stats::qt(1 - alpha / 2, df = jackknife$df)
     potential_outcomes$std_error <- jackknife$arm_standard_error
-    potential_outcomes$lower <- potential_outcomes$estimate - z_value * potential_outcomes$std_error
-    potential_outcomes$upper <- potential_outcomes$estimate + z_value * potential_outcomes$std_error
+    potential_outcomes$lower <- potential_outcomes$estimate - critical_value * potential_outcomes$std_error
+    potential_outcomes$upper <- potential_outcomes$estimate + critical_value * potential_outcomes$std_error
     if (nrow(contrasts) > 0) {
       contrasts$std_error <- jackknife$contrast_standard_error
-      contrasts$lower <- contrasts$estimate - z_value * contrasts$std_error
-      contrasts$upper <- contrasts$estimate + z_value * contrasts$std_error
+      contrasts$lower <- contrasts$estimate - critical_value * contrasts$std_error
+      contrasts$upper <- contrasts$estimate + critical_value * contrasts$std_error
     }
   }
 
@@ -541,7 +549,8 @@ compute_cdml_intervals <- function(
   list(
     potential_outcomes = potential_outcomes,
     contrasts = contrasts,
-    estimates = estimates
+    estimates = estimates,
+    jackknife = jackknife
   )
 }
 
@@ -600,21 +609,11 @@ jackknife_cdml_internal <- function(
   calibration_method,
   calibration_options,
   calibration_stratify,
-  fold_id
+  fold_id,
+  seed = NULL
 ) {
-  if (is.null(fold_id)) {
-    fold_id <- resolve_fold_id(length(A_index), n_folds = min(jackknife_folds, length(A_index)), fold_id = NULL, seed = 1)
-  }
-  groups <- split(seq_along(A_index), fold_id)
-  n_groups <- length(groups)
-  if (n_groups < 2) {
-    stop("Jackknife inference requires at least two resampling groups.", call. = FALSE)
-  }
-
-  leave_one_out <- vector("list", n_groups)
-  for (index in seq_along(groups)) {
-    keep <- setdiff(seq_along(A_index), groups[[index]])
-    leave_one_out[[index]] <- compute_cdml_estimates(
+  refit <- function(keep) {
+    fit <- compute_cdml_estimates(
       A_index = A_index[keep],
       Y = Y[keep],
       mu_mat = mu_mat[keep, , drop = FALSE],
@@ -626,26 +625,15 @@ jackknife_cdml_internal <- function(
       calibration_options = calibration_options,
       calibration_stratify = calibration_stratify
     )
+    c(unname(fit$arm_estimates), unname(fit$contrast_estimates))
   }
-
-  arm_matrix <- do.call(rbind, lapply(leave_one_out, function(x) unname(x$arm_estimates)))
-  pseudo_arm <- n_groups * matrix(base_fit$arm_estimates, nrow = n_groups, ncol = length(levels), byrow = TRUE) -
-    (n_groups - 1) * arm_matrix
-  arm_se <- apply(pseudo_arm, 2, stats::sd) / sqrt(n_groups)
-
-  contrast_matrix <- do.call(rbind, lapply(leave_one_out, function(x) unname(x$contrast_estimates)))
-  if (ncol(contrast_matrix) > 0) {
-    pseudo_contrast <- n_groups * matrix(base_fit$contrast_estimates, nrow = n_groups, ncol = ncol(contrast_matrix), byrow = TRUE) -
-      (n_groups - 1) * contrast_matrix
-    contrast_se <- apply(pseudo_contrast, 2, stats::sd) / sqrt(n_groups)
-  } else {
-    contrast_se <- numeric()
-  }
-
-  list(
-    arm_standard_error = arm_se,
-    contrast_standard_error = contrast_se
+  result <- vfold_jackknife(
+    c(unname(base_fit$arm_estimates), unname(base_fit$contrast_estimates)),
+    refit, length(Y), jackknife_folds, seed
   )
+  result$arm_standard_error <- result$standard_error[seq_along(levels)]
+  result$contrast_standard_error <- result$standard_error[-seq_along(levels)]
+  result
 }
 
 fit_cdml_nuisances <- function(
@@ -1269,6 +1257,10 @@ resolve_inference_options <- function(conf_level, alpha, bootstrap_reps, n_boot,
     stop("`conf_level` must be a single number strictly between 0 and 1.", call. = FALSE)
   }
   bootstrap_reps <- as.integer(bootstrap_reps)
+  if (!is.numeric(jackknife_folds) || length(jackknife_folds) != 1L ||
+      !is.finite(jackknife_folds) || jackknife_folds != as.integer(jackknife_folds)) {
+    stop("`jackknife_folds` must be an integer greater than or equal to 2.", call. = FALSE)
+  }
   jackknife_folds <- as.integer(jackknife_folds)
   if (is.na(bootstrap_reps) || bootstrap_reps < 0L) {
     stop("`bootstrap_reps` must be a non-negative integer.", call. = FALSE)

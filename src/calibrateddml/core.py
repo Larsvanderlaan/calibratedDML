@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import numpy as np
 import pandas as pd
-from scipy.stats import norm
+from scipy.stats import norm, t
 from sklearn.base import BaseEstimator
 from sklearn.utils.validation import check_is_fitted
 
@@ -23,6 +23,7 @@ from ._utils import (
     validate_supplied_probability_matrix,
 )
 from .calibration import fit_calibration_bundle
+from .jackknife import vfold_jackknife
 from .models import (
     fit_classifier,
     fit_regressor,
@@ -60,6 +61,9 @@ class CalibratedDML(BaseEstimator, ResultMixin):
     The primary Python interface is `calibrateddml.CalibratedDML`. It supports
     either internal cross-fitted nuisance estimation from `(X, A, y)` or direct
     estimation from supplied nuisance matrices via `fit_from_nuisances(...)`.
+    Inference defaults to the V-fold jackknife with 10 deletion groups and
+    Student-t critical values. Nuisance predictions are computed once and stay
+    fixed while calibration and the final means are refit in each deletion.
     """
 
     def __init__(
@@ -73,7 +77,7 @@ class CalibratedDML(BaseEstimator, ResultMixin):
         inference="jackknife",
         conf_level=0.95,
         bootstrap_reps=200,
-        jackknife_folds=100,
+        jackknife_folds=10,
         random_state=None,
         n_folds=5,
         fold_ids=None,
@@ -178,6 +182,7 @@ class CalibratedDML(BaseEstimator, ResultMixin):
         self.estimates_ = interval_tables["estimates"]
         self.potential_outcomes_ = interval_tables["potential_outcomes"]
         self.contrasts_ = interval_tables["contrasts"]
+        self.jackknife_ = interval_tables["jackknife"]
         self.treatment_levels_ = treatment.levels
         self.control_level_ = treatment.control_level
         self.mu_mat_ = mu_mat
@@ -377,6 +382,7 @@ def _compute_interval_tables(
 ):
     alpha = 1.0 - float(conf_level)
     z_value = float(norm.ppf(1.0 - alpha / 2.0))
+    jackknife = None
     levels_array = np.asarray(levels)
 
     potential_outcomes = pd.DataFrame(
@@ -446,20 +452,23 @@ def _compute_interval_tables(
             calibration_method=calibration_method,
             calibration_stratify=calibration_stratify,
             fold_ids=fold_ids,
+            random_state=random_state,
         )
+        critical_value = float(t.ppf(1.0 - alpha / 2.0, df=jackknife["df"]))
         potential_outcomes.loc[:, "std_error"] = jackknife["arm_standard_error"]
-        potential_outcomes.loc[:, "lower"] = potential_outcomes["estimate"] - z_value * potential_outcomes["std_error"]
-        potential_outcomes.loc[:, "upper"] = potential_outcomes["estimate"] + z_value * potential_outcomes["std_error"]
+        potential_outcomes.loc[:, "lower"] = potential_outcomes["estimate"] - critical_value * potential_outcomes["std_error"]
+        potential_outcomes.loc[:, "upper"] = potential_outcomes["estimate"] + critical_value * potential_outcomes["std_error"]
         if len(contrast_levels):
             contrasts.loc[:, "std_error"] = jackknife["contrast_standard_error"]
-            contrasts.loc[:, "lower"] = contrasts["estimate"] - z_value * contrasts["std_error"]
-            contrasts.loc[:, "upper"] = contrasts["estimate"] + z_value * contrasts["std_error"]
+            contrasts.loc[:, "lower"] = contrasts["estimate"] - critical_value * contrasts["std_error"]
+            contrasts.loc[:, "upper"] = contrasts["estimate"] + critical_value * contrasts["std_error"]
 
     estimates = pd.concat([potential_outcomes, contrasts], ignore_index=True)
     return {
         "potential_outcomes": potential_outcomes,
         "contrasts": contrasts,
         "estimates": estimates,
+        "jackknife": jackknife,
     }
 
 
@@ -509,15 +518,9 @@ def _jackknife_cdml(
     calibration_method,
     calibration_stratify,
     fold_ids,
+    random_state=None,
 ):
-    if fold_ids is None:
-        fold_ids = resolve_fold_ids(np.asarray(a_encoded), jackknife_folds, None, random_state=1)
-    groups = [np.flatnonzero(fold_ids == group) for group in np.unique(fold_ids)]
-    if len(groups) < 2:
-        raise ValueError("Jackknife inference requires at least two groups.")
-    leave_one_out = []
-    for group in groups:
-        keep = np.setdiff1d(np.arange(len(y)), group)
+    def refit(keep):
         fit = _compute_cdml_estimates(
             a_encoded=a_encoded[keep],
             y=y[keep],
@@ -529,16 +532,13 @@ def _jackknife_cdml(
             calibration_method=calibration_method,
             calibration_stratify=calibration_stratify,
         )
-        leave_one_out.append(np.concatenate([fit["arm_estimates"], fit["contrast_estimates"]]))
-    loo = np.vstack(leave_one_out)
-    n_groups = loo.shape[0]
+        return np.concatenate([fit["arm_estimates"], fit["contrast_estimates"]])
+
     full = np.concatenate([base_fit["arm_estimates"], base_fit["contrast_estimates"]])
-    pseudo = n_groups * full[None, :] - (n_groups - 1) * loo
-    se = pseudo.std(axis=0, ddof=1) / np.sqrt(n_groups)
-    return {
-        "arm_standard_error": se[: len(levels)],
-        "contrast_standard_error": se[len(levels) :],
-    }
+    result = vfold_jackknife(full, refit, len(y), jackknife_folds, random_state)
+    result["arm_standard_error"] = result["standard_error"][: len(levels)]
+    result["contrast_standard_error"] = result["standard_error"][len(levels) :]
+    return result
 
 
 def calibrated_dml(data, outcome, treatment, covariates, control_level, sample_weight=None, **kwargs):

@@ -54,7 +54,7 @@ Supply cross-fitted nuisance predictions from models you have already trained.
 - `stratify=("outcome", "treatment")`
 - `calibration_method="auto"`
 - `inference="jackknife"`
-- `jackknife_folds=100`
+- `jackknife_folds=10`
 
 For multi-arm treatment, the default treatment path fits one-vs-rest propensity models and normalizes them to valid multinomial probabilities.
 
@@ -73,7 +73,7 @@ fit = AdaptiveCalibratedDML(
     control_level=0,
     mode="plugin",
     inference="jackknife",
-    jackknife_folds=20,
+    jackknife_folds=10,
     random_state=123,
 )
 

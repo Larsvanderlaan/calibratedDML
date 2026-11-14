@@ -255,10 +255,10 @@ def test_estimator_requires_fit_before_results_access():
         fit.confint()
 
 
-def test_standard_estimator_defaults_to_jackknife_with_100_folds():
+def test_standard_estimator_defaults_to_jackknife_with_10_folds():
     fit = CalibratedDML(control_level=0)
     assert fit.inference == "jackknife"
-    assert fit.jackknife_folds == 100
+    assert fit.jackknife_folds == 10
 
 
 def test_estimator_round_trips_sklearn_style_params():

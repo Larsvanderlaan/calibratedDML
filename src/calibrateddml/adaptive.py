@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import numpy as np
 import pandas as pd
-from scipy.stats import norm
+from scipy.stats import norm, t
 from sklearn.base import BaseEstimator
 
 from ._utils import (
@@ -20,6 +20,7 @@ from ._utils import (
     validate_binary_treatment,
 )
 from .calibration import fit_monotone_calibrator
+from .jackknife import vfold_jackknife
 from .core import ResultMixin, _fit_nuisances
 from .models import fit_regressor, predict_regressor, resolve_regressor
 
@@ -30,6 +31,10 @@ class AdaptiveCalibratedDML(BaseEstimator, ResultMixin):
     The Python adaptive interface is intentionally narrower than the standard
     estimator and currently supports binary-treatment `plugin` and
     `calibrated_rlearner` modes only.
+
+    The default inference is a 10-fold jackknife with Student-t critical values.
+    Initial nuisance predictions stay fixed during resampling, including the
+    preliminary CATE predictions in calibrated R-learner mode.
 
     These adaptive estimators are super-efficient methods in the sense that
     they can attain lower realized variance and lower mean-squared error than
@@ -50,7 +55,7 @@ class AdaptiveCalibratedDML(BaseEstimator, ResultMixin):
         inference="jackknife",
         conf_level=0.95,
         bootstrap_reps=200,
-        jackknife_folds=20,
+        jackknife_folds=10,
         random_state=None,
         n_folds=5,
         fold_ids=None,
@@ -173,6 +178,7 @@ class AdaptiveCalibratedDML(BaseEstimator, ResultMixin):
                 control_index=control_index,
                 cate_model=self.cate_model,
                 random_state=self.random_state,
+                tau_hat=base_fit["tau_hat"][index],
             )
 
         interval_tables = _compute_adaptive_interval_tables(
@@ -191,6 +197,7 @@ class AdaptiveCalibratedDML(BaseEstimator, ResultMixin):
         self.estimates_ = interval_tables["estimates"]
         self.potential_outcomes_ = interval_tables["potential_outcomes"]
         self.contrasts_ = interval_tables["contrasts"]
+        self.jackknife_ = interval_tables["jackknife"]
         self.treatment_levels_ = treatment.levels
         self.control_level_ = treatment.control_level
         self.mu_mat_ = mu_mat
@@ -344,11 +351,12 @@ def _rlearner_pseudo(a_binary, y, m_hat, pi_treat, weights):
     return pseudo_outcome, pseudo_weights, keep
 
 
-def _compute_rlearner_adaptive_fit(X, a_binary, y, m_hat, pi_treat, weights, levels, control_index, cate_model, random_state):
+def _compute_rlearner_adaptive_fit(X, a_binary, y, m_hat, pi_treat, weights, levels, control_index, cate_model, random_state, tau_hat=None):
     pseudo_outcome, pseudo_weights, keep = _rlearner_pseudo(a_binary, y, m_hat, pi_treat, weights)
-    cate_spec = resolve_regressor(cate_model, random_state=random_state)
-    cate_fit = fit_regressor(cate_spec, X.iloc[keep], pseudo_outcome[keep], sample_weight=pseudo_weights[keep], random_state=random_state)
-    tau_hat = predict_regressor(cate_fit, X)
+    if tau_hat is None:
+        cate_spec = resolve_regressor(cate_model, random_state=random_state)
+        cate_fit = fit_regressor(cate_spec, X.iloc[keep], pseudo_outcome[keep], sample_weight=pseudo_weights[keep], random_state=random_state)
+        tau_hat = predict_regressor(cate_fit, X)
     calibrator = fit_monotone_calibrator(
         x=tau_hat[keep],
         y=pseudo_outcome[keep],
@@ -375,7 +383,7 @@ def _compute_rlearner_adaptive_fit(X, a_binary, y, m_hat, pi_treat, weights, lev
         arm_estimates = np.array([np.sum(normalized_weights * mu1), np.sum(normalized_weights * mu0)])
     contrast_scores = np.column_stack([tau_star + correction])
     contrast_estimates = np.array([np.sum(normalized_weights * tau_star)])
-    return _summarize_custom_scores(
+    result = _summarize_custom_scores(
         arm_scores=arm_scores,
         arm_estimates=arm_estimates,
         contrast_scores=contrast_scores,
@@ -388,6 +396,8 @@ def _compute_rlearner_adaptive_fit(X, a_binary, y, m_hat, pi_treat, weights, lev
         ),
         weights=weights,
     )
+    result["tau_hat"] = np.asarray(tau_hat)
+    return result
 
 
 def _compute_adaptive_interval_tables(
@@ -405,6 +415,7 @@ def _compute_adaptive_interval_tables(
 ):
     alpha = 1.0 - float(conf_level)
     z_value = float(norm.ppf(1.0 - alpha / 2.0))
+    jackknife = None
     contrast_levels = [level for idx, level in enumerate(levels) if idx != control_index]
 
     potential_outcomes = pd.DataFrame(
@@ -451,32 +462,26 @@ def _compute_adaptive_interval_tables(
             contrasts.loc[:, "upper"] = np.quantile(contrast_draws, 1.0 - alpha / 2.0, axis=0)
 
     if inference == "jackknife":
-        if fold_ids is None:
-            fold_ids = resolve_fold_ids(np.asarray(a_encoded), jackknife_folds, None, random_state=1)
-        groups = [np.flatnonzero(fold_ids == group) for group in np.unique(fold_ids)]
-        if len(groups) < 2:
-            raise ValueError("Jackknife inference requires at least two groups.")
-        leave_one_out = []
-        for group in groups:
-            keep = np.setdiff1d(np.arange(len(a_encoded)), group)
+        def refit_estimates(keep):
             fit = refit(keep)
-            leave_one_out.append(np.concatenate([fit["arm_estimates"], fit["contrast_estimates"]]))
-        loo = np.vstack(leave_one_out)
+            return np.concatenate([fit["arm_estimates"], fit["contrast_estimates"]])
+
         full = np.concatenate([base_fit["arm_estimates"], base_fit["contrast_estimates"]])
-        n_groups = loo.shape[0]
-        pseudo = n_groups * full[None, :] - (n_groups - 1) * loo
-        se = pseudo.std(axis=0, ddof=1) / np.sqrt(n_groups)
+        jackknife = vfold_jackknife(full, refit_estimates, len(a_encoded), jackknife_folds, random_state)
+        se = jackknife["standard_error"]
+        critical_value = float(t.ppf(1.0 - alpha / 2.0, df=jackknife["df"]))
         potential_outcomes.loc[:, "std_error"] = se[: len(levels)]
-        potential_outcomes.loc[:, "lower"] = potential_outcomes["estimate"] - z_value * potential_outcomes["std_error"]
-        potential_outcomes.loc[:, "upper"] = potential_outcomes["estimate"] + z_value * potential_outcomes["std_error"]
+        potential_outcomes.loc[:, "lower"] = potential_outcomes["estimate"] - critical_value * potential_outcomes["std_error"]
+        potential_outcomes.loc[:, "upper"] = potential_outcomes["estimate"] + critical_value * potential_outcomes["std_error"]
         if len(contrast_levels):
             contrasts.loc[:, "std_error"] = se[len(levels) :]
-            contrasts.loc[:, "lower"] = contrasts["estimate"] - z_value * contrasts["std_error"]
-            contrasts.loc[:, "upper"] = contrasts["estimate"] + z_value * contrasts["std_error"]
+            contrasts.loc[:, "lower"] = contrasts["estimate"] - critical_value * contrasts["std_error"]
+            contrasts.loc[:, "upper"] = contrasts["estimate"] + critical_value * contrasts["std_error"]
 
     estimates = pd.concat([potential_outcomes, contrasts], ignore_index=True)
     return {
         "potential_outcomes": potential_outcomes,
         "contrasts": contrasts,
         "estimates": estimates,
+        "jackknife": jackknife,
     }

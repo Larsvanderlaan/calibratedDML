@@ -25,39 +25,7 @@
   <main id="main"><div class="docs-layout"><aside class="sidebar" aria-label="Documentation"><p class="eyebrow">Documentation</p><a href="getting-started.html">Get started</a><a href="examples.html" aria-current="page">Examples</a><a href="causal-setup.html">Causal setup</a><a href="api.html">API</a><a href="python.html">Python package</a><a href="r.html">R package</a><a href="adaptive.html">Adaptive DML</a><a href="tutorials.html">Tutorials</a><a href="references.html">References</a></aside><article class="prose"><h1>Examples</h1>
 <p>Use raw data to fit the full estimator, or supply cross-fitted nuisance predictions from your own models. Both R and Python return arm means, treatment contrasts, and confidence intervals.</p>
 <h2 id="raw-data">Fit from raw data</h2><span id="workflows"></span>
-<p>The package fits outcome regressions and treatment probabilities on training folds, predicts on held-out observations, and calibrates the pooled predictions.</p>
-<div class="code-tabs code-example" data-code-tabs>
-  <div class="code-title"><span>Estimate a treatment effect</span><div role="tablist" aria-label="Code language">
-    <button type="button" role="tab" aria-selected="true" data-language="python">Python</button>
-    <button type="button" role="tab" aria-selected="false" tabindex="-1" data-language="r">R</button>
-  </div></div>
-  <div data-code-panel="python" role="tabpanel"><pre><code class="language-python">from calibrateddml import CalibratedDML
-
-fit = CalibratedDML(
-    control_level=0,
-    outcome_model=&quot;lasso&quot;,
-    treatment_model=&quot;lasso&quot;,
-    random_state=123,
-).fit(X, A, y)
-
-fit.summary()
-fit.confint()</code></pre></div>
-  <div data-code-panel="r" role="tabpanel" hidden><pre><code class="language-r">library(calibratedDML)
-
-fit &lt;- calibrated_dml(
-  data = df,
-  outcome = &quot;Y&quot;,
-  treatment = &quot;A&quot;,
-  covariates = c(&quot;W1&quot;, &quot;W2&quot;, &quot;W3&quot;),
-  control_level = 0,
-  outcome_model = &quot;lasso&quot;,
-  treatment_model = &quot;lasso&quot;,
-  seed = 123
-)
-
-summary(fit)
-confint(fit)</code></pre></div>
-</div>
+<p>The <a href="getting-started.html#first-fit">getting-started example</a> generates data, fits the estimator, and shows the output in both languages. The package cross-fits outcome and treatment models, then calibrates the pooled predictions.</p>
 <h2 id="supplied-nuisances">Supply nuisance predictions</h2>
 <p>Use <code>fit_from_nuisances()</code> in Python or <code>calibrated_dml_from_nuisances()</code> in R when you already have cross-fitted predictions. Both matrices have one row per observation and one column per treatment level.</p>
 <div class="table-scroll"><table><thead><tr><th scope="col">Input</th><th scope="col">Column for treatment level a</th></tr></thead><tbody><tr><td>mu_mat</td><td>Predicted conditional mean E[Y | A = a, W].</td></tr><tr><td>pi_mat</td><td>Predicted treatment probability P(A = a | W).</td></tr></tbody></table></div>
@@ -98,7 +66,7 @@ fit = CalibratedDML(
 ).fit(X, A, y)</code></pre>
 <p>R accepts built-in model names, custom model lists, and optional <code>SuperLearner</code> and <code>sl3</code> learners. See the <a href="https://github.com/Larsvanderlaan/calibratedDML/blob/main/vignettes/custom-learners.Rmd">custom-learner vignette</a> for examples.</p>
 <h2 id="intervals">Read the results</h2>
-<p>Use <code>fit.summary()</code> in Python or <code>summary(fit)</code> in R for the estimates and standard errors, and <code>confint()</code> for intervals. Jackknife intervals are the default; <a href="causal-setup.html#inference">the inference guide</a> explains the alternatives.</p>
+<p>See <a href="getting-started.html#first-fit">the example output</a> for the result columns and <a href="causal-setup.html#inference">the inference guide</a> for confidence interval options.</p>
 <p><a href="tutorials.html">Runnable notebooks, scripts, and R vignettes</a></p>
 </article></div></main>
   <footer>

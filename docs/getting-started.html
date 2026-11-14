@@ -23,7 +23,7 @@
     <a class="download-top" href="https://github.com/Larsvanderlaan/calibratedDML">GitHub <span aria-hidden="true">↗</span></a>
   </header>
   <main id="main"><div class="docs-layout"><aside class="sidebar" aria-label="Documentation"><p class="eyebrow">Documentation</p><a href="getting-started.html" aria-current="page">Get started</a><a href="examples.html">Examples</a><a href="causal-setup.html">Causal setup</a><a href="api.html">API</a><a href="python.html">Python package</a><a href="r.html">R package</a><a href="adaptive.html">Adaptive DML</a><a href="tutorials.html">Tutorials</a><a href="references.html">References</a></aside><article class="prose"><h1>Get started</h1>
-<p>Install the package, choose your outcome and treatment columns, and fit the estimator. The default uses lasso nuisance models, automatic calibration, and jackknife confidence intervals.</p>
+<p>This example generates data and estimates an average treatment effect. The defaults use lasso nuisance models, automatic calibration, and V-fold jackknife confidence intervals with V = 10.</p>
 <h2 id="install">Install</h2>
 <div class="code-tabs code-example" data-code-tabs>
   <div class="code-title"><span>Install</span><div role="tablist" aria-label="Code language">
@@ -36,42 +36,55 @@
 <p>Python requires version 3.10 or later. To install Python from the current GitHub source:</p>
 <pre><code class="language-bash">python -m pip install git+https://github.com/Larsvanderlaan/calibratedDML.git</code></pre>
 <h2 id="first-fit">Estimate a treatment effect</h2>
-<p>In Python, supply a covariate matrix <code>X</code> and treatment and outcome vectors <code>A</code> and <code>y</code>. In R, name the columns in your data frame.</p>
+<p>Generate 1,000 observations with two covariates that affect both treatment and outcome. Treatment adds 2 to the outcome, so the true ATE is 2.</p>
 <div class="code-tabs code-example" data-code-tabs>
-  <div class="code-title"><span>Estimate a treatment effect</span><div role="tablist" aria-label="Code language">
+  <div class="code-title"><span>Generate data and estimate the ATE</span><div role="tablist" aria-label="Code language">
     <button type="button" role="tab" aria-selected="true" data-language="python">Python</button>
     <button type="button" role="tab" aria-selected="false" tabindex="-1" data-language="r">R</button>
   </div></div>
-  <div data-code-panel="python" role="tabpanel"><pre><code class="language-python">from calibrateddml import CalibratedDML
+  <div data-code-panel="python" role="tabpanel"><pre><code class="language-python">import numpy as np
+from calibrateddml import CalibratedDML
 
-fit = CalibratedDML(
-    control_level=0,
-    outcome_model=&quot;lasso&quot;,
-    treatment_model=&quot;lasso&quot;,
-    random_state=123,
-).fit(X, A, y)
+rng = np.random.default_rng(42)
+X = rng.normal(size=(1000, 2))
+propensity = 1 / (1 + np.exp(-0.7 * X[:, 0]))
+A = rng.binomial(1, propensity)
+y = 2 * A + X[:, 0] + X[:, 1] + rng.normal(size=1000)
 
-fit.summary()
-fit.confint()</code></pre></div>
+fit = CalibratedDML(control_level=0, random_state=42).fit(X, A, y)
+columns = [&quot;estimand&quot;, &quot;estimate&quot;, &quot;std_error&quot;, &quot;lower&quot;, &quot;upper&quot;]
+print(fit.summary()[columns].round(3).to_string(index=False))</code></pre><div class="code-title">Output</div><pre><code class="language-text">estimand  estimate  std_error  lower  upper
+          E[Y(0)]    -0.021      0.076 -0.192  0.151
+          E[Y(1)]     1.751      0.065  1.604  1.898
+E[Y(1)] - E[Y(0)]     1.772      0.101  1.543  2.001</code></pre></div>
   <div data-code-panel="r" role="tabpanel" hidden><pre><code class="language-r">library(calibratedDML)
+
+set.seed(42)
+n &lt;- 1000
+df &lt;- data.frame(W1 = rnorm(n), W2 = rnorm(n))
+df$A &lt;- rbinom(n, 1, plogis(0.7 * df$W1))
+df$Y &lt;- 2 * df$A + df$W1 + df$W2 + rnorm(n)
 
 fit &lt;- calibrated_dml(
   data = df,
   outcome = &quot;Y&quot;,
   treatment = &quot;A&quot;,
-  covariates = c(&quot;W1&quot;, &quot;W2&quot;, &quot;W3&quot;),
+  covariates = c(&quot;W1&quot;, &quot;W2&quot;),
   control_level = 0,
-  outcome_model = &quot;lasso&quot;,
-  treatment_model = &quot;lasso&quot;,
-  seed = 123
+  seed = 42
 )
-
-summary(fit)
-confint(fit)</code></pre></div>
+columns &lt;- c(&quot;estimand&quot;, &quot;estimate&quot;, &quot;std_error&quot;, &quot;lower&quot;, &quot;upper&quot;)
+print(summary(fit)[columns], row.names = FALSE, digits = 3)</code></pre><div class="code-title">Output</div><pre><code class="language-text">estimand estimate std_error  lower upper
+           E[Y(0)]  -0.0306    0.0620 -0.171  0.11
+           E[Y(1)]   1.8977    0.0669  1.746  2.05
+ E[Y(1)] - E[Y(0)]   1.9283    0.0681  1.774  2.08</code></pre></div>
 </div>
-<p>The summary contains mean potential outcomes for each treatment arm and differences from <code>control_level</code>. Use <code>confint()</code> to extract confidence intervals.</p>
+<p>The first two rows estimate the mean potential outcomes. The third estimates their difference, with its standard error and a 95% confidence interval in <code>lower</code> and <code>upper</code>.</p>
+<p><a href="https://github.com/Larsvanderlaan/calibratedDML/blob/main/examples/python_getting_started.py">Python script</a> · <a href="https://github.com/Larsvanderlaan/calibratedDML/blob/main/examples/r_getting_started.R">R script</a></p>
+<h2 id="your-data">Use your data</h2>
+<p>In Python, pass your covariate matrix <code>X</code>, treatment vector <code>A</code>, and outcome vector <code>y</code> to <code>fit(X, A, y)</code>. In R, replace <code>df</code> and the column names. Set <code>control_level</code> to your control arm.</p>
 <h2 id="models">Choose nuisance models</h2>
-<p>Set <code>outcome_model</code> and <code>treatment_model</code> to <code>"lasso"</code>, <code>"linear"</code>, or <code>"random_forest"</code>. You can also use custom learners or supply predictions from models fitted elsewhere.</p>
+<p>Set <code>outcome_model</code> and <code>treatment_model</code> to choose learners. See the <a href="python.html#learners">Python</a> and <a href="r.html#learners">R</a> guides for model names and optional dependencies.</p>
 <p><a href="examples.html#custom-learners">Custom learners</a> · <a href="examples.html#supplied-nuisances">Supplied predictions</a> · <a href="tutorials.html">Runnable tutorials</a></p>
 </article></div></main>
   <footer>

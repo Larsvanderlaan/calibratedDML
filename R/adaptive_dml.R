@@ -48,8 +48,9 @@
 #' @param conf_level Confidence level for reported intervals.
 #' @param bootstrap_reps Number of bootstrap resamples when
 #'   `inference = "bootstrap"`.
-#' @param jackknife_folds Number of delete-a-group folds when
-#'   `inference = "jackknife"`.
+#' @param jackknife_folds Number of V-fold jackknife deletion groups, default
+#'   `10`. Initial nuisances stay fixed; calibration and means are refit.
+#'   Intervals use Student-t critical values with V - 1 degrees of freedom.
 #' @param alpha Legacy compatibility alias for `1 - conf_level`.
 #' @param n_boot Legacy compatibility alias for `bootstrap_reps`.
 #' @param n_folds Number of folds for nuisance fitting.
@@ -79,7 +80,7 @@ adaptive_calibrated_dml <- function(
   inference = c("jackknife", "wald", "bootstrap"),
   conf_level = 0.95,
   bootstrap_reps = 200,
-  jackknife_folds = 20,
+  jackknife_folds = 10,
   alpha = NULL,
   n_boot = NULL,
   n_folds = 5,
@@ -287,6 +288,7 @@ adaptive_calibrated_dml <- function(
     potential_outcomes = interval_table$potential_outcomes,
     contrasts = interval_table$contrasts,
     estimates = interval_table$estimates,
+    jackknife = interval_table$jackknife,
     adaptive_mode = mode,
     adaptive_plugin_parametrization = plugin_parametrization,
     calibration_bundle = list(
@@ -574,6 +576,7 @@ estimate_adaptive_gamma <- function(tau_star, residual_treatment_sq, weights, mi
 summarize_adaptive_fit <- function(base_fit, compute_base, n, conf_level, inference, bootstrap_reps, jackknife_folds, fold_id, A_index, seed, control_index) {
   alpha <- 1 - conf_level
   z_value <- stats::qnorm(1 - alpha / 2)
+  jackknife <- NULL
   levels <- names(base_fit$arm_estimates)
   control_level <- levels[[control_index]]
 
@@ -624,30 +627,22 @@ summarize_adaptive_fit <- function(base_fit, compute_base, n, conf_level, infere
   }
 
   if (identical(inference, "jackknife")) {
-    jackknife_fold_id <- resolve_fold_id(
-      n,
-      n_folds = min(jackknife_folds, n),
-      fold_id = NULL,
-      seed = 1,
-      treatment_index = A_index
-    )
-    groups <- split(seq_len(n), jackknife_fold_id)
-    n_groups <- length(groups)
-    draws <- lapply(groups, function(group) {
-      keep <- setdiff(seq_len(n), group)
+    refit <- function(keep) {
       fit <- compute_base(keep)
       c(unname(fit$arm_estimates), unname(fit$contrast_estimates))
-    })
-    draws <- do.call(rbind, draws)
-    pseudo <- n_groups * matrix(c(unname(base_fit$arm_estimates), unname(base_fit$contrast_estimates)), nrow = n_groups, ncol = ncol(draws), byrow = TRUE) -
-      (n_groups - 1) * draws
-    se <- apply(pseudo, 2, stats::sd) / sqrt(n_groups)
+    }
+    jackknife <- vfold_jackknife(
+      c(unname(base_fit$arm_estimates), unname(base_fit$contrast_estimates)),
+      refit, n, jackknife_folds, seed
+    )
+    se <- jackknife$standard_error
+    critical_value <- stats::qt(1 - alpha / 2, df = jackknife$df)
     potential_outcomes$std_error <- se[seq_len(nrow(potential_outcomes))]
-    potential_outcomes$lower <- potential_outcomes$estimate - z_value * potential_outcomes$std_error
-    potential_outcomes$upper <- potential_outcomes$estimate + z_value * potential_outcomes$std_error
+    potential_outcomes$lower <- potential_outcomes$estimate - critical_value * potential_outcomes$std_error
+    potential_outcomes$upper <- potential_outcomes$estimate + critical_value * potential_outcomes$std_error
     contrasts$std_error <- se[nrow(potential_outcomes) + seq_len(nrow(contrasts))]
-    contrasts$lower <- contrasts$estimate - z_value * contrasts$std_error
-    contrasts$upper <- contrasts$estimate + z_value * contrasts$std_error
+    contrasts$lower <- contrasts$estimate - critical_value * contrasts$std_error
+    contrasts$upper <- contrasts$estimate + critical_value * contrasts$std_error
   }
 
   estimates <- rbind(potential_outcomes, contrasts)
@@ -655,7 +650,8 @@ summarize_adaptive_fit <- function(base_fit, compute_base, n, conf_level, infere
   list(
     potential_outcomes = potential_outcomes,
     contrasts = contrasts,
-    estimates = estimates
+    estimates = estimates,
+    jackknife = jackknife
   )
 }
 

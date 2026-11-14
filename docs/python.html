@@ -25,26 +25,10 @@
   <main id="main"><div class="docs-layout"><aside class="sidebar" aria-label="Documentation"><p class="eyebrow">Documentation</p><a href="getting-started.html">Get started</a><a href="examples.html">Examples</a><a href="causal-setup.html">Causal setup</a><a href="api.html">API</a><a href="python.html" aria-current="page">Python package</a><a href="r.html">R package</a><a href="adaptive.html">Adaptive DML</a><a href="tutorials.html">Tutorials</a><a href="references.html">References</a></aside><article class="prose"><h1>Python package</h1>
 <p>Install <code>calibratedDML</code> and import from <code>calibrateddml</code>. The estimator follows the scikit-learn convention: create an object, call <code>fit()</code>, then inspect the results.</p>
 <h2 id="install">Install</h2><pre><code class="language-bash">python -m pip install calibratedDML</code></pre>
-<h2 id="fit">Fit and summarize</h2><pre><code class="language-python">from calibrateddml import CalibratedDML
-
-fit = CalibratedDML(
-    control_level=0,
-    outcome_model=&quot;lasso&quot;,
-    treatment_model=&quot;lasso&quot;,
-    random_state=123,
-).fit(X, A, y)
-
-fit.summary()
-fit.confint()</code></pre>
+<h2 id="fit">Inputs</h2>
 <p><code>X</code> is a two-dimensional covariate array or data frame. <code>A</code> and <code>y</code> are treatment and outcome vectors. Set <code>control_level</code> to choose the arm used in contrasts.</p>
-<h2 id="supplied-nuisances">Use existing predictions</h2><pre><code class="language-python">fit = CalibratedDML(control_level=0).fit_from_nuisances(
-    A=A,
-    y=y,
-    mu_mat=mu_mat,
-    pi_mat=pi_mat,
-    treatment_levels=[0, 1],
-)
-fit.summary()</code></pre>
+<p><a href="getting-started.html#first-fit">Run the complete example</a> to see the fit and its output.</p>
+<h2 id="supplied-nuisances">Use existing predictions</h2>
 <p><code>mu_mat</code> and <code>pi_mat</code> contain cross-fitted outcome and propensity predictions, with a column for each treatment level. See <a href="examples.html#supplied-nuisances">supplied nuisance predictions</a> for their definitions.</p>
 <h2 id="learners">Nuisance learners</h2>
 <p>The core installation includes <code>"mean"</code>, <code>"linear"</code>, <code>"lasso"</code>, and <code>"random_forest"</code>. You can also pass scikit-learn estimators directly.</p>

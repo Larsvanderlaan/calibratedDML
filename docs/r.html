@@ -25,36 +25,15 @@
   <main id="main"><div class="docs-layout"><aside class="sidebar" aria-label="Documentation"><p class="eyebrow">Documentation</p><a href="getting-started.html">Get started</a><a href="examples.html">Examples</a><a href="causal-setup.html">Causal setup</a><a href="api.html">API</a><a href="python.html">Python package</a><a href="r.html" aria-current="page">R package</a><a href="adaptive.html">Adaptive DML</a><a href="tutorials.html">Tutorials</a><a href="references.html">References</a></aside><article class="prose"><h1>R package</h1>
 <p>Use <code>calibrated_dml()</code> to fit from a data frame, or <code>calibrated_dml_from_nuisances()</code> to calibrate predictions from existing models.</p>
 <h2 id="install">Install from GitHub</h2><pre><code class="language-r">remotes::install_github(&quot;Larsvanderlaan/calibratedDML&quot;)</code></pre>
-<h2 id="entry-points">Fit from a data frame</h2><pre><code class="language-r">library(calibratedDML)
-
-fit &lt;- calibrated_dml(
-  data = df,
-  outcome = &quot;Y&quot;,
-  treatment = &quot;A&quot;,
-  covariates = c(&quot;W1&quot;, &quot;W2&quot;, &quot;W3&quot;),
-  control_level = 0,
-  outcome_model = &quot;lasso&quot;,
-  treatment_model = &quot;lasso&quot;,
-  seed = 123
-)
-
-summary(fit)
-confint(fit)</code></pre>
+<h2 id="entry-points">Inputs</h2>
 <p>Name the outcome, treatment, and covariate columns, and specify <code>control_level</code>. The package cross-fits the nuisance models and returns arm means and treatment-versus-control contrasts.</p>
-<h2 id="supplied-nuisances">Supply nuisance predictions</h2><pre><code class="language-r">fit &lt;- calibrated_dml_from_nuisances(
-  A = A,
-  Y = Y,
-  mu_mat = mu_mat,
-  pi_mat = pi_mat,
-  treatment_levels = c(0, 1),
-  control_level = 0
-)
-summary(fit)</code></pre>
-<p>Supply one row per observation and one column per treatment level in each matrix. <code>mu_mat</code> contains cross-fitted outcome means; <code>pi_mat</code> contains treatment probabilities. Use column names matching the treatment levels or set <code>treatment_levels</code> explicitly.</p>
+<p><a href="getting-started.html#first-fit">Run the complete example</a> to see the fit and its output.</p>
+<h2 id="supplied-nuisances">Supply nuisance predictions</h2>
+<p>Use column names matching the treatment levels or set <code>treatment_levels</code> explicitly. See <a href="examples.html#supplied-nuisances">supplied nuisance predictions</a> for the matrix definitions and the call in R.</p>
 <h2 id="learners">Choose nuisance learners</h2>
 <p>Built-in choices include lasso, linear models, random forests, GAMs, and boosted trees. You can also supply a custom model list, a <code>SuperLearner</code> library, or an <code>sl3</code> learner. The <a href="https://github.com/Larsvanderlaan/calibratedDML/blob/main/vignettes/custom-learners.Rmd">custom-learner vignette</a> gives examples.</p>
 <h2 id="inference">Confidence intervals</h2>
-<p>The default is <code>inference = "jackknife"</code> with 100 groups. Use <code>"bootstrap"</code> for bootstrap intervals or <code>"wald"</code> for intervals based on estimated influence values. See <a href="causal-setup.html#inference">the inference guide</a> for when to use each method.</p>
+<p>Use <code>confint(fit)</code> for all intervals, or <code>confint(fit, type = "contrast")</code> for treatment contrasts. See <a href="causal-setup.html#inference">the inference guide</a> for the V-fold jackknife default and other methods.</p>
 <p><a href="api.html">Options and defaults</a> · <a href="tutorials.html">R vignettes</a> · <a href="adaptive.html">Adaptive DML</a></p>
 </article></div></main>
   <footer>

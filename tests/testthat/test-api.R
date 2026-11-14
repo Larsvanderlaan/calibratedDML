@@ -17,7 +17,7 @@ test_that("standard estimator returns tidy multi-arm results from supplied nuisa
   expect_equal(nrow(as.data.frame(fit)), nrow(fit$estimates))
 })
 
-test_that("standard estimator defaults to jackknife with 100 folds", {
+test_that("standard estimator defaults to jackknife with 10 folds", {
   fixture <- oracle_binary_fixture()
   fit <- calibrated_dml_from_nuisances(
     A = fixture$A,
@@ -28,7 +28,7 @@ test_that("standard estimator defaults to jackknife with 100 folds", {
   )
 
   expect_identical(fit$inference, "jackknife")
-  expect_identical(fit$jackknife_folds, 100L)
+  expect_identical(fit$jackknife_folds, 10L)
 })
 
 test_that("implicit multi-arm treatment level inference matches explicit ordering for supplied nuisances", {

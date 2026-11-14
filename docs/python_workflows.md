@@ -78,7 +78,7 @@ fit = AdaptiveCalibratedDML(
     mode="calibrated_rlearner",
     cate_model="linear",
     inference="jackknife",
-    jackknife_folds=20,
+    jackknife_folds=10,
     random_state=123,
 )
 fit.fit(X, A, y)

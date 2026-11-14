@@ -162,7 +162,7 @@ Standard calibrated DML supports:
 
 Inference options:
 
-- `inference = "jackknife"` with `jackknife_folds = 100` is the default for standard calibrated DML
+- `inference = "jackknife"` with `jackknife_folds = 10` is the default. Nuisances are cross-fitted once and held fixed; each deletion refits calibration and recomputes the final means. Intervals use Student-t critical values with V - 1 degrees of freedom, following [Li, Ertefaie, and van der Laan (2026)](https://arxiv.org/pdf/2607.22493).
 - `inference = "wald"`
 - `inference = "bootstrap"`
 
