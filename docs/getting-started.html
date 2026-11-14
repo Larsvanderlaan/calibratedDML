@@ -26,17 +26,16 @@
 <p>This example generates data and estimates an average treatment effect. The defaults use lasso nuisance models, automatic calibration, and V-fold jackknife confidence intervals with V = 10.</p>
 <h2 id="install">Install</h2>
 <div class="code-tabs code-example" data-code-tabs>
-  <div class="code-title"><span>Install</span><div role="tablist" aria-label="Code language">
+  <div class="code-title"><span>Install the current GitHub version</span><div role="tablist" aria-label="Code language">
     <button type="button" role="tab" aria-selected="true" data-language="python">Python</button>
     <button type="button" role="tab" aria-selected="false" tabindex="-1" data-language="r">R</button>
   </div></div>
-  <div data-code-panel="python" role="tabpanel"><pre><code class="language-python">python -m pip install calibratedDML</code></pre></div>
+  <div data-code-panel="python" role="tabpanel"><pre><code class="language-python">python -m pip install git+https://github.com/Larsvanderlaan/calibratedDML.git</code></pre></div>
   <div data-code-panel="r" role="tabpanel" hidden><pre><code class="language-r">remotes::install_github(&quot;Larsvanderlaan/calibratedDML&quot;)</code></pre></div>
 </div>
-<p>Python requires version 3.10 or later. To install Python from the current GitHub source:</p>
-<pre><code class="language-bash">python -m pip install git+https://github.com/Larsvanderlaan/calibratedDML.git</code></pre>
+<p>Python requires version 3.10 or later.</p>
 <h2 id="first-fit">Estimate a treatment effect</h2>
-<p>Generate 1,000 observations with two covariates that affect both treatment and outcome. Treatment adds 2 to the outcome, so the true ATE is 2.</p>
+<p>Generate 1,000 observations with two covariates. The first affects treatment assignment, and both affect the outcome. Treatment adds 2 to the outcome, so the true ATE is 2.</p>
 <div class="code-tabs code-example" data-code-tabs>
   <div class="code-title"><span>Generate data and estimate the ATE</span><div role="tablist" aria-label="Code language">
     <button type="button" role="tab" aria-selected="true" data-language="python">Python</button>

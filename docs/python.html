@@ -24,7 +24,7 @@
   </header>
   <main id="main"><div class="docs-layout"><aside class="sidebar" aria-label="Documentation"><p class="eyebrow">Documentation</p><a href="getting-started.html">Get started</a><a href="examples.html">Examples</a><a href="causal-setup.html">Causal setup</a><a href="api.html">API</a><a href="python.html" aria-current="page">Python package</a><a href="r.html">R package</a><a href="adaptive.html">Adaptive DML</a><a href="tutorials.html">Tutorials</a><a href="references.html">References</a></aside><article class="prose"><h1>Python package</h1>
 <p>Install <code>calibratedDML</code> and import from <code>calibrateddml</code>. The estimator follows the scikit-learn convention: create an object, call <code>fit()</code>, then inspect the results.</p>
-<h2 id="install">Install</h2><pre><code class="language-bash">python -m pip install calibratedDML</code></pre>
+<h2 id="install">Install</h2><pre><code class="language-bash">python -m pip install git+https://github.com/Larsvanderlaan/calibratedDML.git</code></pre>
 <h2 id="fit">Inputs</h2>
 <p><code>X</code> is a two-dimensional covariate array or data frame. <code>A</code> and <code>y</code> are treatment and outcome vectors. Set <code>control_level</code> to choose the arm used in contrasts.</p>
 <p><a href="getting-started.html#first-fit">Run the complete example</a> to see the fit and its output.</p>

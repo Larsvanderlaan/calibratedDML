@@ -39,11 +39,13 @@ helpers, not the main packaged implementation.
 
 ### Python
 
-Install from PyPI:
+Install the current GitHub version:
 
 ```bash
-pip install calibratedDML
+pip install git+https://github.com/Larsvanderlaan/calibratedDML.git
 ```
+
+PyPI releases are also available with `pip install calibratedDML`.
 
 Optional extras:
 
