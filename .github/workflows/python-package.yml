@@ -10,6 +10,7 @@ on:
       - "docs/**"
       - "src/**"
       - "tests/python/**"
+      - "tests/fixtures/**"
       - ".github/workflows/python-package.yml"
   pull_request:
     paths:
@@ -20,6 +21,7 @@ on:
       - "docs/**"
       - "src/**"
       - "tests/python/**"
+      - "tests/fixtures/**"
       - ".github/workflows/python-package.yml"
 
 jobs:
@@ -39,7 +41,7 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -e ".[dev]"
       - name: Run Python tests
-        run: pytest -q tests/python/test_python_api.py tests/python/test_tutorials.py
+        run: pytest -q tests/python/test_python_api.py tests/python/test_tutorials.py tests/python/test_linear_functional.py tests/python/test_vfold_jackknife.py
       - name: Run quickstart example
         run: python examples/python_quickstart.py
       - name: Build wheel and sdist

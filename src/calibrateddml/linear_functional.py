@@ -169,6 +169,10 @@ def calibrated_linear_functional(
     PAVA minimizes the regression squared-error loss and the quadratic Riesz
     loss. Signed Riesz estimates are supported. The step maps are evaluated
     at the functional inputs before forming the one-step estimate.
+    Each map is nondecreasing and right-continuous, with knots at the distinct
+    positive-weight observed predictions and constant extension at both tails.
+    The Riesz loss is minimized over this step-function class; evaluation-only
+    prediction values do not introduce additional knots.
 
     Inference defaults to a 10-fold jackknife with Student-t critical values.
     Initial predictions and functional coefficients stay fixed; only PAVA

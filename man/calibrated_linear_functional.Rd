@@ -28,6 +28,10 @@ calibrated_linear_functional(
 \item{name}{Label for the functional.}
 }
 \description{Estimates E[sum_j c_j(O) * mu(T_j(O))] from cross-fitted regression and Riesz estimates. PAVA minimizes squared-error loss for the regression and the quadratic Riesz loss for the representer, allowing signed representers.}
-\details{Both observed-input predictions and predictions at the functional's inputs must use the appropriate cross-fitted nuisance estimates. For an ATE, evaluation columns contain predictions under control and treatment. Use the same column order for the regression and Riesz evaluations. The default jackknife holds all initial predictions and coefficients fixed while refitting calibration and recomputing means.}
+\details{Both observed-input predictions and predictions at the functional's inputs must use the appropriate cross-fitted nuisance estimates. For an ATE, evaluation columns contain predictions under control and treatment. Use the same column order for the regression and Riesz evaluations.
+
+Each calibrator is a nondecreasing, right-continuous step function with knots at the distinct positive-weight observed predictions and constant extension at both tails. The Riesz loss is minimized over this class; prediction values seen only in the evaluation matrix do not add knots.
+
+The default jackknife holds all initial predictions and coefficients fixed while refitting calibration and recomputing means.}
 \value{An object with summary and confint methods, calibrated predictions, calibration maps, and resampling diagnostics.}
 \references{van der Laan, Luedtke, and Carone, Doubly robust inference via calibration, arXiv:2411.02771.}

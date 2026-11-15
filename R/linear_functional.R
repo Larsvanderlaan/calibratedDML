@@ -5,6 +5,11 @@
 #' and the representer with the quadratic Riesz loss. Signed representers
 #' are supported. Initial predictions remain fixed during resampling.
 #'
+#' Each calibrator is a nondecreasing, right-continuous step function with
+#' knots at the distinct positive-weight observed predictions and constant
+#' extension at both tails. The Riesz loss is minimized over this class;
+#' prediction values seen only in the evaluation matrix do not add knots.
+#'
 #' @param Y Outcome vector.
 #' @param regression Cross-fitted regression predictions at observed inputs.
 #' @param riesz Cross-fitted Riesz predictions at observed inputs.

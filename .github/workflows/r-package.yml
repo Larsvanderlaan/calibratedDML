@@ -10,7 +10,12 @@ on:
       - "vignettes/**"
       - "docs/**"
       - "tests/testthat/**"
+      - "tests/fixtures/**"
       - "tests/testthat.R"
+      - "src/**"
+      - "pyproject.toml"
+      - "validation/check_linear_functional_parity.py"
+      - "validation/linear_functional_parity.R"
       - ".github/workflows/r-package.yml"
   pull_request:
     paths:
@@ -21,7 +26,12 @@ on:
       - "vignettes/**"
       - "docs/**"
       - "tests/testthat/**"
+      - "tests/fixtures/**"
       - "tests/testthat.R"
+      - "src/**"
+      - "pyproject.toml"
+      - "validation/check_linear_functional_parity.py"
+      - "validation/linear_functional_parity.R"
       - ".github/workflows/r-package.yml"
 
 jobs:
@@ -44,6 +54,13 @@ jobs:
         shell: Rscript {0}
         run: |
           testthat::test_dir("tests/testthat", reporter = "summary")
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Check R/Python linear-functional agreement
+        run: |
+          python -m pip install -e .
+          python validation/check_linear_functional_parity.py
       - name: Render vignettes
         shell: Rscript {0}
         run: |
