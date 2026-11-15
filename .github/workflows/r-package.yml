@@ -41,19 +41,27 @@ jobs:
       - uses: actions/checkout@v4
       - uses: r-lib/actions/setup-r@v2
       - uses: r-lib/actions/setup-pandoc@v2
-      - name: Install package dependencies
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          dependencies: '"hard"'
+          extra-packages: |
+            local::.
+            any::testthat
+            any::knitr
+            any::rmarkdown
+      - name: Verify package and test dependencies
         shell: Rscript {0}
         run: |
-          install.packages(c("remotes", "testthat", "knitr", "rmarkdown"), repos = "https://cloud.r-project.org")
-          remotes::install_deps(dependencies = c("Depends", "Imports"), repos = "https://cloud.r-project.org")
-      - name: Install package
-        shell: Rscript {0}
-        run: |
-          remotes::install_local(".", dependencies = FALSE, upgrade = "never")
+          for (package in c("calibratedDML", "testthat", "knitr", "rmarkdown")) {
+            if (!requireNamespace(package, quietly = TRUE)) {
+              stop("Missing CI dependency: ", package)
+            }
+          }
       - name: Run R tests
         shell: Rscript {0}
         run: |
-          testthat::test_dir("tests/testthat", reporter = "summary")
+          testthat::test_dir("tests/testthat", reporter = "summary",
+            package = "calibratedDML", load_package = "installed")
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"

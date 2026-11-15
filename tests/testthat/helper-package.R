@@ -1,6 +1,6 @@
 if (!("package:calibratedDML" %in% search())) {
   attached <- tryCatch({
-    library(calibratedDML, character.only = TRUE)
+    library("calibratedDML", character.only = TRUE)
     TRUE
   }, error = function(...) FALSE)
 
